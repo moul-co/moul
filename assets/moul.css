@@ -1,0 +1,22 @@
+@import "../node_modules/photoswipe/dist/photoswipe.css";
+@import "../node_modules/photoswipe/dist/default-skin/default-skin.css";
+
+.collection {
+  margin: 0 auto 15px;
+  position: relative;
+}
+.collection figure {
+  margin: 0;
+}
+.collection figure a {
+  display: block;
+  font-size: 0;
+  float: left;
+}
+.collection figure a img {
+  position: absolute;
+}
+
+.pswp__ui--fit .pswp__caption, .pswp__ui--fit .pswp__top-bar {
+  background-color: rgba(0,0,0,0)!important;
+}

@@ -1,0 +1,161 @@
+package internal
+
+import (
+	"encoding/json"
+	"fmt"
+	"image"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"github.com/EdlinOrg/prominentcolor"
+	"github.com/disintegration/imaging"
+)
+
+// Collection struct
+type Collection struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Src      string `json:"src"`
+	Color    string `json:"color"`
+	SrcHd    string `json:"src_hd"`
+	Width    int    `json:"width"`
+	WidthHd  int    `json:"width_hd"`
+	Height   int    `json:"height"`
+	HeightHd int    `json:"height_hd"`
+}
+
+// get file path
+func getFilePath(uid string, size int) string {
+	return filepath.Join(".", "photos", uid, strconv.Itoa(size))
+}
+
+// get file name
+func getFileName(fn, author string) string {
+	return strings.TrimSuffix(fn, filepath.Ext(fn)) + "-by-" + author
+}
+
+// GetPhotoDimension given path
+func GetPhotoDimension(path string) (int, int) {
+	file, err := os.Open(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+	}
+
+	image, _, err := image.DecodeConfig(file)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s: %v\n", path, err)
+	}
+
+	return image.Width, image.Height
+}
+
+// resize image
+func manipulate(size int, path, author, unique string) {
+	src, err := imaging.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fn := filepath.Base(path)
+	name := getFileName(fn, author)
+
+	dir := getFilePath(unique, size)
+	out := dir + "/" + name + ".jpg"
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		log.Fatal(err)
+	}
+
+	newImage := imaging.Resize(src, size, 0, imaging.Lanczos)
+
+	err = imaging.Save(newImage, out)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// GetPhotos given path
+func GetPhotos(path string) []string {
+	var photos []string
+	// folder to walk through
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		if filepath.Ext(path) == ".jpeg" || filepath.Ext(path) == ".jpg" || filepath.Ext(path) == ".png" {
+			photos = append(photos, path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return photos
+}
+
+// open image
+func loadImage(fileInput string) (image.Image, error) {
+	f, err := os.Open(fileInput)
+	defer f.Close()
+	if err != nil {
+		log.Println("File not found:", fileInput)
+		return nil, err
+	}
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return img, nil
+}
+
+// Resize func
+func Resize(weight, author, path, unique string, sizes []int) {
+	// weight := "100"
+	// author := "sophearak-tha"
+	// path := "path-to-src/photos"
+	// unique := UniqueID()
+	// sizes := []int{2560, 1280, 620},
+
+	photos := GetPhotos(path)
+	mc := []Collection{}
+
+	for _, photo := range photos {
+		for _, size := range sizes {
+			manipulate(size, photo, author, unique)
+		}
+
+		fn := getFileName(filepath.Base(photo), author)
+		fnPathHd := getFilePath(unique, sizes[0]) + "/" + fn + ".jpg"
+		fnPath := getFilePath(unique, sizes[1]) + "/" + fn + ".jpg"
+
+		wHd, hHd := GetPhotoDimension(fnPathHd)
+		w, h := GetPhotoDimension(fnPath)
+
+		img, err := loadImage(fnPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		colors, err := prominentcolor.Kmeans(img)
+
+		mc = append(mc, Collection{
+			ID:       unique,
+			Name:     fn,
+			Src:      fnPath,
+			Color:    "#" + colors[0].AsString(),
+			Width:    w,
+			Height:   h,
+			SrcHd:    fnPathHd,
+			WidthHd:  wHd,
+			HeightHd: hHd,
+		})
+	}
+
+	mcj, _ := json.MarshalIndent(mc, "", "  ")
+	ioutil.WriteFile(".moul/data/"+weight+".json", []byte(mcj), 0644)
+}
