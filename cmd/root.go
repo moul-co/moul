@@ -9,9 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/gobuffalo/plush"
 	"github.com/moul-co/moul/internal"
@@ -28,22 +26,15 @@ const (
 func Execute() {
 	var rootCmd = &cobra.Command{
 		Use:   "moul",
-		Short: "The minimalist photo collection generator.",
+		Short: "A publishing tool for photographers, visual storytellers.",
 		Run: func(cmd *cobra.Command, args []string) {
-			dir, err := os.Getwd()
+			dir, err := internal.GetDirectory()
 			if err != nil {
-				log.Fatal(err)
-			}
-
-			if _, err := os.Stat(filepath.Join(dir, "moul.toml")); os.IsNotExist(err) {
-				color.Red("`moul.toml` file is not found!")
+				fmt.Println(err)
 				os.Exit(1)
 			}
 
-			s := spinner.New(spinner.CharSets[36], 100*time.Millisecond)
-			s.Prefix = "Start dev server "
-			s.Start()
-			start := time.Now()
+			fmt.Println("Start dev server...")
 
 			path := filepath.Join(dir, "photos", "collection")
 			if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -110,11 +101,7 @@ func Execute() {
 				w.Header().Set("Content-Length", strconv.Itoa(len(ts)))
 				w.Write([]byte(ts))
 			})
-			end := time.Since(start)
-			fmt.Println(end)
-			s.Stop()
 			http.ListenAndServe(":5000", nil)
-
 		},
 	}
 

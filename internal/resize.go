@@ -1,17 +1,14 @@
 package internal
 
 import (
-	"encoding/json"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/EdlinOrg/prominentcolor"
 	"github.com/disintegration/imaging"
 )
 
@@ -123,39 +120,10 @@ func Resize(weight, author, path, unique string, sizes []int) {
 	// sizes := []int{2560, 1280, 620},
 
 	photos := GetPhotos(path)
-	mc := []Collection{}
 
 	for _, photo := range photos {
 		for _, size := range sizes {
 			manipulate(size, photo, author, unique)
 		}
-
-		fn := getFileName(filepath.Base(photo), author)
-		fnPathHd := getFilePath(unique, sizes[0]) + "/" + fn + ".jpg"
-		fnPath := getFilePath(unique, sizes[1]) + "/" + fn + ".jpg"
-
-		wHd, hHd := GetPhotoDimension(fnPathHd)
-		w, h := GetPhotoDimension(fnPath)
-
-		img, err := loadImage(fnPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		colors, err := prominentcolor.Kmeans(img)
-
-		mc = append(mc, Collection{
-			ID:       unique,
-			Name:     fn,
-			Src:      fnPath,
-			Color:    "#" + colors[0].AsString(),
-			Width:    w,
-			Height:   h,
-			SrcHd:    fnPathHd,
-			WidthHd:  wHd,
-			HeightHd: hHd,
-		})
 	}
-
-	mcj, _ := json.MarshalIndent(mc, "", "  ")
-	ioutil.WriteFile(".moul/data/"+weight+".json", []byte(mcj), 0644)
 }
