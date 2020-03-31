@@ -62,8 +62,8 @@ func Execute() {
 
 			cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
 			coverName := filepath.Base(cover[0])
-			profile := internal.GetPhotos(filepath.Join(dir, "photos", "profile"))
-			profileName := filepath.Base(profile[0])
+			avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
+			avatarName := filepath.Base(avatar[0])
 
 			viper.SetConfigName("moul")
 			viper.AddConfigPath(".")
@@ -78,7 +78,7 @@ func Execute() {
 			ctx.Set("version", version)
 			ctx.Set("base", viper.Get("base"))
 			ctx.Set("profile", viper.Get("profile"))
-			ctx.Set("avatar", profileName)
+			ctx.Set("avatar", avatarName)
 
 			ctx.Set("cover", map[string]string{
 				"name": coverName,

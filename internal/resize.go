@@ -26,8 +26,8 @@ type Collection struct {
 }
 
 // get file path
-func getFilePath(uid string, size int) string {
-	return filepath.Join(".", "photos", uid, strconv.Itoa(size))
+func getFilePath(uid, prefix string, size int) string {
+	return filepath.Join(".", "photos", uid, prefix, strconv.Itoa(size))
 }
 
 // get file name
@@ -51,17 +51,17 @@ func GetPhotoDimension(path string) (int, int) {
 }
 
 // resize image
-func manipulate(size int, path, author, unique string) {
-	src, err := imaging.Open(path)
+func manipulate(size int, inPath, author, unique, outPrefix string) {
+	src, err := imaging.Open(inPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fn := filepath.Base(path)
+	fn := filepath.Base(inPath)
 	name := getFileName(fn, author)
 
-	dir := getFilePath(unique, size)
-	out := dir + "/" + name + ".jpg"
+	dir := getFilePath(unique, outPrefix, size)
+	out := filepath.Join(dir, name+".jpg")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Fatal(err)
 	}
@@ -112,18 +112,18 @@ func loadImage(fileInput string) (image.Image, error) {
 }
 
 // Resize func
-func Resize(weight, author, path, unique string, sizes []int) {
+func Resize(inPath, author, outPrefix, unique string, sizes []int) {
 	// weight := "100"
 	// author := "sophearak-tha"
 	// path := "path-to-src/photos"
 	// unique := UniqueID()
 	// sizes := []int{2560, 1280, 620},
 
-	photos := GetPhotos(path)
+	photos := GetPhotos(inPath)
 
 	for _, photo := range photos {
 		for _, size := range sizes {
-			manipulate(size, photo, author, unique)
+			manipulate(size, photo, author, unique, outPrefix)
 		}
 	}
 }

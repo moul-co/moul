@@ -29,12 +29,31 @@ var Export = &cobra.Command{
 			os.Exit(1)
 		}
 
-		path := filepath.Join(dir, "photos", "collection")
-		if _, err := os.Stat(path); os.IsNotExist(err) {
+		collectionPath := filepath.Join(dir, "photos", "collection")
+		if _, err := os.Stat(collectionPath); os.IsNotExist(err) {
 			color.Red("`collection` folder is not found!")
 			os.Exit(1)
 		}
-		internal.Resize("collection", "sophearak-tha", path, internal.UniqueID(), []int{2048, 750})
+
+		unique := internal.UniqueID()
+		internal.Resize(collectionPath, "sophearak-tha", "collection", unique, []int{2048, 750})
+		internal.MakeSQIP(collectionPath, "sophearak-tha", "collection", unique)
+
+		coverPath := filepath.Join(dir, "photos", "cover")
+		if _, err := os.Stat(coverPath); os.IsNotExist(err) {
+			color.Yellow("Skipped `cover`")
+		} else {
+			internal.Resize(coverPath, "sophearak-tha", "cover", unique, []int{2560, 1280, 620})
+			internal.MakeSQIP(coverPath, "sophearak-tha", "cover", unique)
+		}
+
+		avatarPath := filepath.Join(dir, "photos", "avatar")
+		if _, err := os.Stat(avatarPath); os.IsNotExist(err) {
+			color.Yellow("Skipped `avatar`")
+		} else {
+			internal.Resize(avatarPath, "sophearak-tha", "avatar", unique, []int{512, 320})
+			internal.MakeSQIP(avatarPath, "sophearak-tha", "avatar", unique)
+		}
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()

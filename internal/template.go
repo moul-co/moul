@@ -219,8 +219,8 @@ func Template() string {
         </div>
     </header>
     <div class="profile">
-        <a href="/photos/profile/<%= avatar %>" class="avatar">
-            <img src="/photos/profile/<%= avatar %>" alt="" />
+        <a href="/photos/avatar/<%= avatar %>" class="avatar">
+            <img src="/photos/avatar/<%= avatar %>" alt="" />
         </a>
         <h2><%= profile["name"] %></h2>
         <p><%= profile["bio"] %></p>
