@@ -44,11 +44,18 @@ const calculate = (collection, containerWidth) => {
 
   const calculated = []
   layout.positions.map((p, i) => {
+    const srcHd = collection[i].id
+      ? `${collection[i].id}/photos/collection/2048/${collection[i].name}`
+      : `photos/collection/${collection[i].name}`
+    const src = collection[i].id
+      ? `${collection[i].id}/photos/collection/750/${collection[i].name}`
+      : `photos/collection/${collection[i].name}`
+
     calculated.push({
+      src,
+      srcHd,
       name: collection[i].name,
-      srcHd: collection[i].src_hd,
       dimension: `${collection[i].width_hd}x${collection[i].height_hd}`,
-      src: collection[i].src,
       srcset: collection[i].srcset,
       color: collection[i].color,
       inline: {

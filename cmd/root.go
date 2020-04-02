@@ -47,11 +47,9 @@ func Execute() {
 			for _, photo := range photos {
 				widthHd, heightHd := internal.GetPhotoDimension(photo)
 				height := float64(heightHd) / float64(widthHd) * 750
-				pc := "/photos/collection/" + filepath.Base(photo)
 
 				mc = append(mc, internal.Collection{
-					Src:      pc,
-					SrcHd:    pc,
+					Name:     filepath.Base(photo),
 					WidthHd:  widthHd,
 					HeightHd: heightHd,
 					Width:    750,
