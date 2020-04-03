@@ -27,11 +27,11 @@ type Collection struct {
 
 // get file path
 func getFilePath(uid, prefix string, size int) string {
-	return filepath.Join(".", "photos", uid, prefix, strconv.Itoa(size))
+	return filepath.Join(".moul", "photos", uid, prefix, strconv.Itoa(size))
 }
 
-// get file name
-func getFileName(fn, author string) string {
+// GetFileName func
+func GetFileName(fn, author string) string {
 	return strings.TrimSuffix(fn, filepath.Ext(fn)) + "-by-" + author
 }
 
@@ -58,7 +58,7 @@ func manipulate(size int, inPath, author, unique, outPrefix string) {
 	}
 
 	fn := filepath.Base(inPath)
-	name := getFileName(fn, author)
+	name := GetFileName(fn, author)
 
 	dir := getFilePath(unique, outPrefix, size)
 	out := filepath.Join(dir, name+".jpg")

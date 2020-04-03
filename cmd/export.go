@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -37,14 +38,15 @@ var Export = &cobra.Command{
 			os.Exit(1)
 		}
 
-		viper.SetConfigName("moul")
-		viper.AddConfigPath(".")
-		err = viper.ReadInConfig()
+		moulConfig := viper.New()
+		moulConfig.SetConfigName("moul")
+		moulConfig.AddConfigPath(".")
+		err = moulConfig.ReadInConfig()
 		if err != nil {
 			fmt.Printf("Fatal error config file: %s \n", err)
 		}
 
-		slugName := slug.Make(fmt.Sprintf("%v", viper.Get("profile.name")))
+		slugName := slug.Make(moulConfig.GetString("profile.name"))
 
 		unique := internal.UniqueID()
 		internal.Resize(collectionPath, slugName, "collection", unique, []int{2048, 750})
@@ -76,19 +78,26 @@ var Export = &cobra.Command{
 		mc := []internal.Collection{}
 
 		for _, photo := range photos {
-			// widthHd, heightHd := internal.GetPhotoDimension(photo)
-			// height := float64(heightHd) / float64(widthHd) * 750
+			fn := filepath.Base(photo)
+			name := internal.GetFileName(fn, slugName) + ".jpg"
+			widthHd, heightHd := internal.GetPhotoDimension(
+				filepath.Join(".moul", "photos", unique, "collection", "2048", name),
+			)
+			width, height := internal.GetPhotoDimension(
+				filepath.Join(".moul", "photos", unique, "collection", "750", name),
+			)
 
 			mc = append(mc, internal.Collection{
-				ID:   unique,
-				Name: filepath.Base(photo),
-				// WidthHd:  widthHd,
-				// HeightHd: heightHd,
-				// Width:    750,
-				// Height:   int(math.Round(height)),
+				ID:       unique,
+				Name:     name,
+				WidthHd:  widthHd,
+				HeightHd: heightHd,
+				Width:    width,
+				Height:   height,
 			})
 		}
-		// mcj, _ := json.Marshal(mc)
+		mcj, _ := json.Marshal(mc)
+		fmt.Println(string(mcj))
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()
