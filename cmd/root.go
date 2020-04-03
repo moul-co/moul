@@ -63,9 +63,10 @@ func Execute() {
 			avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
 			avatarName := filepath.Base(avatar[0])
 
-			viper.SetConfigName("moul")
-			viper.AddConfigPath(".")
-			err = viper.ReadInConfig()
+			moulConfig := viper.New()
+			moulConfig.SetConfigName("moul")
+			moulConfig.AddConfigPath(".")
+			err = moulConfig.ReadInConfig()
 			if err != nil {
 				fmt.Printf("Fatal error config file: %s \n", err)
 			}
@@ -74,16 +75,16 @@ func Execute() {
 			ctx := plush.NewContext()
 			ctx.Set("isProd", false)
 			ctx.Set("version", version)
-			ctx.Set("base", viper.Get("base"))
-			ctx.Set("profile", viper.Get("profile"))
+			ctx.Set("base", moulConfig.Get("base"))
+			ctx.Set("profile", moulConfig.Get("profile"))
 			ctx.Set("avatar", avatarName)
 
 			ctx.Set("cover", map[string]string{
 				"name": coverName,
 			})
-			ctx.Set("content", viper.Get("content"))
+			ctx.Set("content", moulConfig.Get("content"))
 
-			ctx.Set("social", viper.Get("social"))
+			ctx.Set("social", moulConfig.Get("social"))
 			ctx.Set("collectionString", string(mcj))
 
 			ts, err := plush.Render(t, ctx)
