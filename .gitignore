@@ -7,3 +7,4 @@ package-lock.json
 cmd/assets/*
 photos
 moul.toml
+dist
