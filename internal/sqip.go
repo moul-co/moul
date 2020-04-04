@@ -23,7 +23,7 @@ func MakeSQIP(inPath, author, outPrefix, unique string) error {
 	for _, photo := range photos {
 		fn := filepath.Base(photo)
 		name := GetFileName(fn, author)
-		dir := filepath.Join(".", "photos", unique, outPrefix, "sqip")
+		dir := filepath.Join(".", ".moul", "photos", unique, outPrefix, "sqip")
 		out := filepath.Join(dir, name+".svg")
 
 		if err := os.MkdirAll(dir, 0755); err != nil {
