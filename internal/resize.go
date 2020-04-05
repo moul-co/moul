@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	"github.com/gosimple/slug"
+	"github.com/spf13/viper"
 )
 
 // Collection struct
@@ -32,7 +34,7 @@ func getFilePath(uid, prefix string, size int) string {
 
 // GetFileName func
 func GetFileName(fn, author string) string {
-	return strings.TrimSuffix(fn, filepath.Ext(fn)) + "-by-" + author
+	return slug.Make(strings.TrimSuffix(fn, filepath.Ext(fn))) + "-by-" + slug.Make(author)
 }
 
 // GetPhotoDimension given path
@@ -50,8 +52,8 @@ func GetPhotoDimension(path string) (int, int) {
 	return image.Width, image.Height
 }
 
-// resize image
-func manipulate(size int, inPath, author, unique, outPrefix string) {
+// Manipulate image
+func manipulate(id, inPath, author, photoType string, size int) {
 	src, err := imaging.Open(inPath)
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +62,7 @@ func manipulate(size int, inPath, author, unique, outPrefix string) {
 	fn := filepath.Base(inPath)
 	name := GetFileName(fn, author)
 
-	dir := getFilePath(unique, outPrefix, size)
+	dir := getFilePath(id, photoType, size)
 	out := filepath.Join(dir, name+".jpg")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Fatal(err)
@@ -112,7 +114,7 @@ func loadImage(fileInput string) (image.Image, error) {
 }
 
 // Resize func
-func Resize(inPath, author, outPrefix, unique string, sizes []int) {
+func Resize(unique, inPath, author, outPrefix string, sizes []int) {
 	// weight := "100"
 	// author := "sophearak-tha"
 	// path := "path-to-src/photos"
@@ -121,9 +123,24 @@ func Resize(inPath, author, outPrefix, unique string, sizes []int) {
 
 	photos := GetPhotos(inPath)
 
+	config := viper.New()
+	config.AddConfigPath(".moul")
+	config.SetConfigType("toml")
+	config.SetConfigName(outPrefix)
+	config.ReadInConfig()
+
 	for _, photo := range photos {
-		for _, size := range sizes {
-			manipulate(size, photo, author, unique, outPrefix)
+		fn := slug.Make(filepath.Base(photo))
+
+		if config.GetString(fn) == GetSHA1(photo) {
+			continue
 		}
+		for _, size := range sizes {
+			manipulate(unique, photo, author, outPrefix, size)
+		}
+		makeSQIP(unique, photo, author, outPrefix)
+
+		config.Set(fn, GetSHA1(photo))
 	}
+	config.WriteConfigAs(filepath.Join(".", ".moul", outPrefix+".toml"))
 }

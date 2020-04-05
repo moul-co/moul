@@ -9,7 +9,7 @@ import (
 )
 
 // MakeSQIP func
-func MakeSQIP(inPath, author, outPrefix, unique string) error {
+func makeSQIP(unique, inPath, author, photoType string) error {
 	workSize := 256
 	count := 8
 	mode := 1
@@ -18,26 +18,22 @@ func MakeSQIP(inPath, author, outPrefix, unique string) error {
 	workers := runtime.NumCPU()
 	background := ""
 
-	photos := GetPhotos(inPath)
+	fn := filepath.Base(inPath)
+	name := GetFileName(fn, author)
+	dir := filepath.Join(".", ".moul", "photos", unique, photoType, "sqip")
+	out := filepath.Join(dir, name+".svg")
 
-	for _, photo := range photos {
-		fn := filepath.Base(photo)
-		name := GetFileName(fn, author)
-		dir := filepath.Join(".", ".moul", "photos", unique, outPrefix, "sqip")
-		out := filepath.Join(dir, name+".svg")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
 
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return err
-		}
+	svg, _, _, err := sqip.Run(inPath, workSize, count, mode, alpha, repeat, workers, background)
 
-		svg, _, _, err := sqip.Run(photo, workSize, count, mode, alpha, repeat, workers, background)
-
-		if err != nil {
-			return err
-		}
-		if err := sqip.SaveFile(out, svg); err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
+	if err := sqip.SaveFile(out, svg); err != nil {
+		return err
 	}
 
 	return nil
