@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,47 +48,55 @@ var Export = &cobra.Command{
 
 		slugName := slug.Make(moulConfig.GetString("profile.name"))
 
-		unique := internal.UniqueID()
-		internal.Resize(unique, collectionPath, slugName, "collection", []int{2048, 750})
+		internal.Resize(collectionPath, slugName, "collection", []int{2048, 750})
 
 		coverPath := filepath.Join(dir, "photos", "cover")
 		if _, err := os.Stat(coverPath); os.IsNotExist(err) {
 			color.Yellow("Skipped `cover`")
 		} else {
-			internal.Resize(unique, coverPath, slugName, "cover", []int{2560, 1280, 620})
+			internal.Resize(coverPath, slugName, "cover", []int{2560, 1280, 620})
 		}
 
 		avatarPath := filepath.Join(dir, "photos", "avatar")
 		if _, err := os.Stat(avatarPath); os.IsNotExist(err) {
 			color.Yellow("Skipped `avatar`")
 		} else {
-			internal.Resize(unique, avatarPath, slugName, "avatar", []int{512, 320})
+			internal.Resize(avatarPath, slugName, "avatar", []int{512, 320})
 		}
 
-		// photos := internal.GetPhotos(collectionPath)
-		// mc := []internal.Collection{}
+		photos := internal.GetPhotos(collectionPath)
+		mc := []internal.Collection{}
 
-		// for _, photo := range photos {
-		// 	fn := filepath.Base(photo)
-		// 	name := internal.GetFileName(fn, slugName) + ".jpg"
-		// 	widthHd, heightHd := internal.GetPhotoDimension(
-		// 		filepath.Join(".moul", "photos", unique, "collection", "2048", name),
-		// 	)
-		// 	width, height := internal.GetPhotoDimension(
-		// 		filepath.Join(".moul", "photos", unique, "collection", "750", name),
-		// 	)
+		cache := viper.New()
+		cache.AddConfigPath(".moul")
+		cache.SetConfigType("toml")
+		cache.SetConfigName("collection")
+		cache.ReadInConfig()
 
-		// 	mc = append(mc, internal.Collection{
-		// 		ID:       unique,
-		// 		Name:     name,
-		// 		WidthHd:  widthHd,
-		// 		HeightHd: heightHd,
-		// 		Width:    width,
-		// 		Height:   height,
-		// 	})
-		// }
-		// mcj, _ := json.Marshal(mc)
-		// fmt.Println(string(mcj))
+		for _, photo := range photos {
+			fn := filepath.Base(photo)
+			name := internal.GetFileName(fn, slugName) + ".jpg"
+
+			unique := cache.GetString(slug.Make(fn) + ".id")
+
+			widthHd, heightHd := internal.GetPhotoDimension(
+				filepath.Join(".moul", "photos", unique, "collection", "2048", name),
+			)
+			width, height := internal.GetPhotoDimension(
+				filepath.Join(".moul", "photos", unique, "collection", "750", name),
+			)
+
+			mc = append(mc, internal.Collection{
+				ID:       unique,
+				Name:     name,
+				WidthHd:  widthHd,
+				HeightHd: heightHd,
+				Width:    width,
+				Height:   height,
+			})
+		}
+		mcj, _ := json.Marshal(mc)
+		fmt.Println(string(mcj))
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()

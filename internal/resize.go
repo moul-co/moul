@@ -114,11 +114,11 @@ func loadImage(fileInput string) (image.Image, error) {
 }
 
 // Resize func
-func Resize(unique, inPath, author, outPrefix string, sizes []int) {
+func Resize(inPath, author, outPrefix string, sizes []int) {
 	// weight := "100"
 	// author := "sophearak-tha"
 	// path := "path-to-src/photos"
-	// unique := UniqueID()
+	unique := UniqueID()
 	// sizes := []int{2560, 1280, 620},
 
 	photos := GetPhotos(inPath)
@@ -132,7 +132,7 @@ func Resize(unique, inPath, author, outPrefix string, sizes []int) {
 	for _, photo := range photos {
 		fn := slug.Make(filepath.Base(photo))
 
-		if config.GetString(fn) == GetSHA1(photo) {
+		if config.GetString(fn+".sha") == GetSHA1(photo) {
 			continue
 		}
 		for _, size := range sizes {
@@ -140,7 +140,8 @@ func Resize(unique, inPath, author, outPrefix string, sizes []int) {
 		}
 		makeSQIP(unique, photo, author, outPrefix)
 
-		config.Set(fn, GetSHA1(photo))
+		config.Set(fn+".sha", GetSHA1(photo))
+		config.Set(fn+".id", unique)
 	}
 	config.WriteConfigAs(filepath.Join(".", ".moul", outPrefix+".toml"))
 }
