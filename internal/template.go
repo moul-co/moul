@@ -30,8 +30,7 @@ func Template() string {
             --error: #ff5851;
             --disabled: rgba(192, 192, 192, 0.2);
 
-            --font: system-ui, -apple-system, BlinkMacSystemFont, San Francisco, Ubuntu,
-                'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
+            --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
             --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
 
             --breakpoint-m: 768px;

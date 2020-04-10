@@ -16,6 +16,10 @@ import (
 	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/tdewolff/minify/v2"
+	"github.com/tdewolff/minify/v2/css"
+	"github.com/tdewolff/minify/v2/html"
+	"github.com/tdewolff/minify/v2/svg"
 )
 
 // Export cmd
@@ -145,7 +149,15 @@ var Export = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		ioutil.WriteFile(filepath.Join(".", ".moul", "index.html"), []byte(ts), 0644)
+		m := minify.New()
+		m.AddFunc("text/css", css.Minify)
+		m.AddFunc("text/html", html.Minify)
+		m.AddFunc("image/svg+xml", svg.Minify)
+		mts, err := m.String("text/html", ts)
+		if err != nil {
+			fmt.Println(err)
+		}
+		ioutil.WriteFile(filepath.Join(".", ".moul", "index.html"), []byte(mts), 0644)
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()

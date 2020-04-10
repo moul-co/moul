@@ -19,6 +19,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.2
 	github.com/tdewolff/minify v2.3.6+incompatible // indirect
+	github.com/tdewolff/minify/v2 v2.7.3
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
-	github.com/tdewolff/test v1.0.6 // indirect
 )
