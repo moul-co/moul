@@ -3,14 +3,17 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
-	"github.com/moul-co/moul/internal"
+	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -67,27 +70,27 @@ var Export = &cobra.Command{
 		photos := internal.GetPhotos(collectionPath)
 		mc := []internal.Collection{}
 
-		cache := viper.New()
-		cache.AddConfigPath(".moul")
-		cache.SetConfigType("toml")
-		cache.SetConfigName("collection")
-		cache.ReadInConfig()
+		config := viper.New()
+		config.AddConfigPath(".moul")
+		config.SetConfigType("toml")
+		config.SetConfigName("collection")
+		config.ReadInConfig()
 
 		for _, photo := range photos {
 			fn := filepath.Base(photo)
 			name := internal.GetFileName(fn, slugName) + ".jpg"
 
-			unique := cache.GetString(slug.Make(fn) + ".id")
+			pid := config.GetString(slug.Make(fn) + ".id")
 
 			widthHd, heightHd := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", unique, "collection", "2048", name),
+				filepath.Join(".moul", "photos", pid, "collection", "2048", name),
 			)
 			width, height := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", unique, "collection", "750", name),
+				filepath.Join(".moul", "photos", pid, "collection", "750", name),
 			)
 
 			mc = append(mc, internal.Collection{
-				ID:       unique,
+				ID:       pid,
 				Name:     name,
 				WidthHd:  widthHd,
 				HeightHd: heightHd,
@@ -96,7 +99,53 @@ var Export = &cobra.Command{
 			})
 		}
 		mcj, _ := json.Marshal(mc)
-		fmt.Println(string(mcj))
+
+		coverPhotos := internal.GetPhotos(coverPath)
+		config.SetConfigName("cover")
+		config.ReadInConfig()
+
+		cid := config.GetString(slug.Make(filepath.Base(coverPhotos[0])) + ".id")
+		coverPathToSqip := filepath.Join(".moul", "photos", cid, "cover", "sqip",
+			internal.GetFileName(filepath.Base(coverPhotos[0]), slugName)+".svg",
+		)
+		inlineCover := internal.GetEncodedSvg(coverPathToSqip)
+		cover := map[string]string{
+			"id":   cid,
+			"name": internal.GetFileName(filepath.Base(coverPhotos[0]), slugName),
+			"sqip": inlineCover,
+		}
+
+		avatarPhotos := internal.GetPhotos(avatarPath)
+		config.SetConfigName("avatar")
+		config.ReadInConfig()
+		aid := config.GetString(slug.Make(filepath.Base(avatarPhotos[0])) + ".id")
+		avatarPathToSqip := filepath.Join(".moul", "photos", aid, "avatar", "sqip",
+			internal.GetFileName(filepath.Base(avatarPhotos[0]), slugName)+".svg",
+		)
+		inlineAvatar := internal.GetEncodedSvg(avatarPathToSqip)
+		avatar := map[string]string{
+			"id":   aid,
+			"name": internal.GetFileName(filepath.Base(avatarPhotos[0]), slugName),
+			"sqip": inlineAvatar,
+		}
+
+		t := internal.Template()
+		ctx := plush.NewContext()
+		ctx.Set("isProd", true)
+		ctx.Set("version", version)
+		ctx.Set("base", moulConfig.Get("base"))
+		ctx.Set("profile", moulConfig.Get("profile"))
+		ctx.Set("cover", cover)
+		ctx.Set("avatar", avatar)
+		ctx.Set("content", moulConfig.Get("content"))
+		ctx.Set("social", moulConfig.Get("social"))
+		ctx.Set("collectionString", string(mcj))
+
+		ts, err := plush.Render(t, ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		ioutil.WriteFile(filepath.Join(".", ".moul", "index.html"), []byte(ts), 0644)
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()

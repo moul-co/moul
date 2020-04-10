@@ -11,10 +11,10 @@ func Template() string {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= content["title"] %> by <%= profile["name"] %></title>
     <meta name="generator" content="Moul <%= version %>">
-    <link rel="preload" href="/assets/moul.css" as="style">
-    <link rel="preload" href="/assets/moul.js" as="script">
+    <link rel="preload" href="assets/moul.css" as="style">
+    <link rel="preload" href="assets/moul.js" as="script">
 
-    <link rel="stylesheet" href="/assets/moul.css">
+    <link rel="stylesheet" href="assets/moul.css">
 
     <style>
         :root {
@@ -194,15 +194,15 @@ func Template() string {
                 <%= if (isProd == true) { %>
                 <source
                     media="(max-width: 600px)"
-                    srcset="/photos/<%= cover["id"] %>/620/<%= cover["name"] %>.jpg"
+                    srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
                 >
                 <source
                     media="(min-width: 601px)"
-                    srcset="/photos/<%= cover["id"] %>/1280/<%= cover["name"] %>.jpg"
+                    srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
                 >
                 <source
                     media="(min-width: 1201px)"
-                    srcset="/photos/<%= cover["id"] %>/2560/<%= cover["name"] %>.jpg"
+                    srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
                 >
                 <img
                     alt="cover"
@@ -212,16 +212,28 @@ func Template() string {
                 <% } else { %>
                 <img
                     alt="cover"
-                    src="/photos/cover/<%= cover["name"] %>"
+                    src="photos/cover/<%= cover["name"] %>"
                 >
                 <% } %>
             </picture>
         </div>
     </header>
     <div class="profile">
-        <a href="/photos/avatar/<%= avatar %>" class="avatar">
-            <img src="/photos/avatar/<%= avatar %>" alt="" />
+        <%= if (isProd == true) { %>
+        <a href="photos/avatar/<%= avatar %>" class="avatar">
+            <img
+                src="<%= avatar["sqip"] %>"
+                data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
+                data-srcset="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg 1x photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg 2x"
+                alt="<%= profile["name"] %>'s avatar">
         </a>
+        <% } else { %>
+        <a href="photos/avatar/<%= avatar %>" class="avatar">
+            <img
+                src="photos/avatar/<%= avatar %>"
+                alt="<%= profile["name"] %> 's avatar">
+        </a>
+        <% } %>
         <h2><%= profile["name"] %></h2>
         <p><%= profile["bio"] %></p>
         <div class="social">
@@ -319,7 +331,7 @@ func Template() string {
         </div>
     </div>
 </div>
-<script src="/assets/moul.js" defer></script>
+<script src="assets/moul.js" defer></script>
 </body>
 </html>`
 }

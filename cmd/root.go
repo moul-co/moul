@@ -12,7 +12,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gobuffalo/plush"
-	"github.com/moul-co/moul/internal"
+	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
