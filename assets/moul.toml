@@ -1,0 +1,22 @@
+base = "/" # replace with your full domain name where this collection will be deploy to
+
+[style]
+cover = "center" # posible value "left | center | right"
+
+[profile]
+name = "Moul"
+bio = "A publishing tool for photographers, visual storytellers."
+
+[social]
+twitter = ""
+github = "moulco/moul"
+instagram = "moul.co"
+facebook = ""
+youtube = ""
+
+[content]
+title = "Moul Demo"
+tags = ["photography", "tool"]
+description = """
+multi-line text
+"""

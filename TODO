@@ -1,2 +1,7 @@
 moul:
-    ✔ Include static assets in compiled binary @done(20-04-11 10:43)
+    ☐ Finalize `export`
+    ☐ Finalize style
+    ☐ Improve output
+
+Archive:
+  ✔ Include static assets in compiled binary @done(20-04-11 10:43) @project(moul)

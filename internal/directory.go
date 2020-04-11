@@ -21,3 +21,23 @@ func GetDirectory() (string, error) {
 
 	return dir, nil
 }
+
+// RemoveAll func
+func RemoveAll(path string) error {
+	d, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(path, name))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

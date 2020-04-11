@@ -191,7 +191,7 @@ func Template() string {
         <div class="cover">
             <picture>
                 <%= if (isProd == true) { %>
-                <source
+                <!--<source
                     media="(max-width: 600px)"
                     srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
                 >
@@ -202,10 +202,10 @@ func Template() string {
                 <source
                     media="(min-width: 1201px)"
                     srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
-                >
+                >-->
                 <img
                     alt="cover"
-                    class="lazy"
+                    class=""
                     src="<%= cover["sqip"] %>"
                 >
                 <% } else { %>

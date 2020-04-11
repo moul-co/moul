@@ -3,7 +3,6 @@ import { render } from 'react-dom'
 import { fixed_partition } from 'image-layout'
 import Bound from 'bounds.js'
 import photoswipe from './ps'
-
 ;(() => {
   const throttle = (type, name, obj) => {
     obj = obj || window
@@ -26,8 +25,8 @@ const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 const boundary = Bound({
   margins: {
-    bottom: 100
-  }
+    bottom: 100,
+  },
 })
 
 const calculate = (collection, containerWidth) => {
@@ -39,16 +38,16 @@ const calculate = (collection, containerWidth) => {
   const layout = fixed_partition(collection, {
     containerWidth,
     idealElementHeight,
-    spacing: 16
+    spacing: 16,
   })
 
   const calculated = []
   layout.positions.map((p, i) => {
     const srcHd = collection[i].id
-      ? `${collection[i].id}/photos/collection/2048/${collection[i].name}`
+      ? `photos/${collection[i].id}/collection/2048/${collection[i].name}`
       : `photos/collection/${collection[i].name}`
     const src = collection[i].id
-      ? `${collection[i].id}/photos/collection/750/${collection[i].name}`
+      ? `photos/${collection[i].id}/collection/750/${collection[i].name}`
       : `photos/collection/${collection[i].name}`
 
     calculated.push({
@@ -63,15 +62,15 @@ const calculate = (collection, containerWidth) => {
         height: `${layout.positions[i].height}px`,
         top: `${layout.positions[i].y}px`,
         left: `${layout.positions[i].x}px`,
-        background: collection[i].color || ''
-      }
+        background: collection[i].color || '',
+      },
     })
   })
 
   return {
     calculated,
     width: layout.width,
-    height: layout.height
+    height: layout.height,
   }
 }
 
@@ -105,7 +104,7 @@ const Collection = ({ photos }) => {
   )
   const [containerWidth, setContainerWidth] = useState(window.innerWidth - 32)
 
-  const onEnter = photo => {
+  const onEnter = (photo) => {
     return () => {
       photo.src = photo.dataset.src
       boundary.unWatch(photo)
@@ -121,7 +120,7 @@ const Collection = ({ photos }) => {
     photoswipe('.collection')
 
     const photos = $$('img.lazy')
-    photos.forEach(p => {
+    photos.forEach((p) => {
       boundary.watch(p, onEnter(p))
     })
 

@@ -22,6 +22,10 @@ const (
 	version = "3.0.0"
 )
 
+var (
+	output string
+)
+
 // Execute func
 func Execute() {
 	var rootCmd = &cobra.Command{
@@ -103,6 +107,8 @@ func Execute() {
 			http.ListenAndServe(":5000", nil)
 		},
 	}
+
+	Export.Flags().StringVar(&output, "o", "dist", "output directory")
 
 	rootCmd.AddCommand(Init)
 	rootCmd.AddCommand(Export)

@@ -14,6 +14,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
+	"github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tdewolff/minify/v2"
@@ -158,6 +159,16 @@ var Export = &cobra.Command{
 			fmt.Println(err)
 		}
 		ioutil.WriteFile(filepath.Join(".", ".moul", "index.html"), []byte(mts), 0644)
+
+		out := filepath.Join(".", output)
+		if _, err := os.Stat(out); !os.IsNotExist(err) {
+			internal.RemoveAll(out)
+		}
+		os.MkdirAll(out, os.ModePerm)
+
+		copy.Copy(filepath.Join(".", ".moul", "photos"), filepath.Join(out, "photos"))
+		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
+		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
 		fmt.Println("Took:", time.Since(start))
 		s.Stop()
