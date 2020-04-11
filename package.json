@@ -4,7 +4,8 @@
   "description": "A publishing tool for photographers, visual storytellers.",
   "scripts": {
     "css": "parcel build --no-source-maps --no-content-hash assets/moul.css -d cmd/assets",
-    "js": "parcel build --no-source-maps --no-content-hash assets/moul.js -d cmd/assets"
+    "js": "parcel build --no-source-maps --no-content-hash assets/moul.js -d cmd/assets",
+    "build": "npm run css && npm run js && cp assets/moul.toml cmd/assets"
   },
   "files": [],
   "repository": {
