@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { render } from 'react-dom'
 import { fixed_partition } from 'image-layout'
-import photoswipe from './ps'
+import photoswipe from '../node_modules/moul-photoswipe/moul-photoswipe'
 import lazySizes from 'lazysizes'
-
 ;(() => {
   const throttle = (type, name, obj) => {
     obj = obj || window
@@ -83,7 +82,12 @@ const Layout = ({ collection, containerWidth }) => {
       <div className="collection" style={container}>
         {calculated.map((p, i) => (
           <figure key={i}>
-            <a href={p.srcHd} data-dimension={p.dimension} data-color={p.color}>
+            <a
+              href={p.srcHd}
+              data-dimension={p.dimension}
+              data-pid={p.name}
+              data-color={p.color}
+            >
               <img
                 src={p.sqip}
                 data-src={p.src}

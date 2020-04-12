@@ -7,13 +7,13 @@
     "js": "parcel build --no-source-maps --no-content-hash assets/moul.js -d cmd/assets",
     "build": "npm run css && npm run js && cp assets/moul.toml cmd/assets"
   },
+  "private": true,
   "files": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/moulco/moul.git"
   },
   "author": "Sophearak Tha <hi@sophearak.me> (https://sophearak.me/)",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/moulco/moul/issues"
   },
@@ -24,6 +24,7 @@
     }
   },
   "devDependencies": {
+    "moul-photoswipe": "3.0.0",
     "husky": "4.2.3",
     "image-layout": "0.4.1",
     "lazysizes": "5.2.0",
