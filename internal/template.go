@@ -76,7 +76,6 @@ func Template() string {
         header .cover picture {
             height: 85vh;
             width: 100%;
-            max-width: 1500px;
             margin: 0 auto;
         }
         header .cover picture img {
@@ -191,21 +190,21 @@ func Template() string {
         <div class="cover">
             <picture>
                 <%= if (isProd == true) { %>
-                <!--<source
+                <source
                     media="(max-width: 600px)"
-                    srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
+                    data-srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
                 >
                 <source
                     media="(min-width: 601px)"
-                    srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
+                    data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
                 >
                 <source
                     media="(min-width: 1201px)"
-                    srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
-                >-->
+                    data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
+                >
                 <img
                     alt="cover"
-                    class=""
+                    class="lazyload"
                     src="<%= cover["sqip"] %>"
                 >
                 <% } else { %>
@@ -219,11 +218,11 @@ func Template() string {
     </header>
     <div class="profile">
         <%= if (isProd == true) { %>
-        <a href="photos/avatar/<%= avatar %>" class="avatar">
+        <a href="photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg" class="avatar">
             <img
                 src="<%= avatar["sqip"] %>"
                 data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
-                data-srcset="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg 1x photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg 2x"
+                class="lazyload"
                 alt="<%= profile["name"] %>'s avatar">
         </a>
         <% } else { %>

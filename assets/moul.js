@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { render } from 'react-dom'
 import { fixed_partition } from 'image-layout'
-import Bound from 'bounds.js'
 import photoswipe from './ps'
+import lazySizes from 'lazysizes'
+
 ;(() => {
   const throttle = (type, name, obj) => {
     obj = obj || window
@@ -23,11 +24,6 @@ import photoswipe from './ps'
 })()
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
-const boundary = Bound({
-  margins: {
-    bottom: 100,
-  },
-})
 
 const calculate = (collection, containerWidth) => {
   let idealElementHeight = 350
@@ -44,18 +40,22 @@ const calculate = (collection, containerWidth) => {
   const calculated = []
   layout.positions.map((p, i) => {
     const srcHd = collection[i].id
-      ? `photos/${collection[i].id}/collection/2048/${collection[i].name}`
+      ? `photos/${collection[i].id}/collection/2048/${collection[i].name}.jpg`
       : `photos/collection/${collection[i].name}`
     const src = collection[i].id
-      ? `photos/${collection[i].id}/collection/750/${collection[i].name}`
+      ? `photos/${collection[i].id}/collection/750/${collection[i].name}.jpg`
       : `photos/collection/${collection[i].name}`
+    const sqip = collection[i].id
+      ? `photos/${collection[i].id}/collection/sqip/${collection[i].name}.svg`
+      : ''
 
     calculated.push({
       src,
       srcHd,
+      sqip,
+      srcset: collection[i].srcset,
       name: collection[i].name,
       dimension: `${collection[i].width_hd}x${collection[i].height_hd}`,
-      srcset: collection[i].srcset,
       color: collection[i].color,
       inline: {
         width: `${layout.positions[i].width}px`,
@@ -85,10 +85,11 @@ const Layout = ({ collection, containerWidth }) => {
           <figure key={i}>
             <a href={p.srcHd} data-dimension={p.dimension} data-color={p.color}>
               <img
+                src={p.sqip}
                 data-src={p.src}
                 alt={p.name}
                 style={p.inline}
-                className="lazy"
+                className="lazyload"
               />
             </a>
           </figure>
@@ -104,13 +105,6 @@ const Collection = ({ photos }) => {
   )
   const [containerWidth, setContainerWidth] = useState(window.innerWidth - 32)
 
-  const onEnter = (photo) => {
-    return () => {
-      photo.src = photo.dataset.src
-      boundary.unWatch(photo)
-    }
-  }
-
   function handleResize() {
     setContainerWidth(window.innerWidth - 32)
   }
@@ -118,11 +112,7 @@ const Collection = ({ photos }) => {
   useEffect(() => {
     window.addEventListener('optimizedResize', handleResize)
     photoswipe('.collection')
-
-    const photos = $$('img.lazy')
-    photos.forEach((p) => {
-      boundary.watch(p, onEnter(p))
-    })
+    lazySizes.init()
 
     return () => {
       window.removeEventListener('optimizedResize', handleResize)

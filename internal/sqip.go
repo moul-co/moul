@@ -12,7 +12,7 @@ import (
 func makeSQIP(unique, inPath, author, photoType string) error {
 	workSize := 256
 	count := 8
-	mode := 1
+	mode := 0
 	alpha := 128
 	repeat := 0
 	workers := runtime.NumCPU()

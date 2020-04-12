@@ -83,15 +83,15 @@ var Export = &cobra.Command{
 
 		for _, photo := range photos {
 			fn := filepath.Base(photo)
-			name := internal.GetFileName(fn, slugName) + ".jpg"
+			name := internal.GetFileName(fn, slugName)
 
 			pid := config.GetString(slug.Make(fn) + ".id")
 
 			widthHd, heightHd := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", pid, "collection", "2048", name),
+				filepath.Join(".moul", "photos", pid, "collection", "2048", name+".jpg"),
 			)
 			width, height := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", pid, "collection", "750", name),
+				filepath.Join(".moul", "photos", pid, "collection", "750", name+".jpg"),
 			)
 
 			mc = append(mc, internal.Collection{
