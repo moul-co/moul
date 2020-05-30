@@ -95,8 +95,8 @@ func Execute() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fs := http.FileServer(http.Dir("cmd/assets/"))
-			photoFolder := http.FileServer(http.Dir("photos/"))
+			fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
+			photoFolder := http.FileServer(http.Dir("photos"))
 			http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 			http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

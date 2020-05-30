@@ -293,6 +293,8 @@ func Template() string {
 
 </div>
 
+<div id="moul-photo"></div>
+
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
     <div class="pswp__scroll-wrap">

@@ -170,7 +170,7 @@ var Export = &cobra.Command{
 		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
-		fmt.Println("Took:", time.Since(start))
+		color.Green("Took: %s", time.Since(start))
 		s.Stop()
 	},
 }
