@@ -1,0 +1,7 @@
+<div class="content">
+	<img
+		(click)="appService.toggleUi()"
+		[src]="'assets/' + (appService.photo | async).srcHd"
+		[alt]="(appService.photo | async).name"
+	/>
+</div>

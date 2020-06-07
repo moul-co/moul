@@ -1,10 +1,19 @@
 import { NgModule } from '@angular/core'
-import { Routes, RouterModule } from '@angular/router'
+import { Routes, RouterModule, RouteReuseStrategy } from '@angular/router'
 
-const routes: Routes = []
+import { CustomReuseStrategy } from './app-routing-reuse-strategy'
+import { PhotoComponent } from './photo/photo.component'
+
+const routes: Routes = [{ path: ':name', component: PhotoComponent }]
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
+	imports: [RouterModule.forRoot(routes)],
+	providers: [
+		{
+			provide: RouteReuseStrategy,
+			useClass: CustomReuseStrategy,
+		},
+	],
+	exports: [RouterModule],
 })
 export class AppRoutingModule {}

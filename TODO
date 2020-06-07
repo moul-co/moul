@@ -1,4 +1,8 @@
 moul:
+    ☐ Rewrite collection
+      ☐ Handle EXIF information
+      ☐ Handle GA
+      ☐ Bundle it
     ☐ Finalize `export`
     ☐ Finalize style
     ☐ Improve output

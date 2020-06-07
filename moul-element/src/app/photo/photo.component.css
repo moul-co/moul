@@ -1,0 +1,22 @@
+:host {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow: hidden;
+	position: fixed;
+	z-index: 8;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.content {
+	max-height: 100vh;
+	overflow: hidden;
+	position: relative;
+}
+img {
+	width: auto;
+	height: 100vh;
+}
