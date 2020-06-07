@@ -11,7 +11,7 @@
 			"prefix": "app",
 			"architect": {
 				"build": {
-					"builder": "ngx-build-plus:browser",
+					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
 						"outputPath": "dist/moul-element",
 						"index": "src/index.html",
@@ -55,7 +55,7 @@
 					}
 				},
 				"serve": {
-					"builder": "ngx-build-plus:dev-server",
+					"builder": "@angular-devkit/build-angular:dev-server",
 					"options": {
 						"browserTarget": "moul-element:build"
 					},
@@ -72,7 +72,7 @@
 					}
 				},
 				"test": {
-					"builder": "ngx-build-plus:karma",
+					"builder": "@angular-devkit/build-angular:karma",
 					"options": {
 						"main": "src/test.ts",
 						"polyfills": "src/polyfills.ts",
