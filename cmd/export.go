@@ -21,6 +21,7 @@ import (
 	"github.com/tdewolff/minify/v2/css"
 	"github.com/tdewolff/minify/v2/html"
 	"github.com/tdewolff/minify/v2/svg"
+	"github.com/xiam/exif"
 )
 
 // Export cmd
@@ -93,6 +94,19 @@ var Export = &cobra.Command{
 			width, height := internal.GetPhotoDimension(
 				filepath.Join(".moul", "photos", pid, "collection", "750", name+".jpg"),
 			)
+			ex := internal.Exif{}
+			data, err := exif.Read(
+				filepath.Join(".moul", "photos", pid, "collection", "750", name+".jpg"),
+			)
+			if err == nil {
+				ex.Make = data.Tags["Manufacturer"]
+				ex.Model = data.Tags["Model"]
+				ex.Aperture = data.Tags["F-Number"]
+				ex.DateTime = data.Tags["Date and Time"]
+				ex.ExposureTime = data.Tags["Exposure Time"]
+				ex.FocalLength = data.Tags["Focal Length"]
+				ex.Iso = data.Tags["ISO Speed Ratings"]
+			}
 
 			mc = append(mc, internal.Collection{
 				ID:       pid,
@@ -101,6 +115,7 @@ var Export = &cobra.Command{
 				HeightHd: heightHd,
 				Width:    width,
 				Height:   height,
+				Exif:     ex,
 			})
 		}
 		mcj, _ := json.Marshal(mc)

@@ -15,6 +15,7 @@ import (
 	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/xiam/exif"
 )
 
 const (
@@ -51,6 +52,17 @@ func Execute() {
 			for _, photo := range photos {
 				widthHd, heightHd := internal.GetPhotoDimension(photo)
 				height := float64(heightHd) / float64(widthHd) * 750
+				ex := internal.Exif{}
+				data, err := exif.Read(photo)
+				if err == nil {
+					ex.Make = data.Tags["Manufacturer"]
+					ex.Model = data.Tags["Model"]
+					ex.Aperture = data.Tags["F-Number"]
+					ex.DateTime = data.Tags["Date and Time"]
+					ex.ExposureTime = data.Tags["Exposure Time"]
+					ex.FocalLength = data.Tags["Focal Length"]
+					ex.Iso = data.Tags["ISO Speed Ratings"]
+				}
 
 				mc = append(mc, internal.Collection{
 					Name:     filepath.Base(photo),
@@ -58,6 +70,7 @@ func Execute() {
 					HeightHd: heightHd,
 					Width:    750,
 					Height:   int(math.Round(height)),
+					Exif:     ex,
 				})
 			}
 			mcj, _ := json.Marshal(mc)

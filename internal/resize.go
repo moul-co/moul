@@ -14,6 +14,17 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Exif struct
+type Exif struct {
+	Make         string `json:"make"`
+	Model        string `json:"model"`
+	ExposureTime string `json:"exposure_time"`
+	Aperture     string `json:"aperture"`
+	FocalLength  string `json:"focal_length"`
+	Iso          string `json:"iso"`
+	DateTime     string `json:"datetime"`
+}
+
 // Collection struct
 type Collection struct {
 	ID       string `json:"id"`
@@ -25,6 +36,7 @@ type Collection struct {
 	WidthHd  int    `json:"width_hd"`
 	Height   int    `json:"height"`
 	HeightHd int    `json:"height_hd"`
+	Exif     Exif   `json:"exif"`
 }
 
 // get file path
