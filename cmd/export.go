@@ -96,7 +96,7 @@ var Export = &cobra.Command{
 			)
 			ex := internal.Exif{}
 			data, err := exif.Read(
-				filepath.Join(".moul", "photos", pid, "collection", "750", name+".jpg"),
+				filepath.Join(filepath.Join(".", "photos", "collection", fn)),
 			)
 			if err == nil {
 				ex.Make = data.Tags["Manufacturer"]
