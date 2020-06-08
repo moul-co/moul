@@ -21,6 +21,11 @@ export class PhotoComponent {
 					this.appService.hideUI = true
 					this.appService.showExif = false
 				}
+				if ((<any>window).gtag && appService.measurementId) {
+					;(<any>window).gtag('config', appService.measurementId, {
+						page_path: window.location.pathname,
+					})
+				}
 			}
 		})
 		this.ar.params.subscribe((p) => {

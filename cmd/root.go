@@ -82,6 +82,7 @@ func Execute() {
 
 			moulConfig := viper.New()
 			moulConfig.SetConfigName("moul")
+			moulConfig.SetDefault("ga_measurement_id", "")
 			moulConfig.AddConfigPath(".")
 			err = moulConfig.ReadInConfig()
 			if err != nil {
@@ -103,6 +104,7 @@ func Execute() {
 
 			ctx.Set("social", moulConfig.Get("social"))
 			ctx.Set("collectionString", string(mcj))
+			ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
 
 			ts, err := plush.Render(t, ctx)
 			if err != nil {

@@ -1,7 +1,9 @@
 moul:
     ☐ Rewrite collection
-      ☐ Handle EXIF information
-      ☐ Handle GA
+      ✔ Handle EXIF information @done(20-06-08 07:39)
+      ✔ Handle GA @done(20-06-08 20:27)
+      ☐ Handle dev mode
+      ☐ Handle export mode
       ☐ Bundle it
     ☐ Finalize `export`
     ☐ Finalize style

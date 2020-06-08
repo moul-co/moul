@@ -49,6 +49,7 @@ var Export = &cobra.Command{
 
 		moulConfig := viper.New()
 		moulConfig.SetConfigName("moul")
+		moulConfig.SetDefault("ga_measurement_id", "")
 		moulConfig.AddConfigPath(".")
 		err = moulConfig.ReadInConfig()
 		if err != nil {
@@ -160,6 +161,7 @@ var Export = &cobra.Command{
 		ctx.Set("content", moulConfig.Get("content"))
 		ctx.Set("social", moulConfig.Get("social"))
 		ctx.Set("collectionString", string(mcj))
+		ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
 
 		ts, err := plush.Render(t, ctx)
 		if err != nil {

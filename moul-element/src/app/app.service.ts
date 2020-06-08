@@ -25,6 +25,7 @@ export interface Photo {
 	providedIn: 'root',
 })
 export class AppService {
+	measurementId: string
 	collection: Photo[]
 	photo = new ReplaySubject<Photo>(1)
 	previous: string
@@ -58,10 +59,20 @@ export class AppService {
 	}
 
 	toggleUi(): void {
+		if ((<any>window).gtag && this.measurementId) {
+			;(<any>window).gtag('event', 'toggle_ui', {
+				event_label: window.location.pathname,
+			})
+		}
 		this.hideUI = !this.hideUI
 	}
 
 	toggleInfo(): void {
+		if ((<any>window).gtag && this.measurementId) {
+			;(<any>window).gtag('event', 'toggle_exif', {
+				event_label: window.location.pathname,
+			})
+		}
 		this.showExif = !this.showExif
 	}
 }

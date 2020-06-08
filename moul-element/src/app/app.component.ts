@@ -39,6 +39,13 @@ export class AppComponent implements OnInit {
 
 	ngOnInit(): void {
 		const pi = document.querySelector('#photos') as HTMLInputElement
+		const measurementId = document.querySelector(
+			'#ga-measurement-id'
+		) as HTMLInputElement
+
+		if (measurementId.value) {
+			this.appService.measurementId = measurementId.value
+		}
 		this.photos = JSON.parse(pi.value)
 
 		this.calculate()
