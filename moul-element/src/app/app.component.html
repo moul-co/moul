@@ -1,7 +1,7 @@
 <div class="collection" [ngStyle]="container">
 	<figure *ngFor="let p of appService.collection">
 		<a routerLink="/{{ p.name }}">
-			<img [src]="'assets/' + p.src" alt="" [ngStyle]="p.inline" />
+			<img [src]="p.src" alt="" [ngStyle]="p.inline" />
 		</a>
 	</figure>
 </div>

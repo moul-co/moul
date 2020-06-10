@@ -1,11 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
+import {
+	Component,
+	OnInit,
+	ViewChild,
+	ElementRef,
+	AfterViewInit,
+} from '@angular/core'
 import { Router, NavigationEnd } from '@angular/router'
-
-import { fixed_partition } from 'image-layout'
-import { AppService, Photo } from './app.service'
-import { routeSlide } from './animation'
 import { fromEvent } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+
+import { fixed_partition } from 'image-layout'
+import lazySizes from 'lazysizes'
+import { AppService, Photo } from './app.service'
+import { routeSlide } from './animation'
 
 @Component({
 	selector: 'moul-collection',
@@ -16,7 +23,7 @@ import { debounceTime } from 'rxjs/operators'
 		'(document:keydown)': 'key($event)',
 	},
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
 	private photos: any[]
 	container = {}
 	showBackdrop = false
@@ -57,6 +64,10 @@ export class AppComponent implements OnInit {
 			})
 	}
 
+	ngAfterViewInit(): void {
+		lazySizes.init()
+	}
+
 	calculate() {
 		const containerWidth = window.innerWidth - 16
 		const idealElementHeight = 350
@@ -70,10 +81,10 @@ export class AppComponent implements OnInit {
 		layout.positions.map((_, i: number) => {
 			const srcHd = this.photos[i].id
 				? `photos/${this.photos[i].id}/collection/2048/${this.photos[i].name}.jpg`
-				: `photos/collection/${this.photos[i].name}`
+				: `photos/collection/${this.photos[i].src}`
 			const src = this.photos[i].id
 				? `photos/${this.photos[i].id}/collection/750/${this.photos[i].name}.jpg`
-				: `photos/collection/${this.photos[i].name}`
+				: `photos/collection/${this.photos[i].src}`
 			const sqip = this.photos[i].id
 				? `photos/${this.photos[i].id}/collection/sqip/${this.photos[i].name}.svg`
 				: ''

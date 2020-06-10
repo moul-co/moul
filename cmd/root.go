@@ -12,6 +12,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gobuffalo/plush"
+	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,6 +42,16 @@ func Execute() {
 
 			fmt.Println("Start dev server...")
 
+			moulConfig := viper.New()
+			moulConfig.SetConfigName("moul")
+			moulConfig.SetDefault("ga_measurement_id", "")
+			moulConfig.AddConfigPath(".")
+			err = moulConfig.ReadInConfig()
+			if err != nil {
+				fmt.Printf("Fatal error config file: %s \n", err)
+			}
+			slugName := slug.Make(moulConfig.GetString("profile.name"))
+
 			path := filepath.Join(dir, "photos", "collection")
 			if _, err := os.Stat(path); os.IsNotExist(err) {
 				color.Red("`collection` folder is not found!")
@@ -63,9 +74,12 @@ func Execute() {
 					ex.FocalLength = data.Tags["Focal Length"]
 					ex.Iso = data.Tags["ISO Speed Ratings"]
 				}
+				fn := filepath.Base(photo)
+				name := internal.GetFileName(fn, slugName)
 
 				mc = append(mc, internal.Collection{
-					Name:     filepath.Base(photo),
+					Name:     name,
+					Src:      fn,
 					WidthHd:  widthHd,
 					HeightHd: heightHd,
 					Width:    750,
@@ -79,15 +93,6 @@ func Execute() {
 			coverName := filepath.Base(cover[0])
 			avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
 			avatarName := filepath.Base(avatar[0])
-
-			moulConfig := viper.New()
-			moulConfig.SetConfigName("moul")
-			moulConfig.SetDefault("ga_measurement_id", "")
-			moulConfig.AddConfigPath(".")
-			err = moulConfig.ReadInConfig()
-			if err != nil {
-				fmt.Printf("Fatal error config file: %s \n", err)
-			}
 
 			t := internal.Template()
 			ctx := plush.NewContext()

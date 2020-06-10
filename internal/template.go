@@ -288,15 +288,12 @@ func Template() string {
         <% } %>
     </div>
 
-    <div id="moul-collection"></div>
-    <input type="hidden" id="photo-collection" value="<%= collectionString %>">
-
+    <moul-collection></moul-collection>
+    <input type="hidden" id="photos" value="<%= collectionString %>">
     <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
 </div>
 
-<div id="moul-photo"></div>
 <script src="assets/moul.js" defer></script>
-
 <%= if (len(measurementId) > 0 ) { %>
 <script async src="https://www.googletagmanager.com/gtag/js?id=<%= measurementId %>"></script>
 <script>
