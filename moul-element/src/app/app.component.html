@@ -1,0 +1,100 @@
+<div class="collection" [ngStyle]="container">
+	<figure *ngFor="let p of appService.collection">
+		<a routerLink="/{{ p.name }}">
+			<img [src]="p.src" alt="" [ngStyle]="p.inline" />
+		</a>
+	</figure>
+</div>
+
+<ng-container *ngIf="!appService.hideUI">
+	<div class="exif" [class]="appService.showExif ? 'active' : ''">
+		<ul class="exif-wrap">
+			<li class="exif-item">
+				<span class="exif-label">Camera Make</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.make
+				}}</span>
+			</li>
+			<li class="exif-item">
+				<span class="exif-label">Camera Model</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.model
+				}}</span>
+			</li>
+			<li class="exif-item">
+				<span class="exif-label">Shutter Speed</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.exposure_time
+				}}</span>
+			</li>
+			<li class="exif-item">
+				<span class="exif-label">Aperture</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.aperture
+				}}</span>
+			</li>
+			<li class="exif-item">
+				<span class="exif-label">Focal length</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.focal_length
+				}}</span>
+			</li>
+			<li class="exif-item">
+				<span class="exif-label">ISO</span>
+				<span class="exif-value">{{
+					(appService.photo | async).exif.iso
+				}}</span>
+			</li>
+		</ul>
+	</div>
+	<a (click)="appService.toggleInfo()" class="icon info">
+		<ng-container *ngIf="!appService.showExif; else cameraOff">
+			<svg viewBox="0 0 24 24">
+				<path
+					d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+				></path>
+				<circle cx="12" cy="13" r="4"></circle>
+			</svg>
+		</ng-container>
+		<ng-template #cameraOff>
+			<svg viewBox="0 0 24 24">
+				<line x1="1" y1="1" x2="23" y2="23"></line>
+				<path
+					d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h4a2 2 0 0 1 2 2v9.34m-7.72-2.06a4 4 0 1 1-5.56-5.56"
+				></path>
+			</svg>
+		</ng-template>
+	</a>
+	<a routerLink="/" class="icon close">
+		<svg viewBox="0 0 24 24">
+			<line x1="18" y1="6" x2="6" y2="18"></line>
+			<line x1="6" y1="6" x2="18" y2="18"></line>
+		</svg>
+	</a>
+	<a
+		*ngIf="appService.previous !== ''"
+		[routerLink]="'/' + appService.previous"
+		[state]="{ offsetEnter: -100, offsetLeave: 100 }"
+		class="icon previous"
+	>
+		<svg viewBox="0 0 24 24">
+			<polyline points="15 18 9 12 15 6"></polyline>
+		</svg>
+	</a>
+	<a
+		*ngIf="appService.next !== ''"
+		[routerLink]="'/' + appService.next"
+		[state]="{ offsetEnter: 100, offsetLeave: -100 }"
+		class="icon next"
+	>
+		<svg viewBox="0 0 24 24">
+			<polyline points="9 18 15 12 9 6"></polyline>
+		</svg>
+	</a>
+</ng-container>
+
+<div *ngIf="showBackdrop" class="backdrop"></div>
+
+<main [@routeSlide]="appService.routeTrigger | async">
+	<router-outlet></router-outlet>
+</main>

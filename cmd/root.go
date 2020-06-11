@@ -12,9 +12,11 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gobuffalo/plush"
+	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/xiam/exif"
 )
 
 const (
@@ -40,6 +42,16 @@ func Execute() {
 
 			fmt.Println("Start dev server...")
 
+			moulConfig := viper.New()
+			moulConfig.SetConfigName("moul")
+			moulConfig.SetDefault("ga_measurement_id", "")
+			moulConfig.AddConfigPath(".")
+			err = moulConfig.ReadInConfig()
+			if err != nil {
+				fmt.Printf("Fatal error config file: %s \n", err)
+			}
+			slugName := slug.Make(moulConfig.GetString("profile.name"))
+
 			path := filepath.Join(dir, "photos", "collection")
 			if _, err := os.Stat(path); os.IsNotExist(err) {
 				color.Red("`collection` folder is not found!")
@@ -51,13 +63,28 @@ func Execute() {
 			for _, photo := range photos {
 				widthHd, heightHd := internal.GetPhotoDimension(photo)
 				height := float64(heightHd) / float64(widthHd) * 750
+				ex := internal.Exif{}
+				data, err := exif.Read(photo)
+				if err == nil {
+					ex.Make = data.Tags["Manufacturer"]
+					ex.Model = data.Tags["Model"]
+					ex.Aperture = data.Tags["F-Number"]
+					ex.DateTime = data.Tags["Date and Time"]
+					ex.ExposureTime = data.Tags["Exposure Time"]
+					ex.FocalLength = data.Tags["Focal Length"]
+					ex.Iso = data.Tags["ISO Speed Ratings"]
+				}
+				fn := filepath.Base(photo)
+				name := internal.GetFileName(fn, slugName)
 
 				mc = append(mc, internal.Collection{
-					Name:     filepath.Base(photo),
+					Name:     name,
+					Src:      fn,
 					WidthHd:  widthHd,
 					HeightHd: heightHd,
 					Width:    750,
 					Height:   int(math.Round(height)),
+					Exif:     ex,
 				})
 			}
 			mcj, _ := json.Marshal(mc)
@@ -66,14 +93,6 @@ func Execute() {
 			coverName := filepath.Base(cover[0])
 			avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
 			avatarName := filepath.Base(avatar[0])
-
-			moulConfig := viper.New()
-			moulConfig.SetConfigName("moul")
-			moulConfig.AddConfigPath(".")
-			err = moulConfig.ReadInConfig()
-			if err != nil {
-				fmt.Printf("Fatal error config file: %s \n", err)
-			}
 
 			t := internal.Template()
 			ctx := plush.NewContext()
@@ -90,6 +109,7 @@ func Execute() {
 
 			ctx.Set("social", moulConfig.Get("social"))
 			ctx.Set("collectionString", string(mcj))
+			ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
 
 			ts, err := plush.Render(t, ctx)
 			if err != nil {
