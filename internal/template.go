@@ -11,10 +11,7 @@ func Template() string {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= content["title"] %> by <%= profile["name"] %></title>
     <meta name="generator" content="Moul <%= version %>">
-    <link rel="preload" href="assets/moul.css" as="style">
     <link rel="preload" href="assets/moul.js" as="script">
-
-    <link rel="stylesheet" href="assets/moul.css">
 
     <style>
         :root {
