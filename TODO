@@ -7,7 +7,12 @@ moul:
       ✔ Bundle it @done(20-06-11 12:11)
     ✔ Improve output @done(20-06-12 12:26)
     ✔ Finalize `export` @done(20-06-12 12:26)
-    ☐ Finalize style
+    ☐ Finalize
+      ✔ Support darkmode @done(20-06-12 15:36)
+      ☐ Implement style config
+      ☐ Support favicons
+      ☐ Support custom js
+      ☐ Support custom css
 
 Archive:
   ✔ Include static assets in compiled binary @done(20-04-11 10:43) @project(moul)

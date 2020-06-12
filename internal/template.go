@@ -26,6 +26,7 @@ func Template() string {
             --warning: #edc72a;
             --error: #ff5851;
             --disabled: rgba(192, 192, 192, 0.2);
+            --tag-color: #555;
 
             --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
             --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
@@ -39,6 +40,15 @@ func Template() string {
         }
         * {
             box-sizing: border-box;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #131619;
+                --foreground: #f2f3f5;
+                --tag-color: #888;
+                --regular-text: rgba(242, 243, 245, 0.6);
+                --social-link-hover: var(--foreground);
+            }
         }
         html {
             -ms-text-size-adjust: 100%;
@@ -172,12 +182,12 @@ func Template() string {
             margin-bottom: 20px;
         }
         .tag {
-            color: #555;
-            font-weight: 500;
+            color: var(--tag-color);
             margin-right: 1rem;
             padding: 6px 12px;
             border-radius: 5px;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,.2), 0 2px 6px 2px rgba(0,0,0,.1);
+            background: rgba(255, 255, 255, .06);
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,.1), 0 2px 6px 2px rgba(0,0,0,.1);
         }
     </style>
 </head>
