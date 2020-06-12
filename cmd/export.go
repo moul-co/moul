@@ -31,7 +31,7 @@ var Export = &cobra.Command{
 	Long:  `Export photo collection to static website that can be deploy anywhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
-		s.Prefix = "Exporting... "
+		s.Prefix = "Exporting photo collection... "
 		s.Start()
 		start := time.Now()
 
@@ -187,7 +187,8 @@ var Export = &cobra.Command{
 		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
-		color.Green("Took: %s", time.Since(start))
+		fmt.Print("\nSuccess! Exported photo collection in")
+		color.Green(" `%s`", time.Since(start))
 		s.Stop()
 	},
 }

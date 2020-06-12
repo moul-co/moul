@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/spf13/cobra"
@@ -17,11 +20,20 @@ var Init = &cobra.Command{
 	Long:  `init is for initializing new photo collection.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
+		s.Prefix = "Creating a new collection... "
+		s.Start()
+		time.Sleep(1 * time.Second)
 		if _, err := os.Stat(args[0]); !os.IsNotExist(err) {
 			color.Yellow("`%s` already exists!", args[0])
+			os.Exit(1)
+		}
+		cwd, err := os.Getwd()
+		if err != nil {
+			color.Yellow("`%s`", err)
 		}
 
-		err := os.MkdirAll(args[0], os.ModePerm)
+		err = os.MkdirAll(args[0], os.ModePerm)
 		if err != nil {
 			color.Yellow("%s", err)
 		}
@@ -40,27 +52,6 @@ var Init = &cobra.Command{
 		}
 
 		box := packr.New("assets", "assets")
-
-		dpng, _ := box.FindString("default-skin.bc570585.png")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "default-skin.bc570585.png"),
-			[]byte(dpng), 0644)
-
-		dsvg, _ := box.FindString("default-skin.4565082c.svg")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "default-skin.4565082c.svg"),
-			[]byte(dsvg), 0644)
-
-		pgif, _ := box.FindString("preloader.cd849b38.gif")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "preloader.cd849b38.gif"),
-			[]byte(pgif), 0644)
-
-		mcss, _ := box.FindString("moul.css")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "moul.css"), []byte(mcss), 0644,
-		)
-
 		mjs, _ := box.FindString("moul.js")
 		ioutil.WriteFile(
 			filepath.Join(args[0], ".moul", "assets", "moul.js"), []byte(mjs), 0644,
@@ -68,5 +59,22 @@ var Init = &cobra.Command{
 
 		mtoml, _ := box.FindString("moul.toml")
 		ioutil.WriteFile(filepath.Join(args[0], "moul.toml"), []byte(mtoml), 0644)
+
+		s.Stop()
+		fmt.Print("\nSuccess! Created collection at")
+		color.Blue(" `%s`", filepath.Join(cwd, args[0]))
+
+		fmt.Print("\nAdd your cover into")
+		color.Blue(" `%s`", filepath.Join(args[0], "photos", "cover"))
+		fmt.Print("Add your avatar into")
+		color.Blue(" `%s`", filepath.Join(args[0], "photos", "avatar"))
+		fmt.Print("Add your collection into")
+		color.Blue(" `%s`", filepath.Join(args[0], "photos", "collection"))
+		fmt.Print("Add your information in")
+		color.Blue(" `%s`", filepath.Join(args[0], "moul.toml"))
+		fmt.Print("\nPreview your photo collection:")
+		color.Blue(" `moul`")
+		fmt.Print("Export your photo collection:")
+		color.Blue(" `moul export`")
 	},
 }

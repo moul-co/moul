@@ -9,7 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
@@ -34,13 +36,15 @@ func Execute() {
 		Use:   "moul",
 		Short: "A publishing tool for photographers, visual storytellers.",
 		Run: func(cmd *cobra.Command, args []string) {
+			s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
+			s.Prefix = "Starting dev server... "
+			s.Start()
+			time.Sleep(1 * time.Second)
 			dir, err := internal.GetDirectory()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-
-			fmt.Println("Start dev server...")
 
 			moulConfig := viper.New()
 			moulConfig.SetConfigName("moul")
@@ -124,6 +128,9 @@ func Execute() {
 				w.Header().Set("Content-Length", strconv.Itoa(len(ts)))
 				w.Write([]byte(ts))
 			})
+			s.Stop()
+			fmt.Print("Preview: ")
+			color.Blue("http://localhost:5000/")
 			http.ListenAndServe(":5000", nil)
 		},
 	}
