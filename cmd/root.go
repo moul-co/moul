@@ -103,6 +103,7 @@ func Execute() {
 			ctx.Set("isProd", false)
 			ctx.Set("version", version)
 			ctx.Set("base", moulConfig.Get("base"))
+			ctx.Set("style", moulConfig.Get("style"))
 			ctx.Set("profile", moulConfig.Get("profile"))
 			ctx.Set("avatar", avatarName)
 
