@@ -12,7 +12,21 @@ func Template() string {
     <title><%= content["title"] %> by <%= profile["name"] %></title>
     <meta name="generator" content="Moul <%= version %>">
     <link rel="preload" href="assets/moul.js" as="script">
-
+    <%= if (favicon == "true"){ %>
+    <link rel="alternate icon" class="favicon-alternate" type="image/png" href="">
+    <link rel="icon" class="favicon" type="image/svg+xml" href="">
+    <script>
+        const favicon = document.querySelector('.favicon');
+        const alternate = document.querySelector('.favicon-alternate');
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            favicon.href = 'photos/favicon/favicon-dark.svg';
+            alternate.href= 'photos/favicon/favicon-dark.png';
+        } else {
+            favicon.href = 'photos/favicon/favicon-light.svg';
+            alternate.href= 'photos/favicon/favicon-light.png';
+        }
+    </script>
+    <% } %>
     <style>
         :root {
             --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;

@@ -1,19 +1,24 @@
 moul:
     ☐ Rewrite collection
-      ✔ Handle EXIF information @done(20-06-08 07:39)
-      ✔ Handle GA @done(20-06-08 20:27)
-      ✔ Handle dev mode @done(20-06-10 21:47)
-      ✔ Handle export mode @done(20-06-10 21:47)
-      ✔ Bundle it @done(20-06-11 12:11)
-    ✔ Improve output @done(20-06-12 12:26)
-    ✔ Finalize `export` @done(20-06-12 12:26)
+      ☐ Improve photo collection in small screen
     ☐ Finalize
-      ✔ Support darkmode @done(20-06-12 15:36)
-      ✔ Implement style config @done(20-06-13 11:08)
-      ✔ Hot rebuild @done(20-06-13 12:02)
-      ☐ Support favicons
-      ☐ Support custom js
-      ☐ Support custom css
+      ☐ Improve output for `init`, and `export`
+      ☐ Implement `Update available`
+    ☐ Publish
+      ☐ Build binaries for `macOS`, `Linux`, and `Windows`
+      ☐ Create node binding
+      ☐ Make new landing page
 
 Archive:
+  ✔ Handle EXIF information @done(20-06-08 07:39) @project(moul)
+  ✔ Handle GA @done(20-06-08 20:27) @project(moul)
+  ✔ Handle dev mode @done(20-06-10 21:47) @project(moul)
+  ✔ Handle export mode @done(20-06-10 21:47) @project(moul)
+  ✔ Bundle it @done(20-06-11 12:11) @project(moul)
+  ✔ Improve output @done(20-06-12 12:26) @project(moul)
+  ✔ Finalize `export` @done(20-06-12 12:26) @project(moul)
+  ✔ Support darkmode @done(20-06-12 15:36) @project(moul)
+  ✔ Implement style config @done(20-06-13 11:08) @project(moul)
+  ✔ Hot rebuild @done(20-06-13 12:02) @project(moul)
+  ✔ Support favicons @done(20-06-13 21:27) @project(moul)
   ✔ Include static assets in compiled binary @done(20-04-11 10:43) @project(moul)

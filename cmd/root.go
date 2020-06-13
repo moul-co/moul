@@ -80,6 +80,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	ctx.Set("isProd", false)
 	ctx.Set("version", version)
 	ctx.Set("base", moulConfig.Get("base"))
+	ctx.Set("favicon", moulConfig.Get("favicon"))
 	ctx.Set("style", moulConfig.Get("style"))
 	ctx.Set("profile", moulConfig.Get("profile"))
 	ctx.Set("avatar", avatarName)
@@ -108,7 +109,7 @@ func Execute() {
 		Short: "A publishing tool for photographers, visual storytellers.",
 		Run: func(cmd *cobra.Command, args []string) {
 			s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
-			s.Prefix = "Starting dev server... "
+			s.Prefix = "■ Starting dev server... "
 			s.Start()
 			time.Sleep(1 * time.Second)
 			dir, err := internal.GetDirectory()
@@ -120,6 +121,7 @@ func Execute() {
 			moulConfig := viper.New()
 			moulConfig.SetConfigName("moul")
 			moulConfig.SetDefault("ga_measurement_id", "")
+			moulConfig.SetDefault("favicon", "false")
 			moulConfig.AddConfigPath(".")
 			err = moulConfig.ReadInConfig()
 			if err != nil {
@@ -129,11 +131,11 @@ func Execute() {
 			var ts string
 			moulConfig.WatchConfig()
 			moulConfig.OnConfigChange(func(e fsnotify.Event) {
-				fmt.Print("Config file changed:")
-				color.Green(" `%s`", filepath.Base(e.Name))
+				fmt.Print("    ◆ Config file changed:")
+				color.HiBlack(" `%s`", filepath.Base(e.Name))
 				ts = getTemplate(moulConfig, dir)
-				fmt.Print("Rebuilt:")
-				color.Green(" http://localhost:5000/")
+				fmt.Print("    ◆ Rebuilt:")
+				color.HiBlack(" http://localhost:5000/")
 			})
 			ts = getTemplate(moulConfig, dir)
 
@@ -147,8 +149,9 @@ func Execute() {
 				w.Write([]byte(ts))
 			})
 			s.Stop()
-			fmt.Print("Preview: ")
+			fmt.Print("● Preview: ")
 			color.Green("http://localhost:5000/")
+			color.HiBlack("\n`Ctrl + C` to quit!")
 			http.ListenAndServe(":5000", nil)
 		},
 	}
