@@ -15,40 +15,58 @@ func Template() string {
 
     <style>
         :root {
-            --background: #fff;
-            --foreground: #111;
-            --regular-text: #333;
-            --social-link: #555;
-            --social-link-hover: #111;
+            --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
+            --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
             --primary: #0066fe;
             --secondary: #454545;
             --success: #53ca2b;
             --warning: #edc72a;
             --error: #ff5851;
+            --social-link: #555;
             --disabled: rgba(192, 192, 192, 0.2);
-            --tag-color: #555;
-
-            --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
-            --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
-
             --breakpoint-m: 768px;
             --breakpoint-l: 1000px;
         }
+        <%= if (style["theme"] == "light"){ %>
+        :root {
+            --background: #fff;
+            --foreground: #111;
+            --regular-text: #333;
+            --social-link-hover: #111;
+            --tag-color: #555;
+        }
+        <% } else if (style["theme"] == "dark") { %>
+        :root {
+            --background: #131619;
+            --foreground: #f2f3f5;
+            --regular-text: rgba(242, 243, 245, 0.6);
+            --social-link-hover: var(--foreground);
+            --tag-color: #888;
+        }
+        <% } else { %>
+            :root {
+                --background: #fff;
+                --foreground: #111;
+                --regular-text: #333;
+                --social-link-hover: #111;
+                --tag-color: #555;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --background: #131619;
+                    --foreground: #f2f3f5;
+                    --tag-color: #888;
+                    --regular-text: rgba(242, 243, 245, 0.6);
+                    --social-link-hover: var(--foreground);
+                }
+            }
+        <% } %>
         ::selection {
             color: #fff;
             background: #0066fe;
         }
         * {
             box-sizing: border-box;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: #131619;
-                --foreground: #f2f3f5;
-                --tag-color: #888;
-                --regular-text: rgba(242, 243, 245, 0.6);
-                --social-link-hover: var(--foreground);
-            }
         }
         html {
             -ms-text-size-adjust: 100%;
