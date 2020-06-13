@@ -213,7 +213,13 @@ func Template() string {
             width: 100%;
             margin: 0 auto 32px;
             padding: 0 32px;
+            text-align: left;
+        }
+        .content-wrap.center {
             text-align: center;
+        }
+        .content-wrap.right {
+            text-align: right;
         }
         .content-wrap p {
             font-size: 18px;
@@ -323,7 +329,7 @@ func Template() string {
             </div>
         </div>
     </div>
-    <div class="content-wrap">
+    <div class="content-wrap <%= style["content"] %>">
         <%= if (len(content["title"]) > 0) { %>
         <h1><%= content["title"] %></h1>
         <% } %>

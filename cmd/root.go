@@ -13,6 +13,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
@@ -29,6 +30,76 @@ const (
 var (
 	output string
 )
+
+func getTemplate(moulConfig *viper.Viper, dir string) string {
+	slugName := slug.Make(moulConfig.GetString("profile.name"))
+	path := filepath.Join(dir, "photos", "collection")
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		color.Red("`collection` folder is not found!")
+		os.Exit(1)
+	}
+	photos := internal.GetPhotos(path)
+	mc := []internal.Collection{}
+
+	for _, photo := range photos {
+		widthHd, heightHd := internal.GetPhotoDimension(photo)
+		height := float64(heightHd) / float64(widthHd) * 750
+		ex := internal.Exif{}
+		data, err := exif.Read(photo)
+		if err == nil {
+			ex.Make = data.Tags["Manufacturer"]
+			ex.Model = data.Tags["Model"]
+			ex.Aperture = data.Tags["F-Number"]
+			ex.DateTime = data.Tags["Date and Time"]
+			ex.ExposureTime = data.Tags["Exposure Time"]
+			ex.FocalLength = data.Tags["Focal Length"]
+			ex.Iso = data.Tags["ISO Speed Ratings"]
+		}
+		fn := filepath.Base(photo)
+		name := internal.GetFileName(fn, slugName)
+
+		mc = append(mc, internal.Collection{
+			Name:     name,
+			Src:      fn,
+			WidthHd:  widthHd,
+			HeightHd: heightHd,
+			Width:    750,
+			Height:   int(math.Round(height)),
+			Exif:     ex,
+		})
+	}
+	mcj, _ := json.Marshal(mc)
+
+	cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
+	coverName := filepath.Base(cover[0])
+	avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
+	avatarName := filepath.Base(avatar[0])
+
+	t := internal.Template()
+	ctx := plush.NewContext()
+	ctx.Set("isProd", false)
+	ctx.Set("version", version)
+	ctx.Set("base", moulConfig.Get("base"))
+	ctx.Set("style", moulConfig.Get("style"))
+	ctx.Set("profile", moulConfig.Get("profile"))
+	ctx.Set("avatar", avatarName)
+
+	ctx.Set("cover", map[string]string{
+		"name": coverName,
+	})
+	ctx.Set("content", moulConfig.Get("content"))
+
+	ctx.Set("social", moulConfig.Get("social"))
+	ctx.Set("collectionString", string(mcj))
+	ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
+
+	ts, err := plush.Render(t, ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return ts
+}
 
 // Execute func
 func Execute() {
@@ -54,72 +125,18 @@ func Execute() {
 			if err != nil {
 				fmt.Printf("Fatal error config file: %s \n", err)
 			}
-			slugName := slug.Make(moulConfig.GetString("profile.name"))
 
-			path := filepath.Join(dir, "photos", "collection")
-			if _, err := os.Stat(path); os.IsNotExist(err) {
-				color.Red("`collection` folder is not found!")
-				os.Exit(1)
-			}
-			photos := internal.GetPhotos(path)
-			mc := []internal.Collection{}
-
-			for _, photo := range photos {
-				widthHd, heightHd := internal.GetPhotoDimension(photo)
-				height := float64(heightHd) / float64(widthHd) * 750
-				ex := internal.Exif{}
-				data, err := exif.Read(photo)
-				if err == nil {
-					ex.Make = data.Tags["Manufacturer"]
-					ex.Model = data.Tags["Model"]
-					ex.Aperture = data.Tags["F-Number"]
-					ex.DateTime = data.Tags["Date and Time"]
-					ex.ExposureTime = data.Tags["Exposure Time"]
-					ex.FocalLength = data.Tags["Focal Length"]
-					ex.Iso = data.Tags["ISO Speed Ratings"]
-				}
-				fn := filepath.Base(photo)
-				name := internal.GetFileName(fn, slugName)
-
-				mc = append(mc, internal.Collection{
-					Name:     name,
-					Src:      fn,
-					WidthHd:  widthHd,
-					HeightHd: heightHd,
-					Width:    750,
-					Height:   int(math.Round(height)),
-					Exif:     ex,
-				})
-			}
-			mcj, _ := json.Marshal(mc)
-
-			cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
-			coverName := filepath.Base(cover[0])
-			avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
-			avatarName := filepath.Base(avatar[0])
-
-			t := internal.Template()
-			ctx := plush.NewContext()
-			ctx.Set("isProd", false)
-			ctx.Set("version", version)
-			ctx.Set("base", moulConfig.Get("base"))
-			ctx.Set("style", moulConfig.Get("style"))
-			ctx.Set("profile", moulConfig.Get("profile"))
-			ctx.Set("avatar", avatarName)
-
-			ctx.Set("cover", map[string]string{
-				"name": coverName,
+			var ts string
+			moulConfig.WatchConfig()
+			moulConfig.OnConfigChange(func(e fsnotify.Event) {
+				fmt.Print("Config file changed:")
+				color.Green(" `%s`", filepath.Base(e.Name))
+				ts = getTemplate(moulConfig, dir)
+				fmt.Print("Rebuilt:")
+				color.Green(" http://localhost:5000/")
 			})
-			ctx.Set("content", moulConfig.Get("content"))
+			ts = getTemplate(moulConfig, dir)
 
-			ctx.Set("social", moulConfig.Get("social"))
-			ctx.Set("collectionString", string(mcj))
-			ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
-
-			ts, err := plush.Render(t, ctx)
-			if err != nil {
-				log.Fatal(err)
-			}
 			fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
 			photoFolder := http.FileServer(http.Dir("photos"))
 			http.Handle("/assets/", http.StripPrefix("/assets/", fs))
@@ -131,7 +148,7 @@ func Execute() {
 			})
 			s.Stop()
 			fmt.Print("Preview: ")
-			color.Blue("http://localhost:5000/")
+			color.Green("http://localhost:5000/")
 			http.ListenAndServe(":5000", nil)
 		},
 	}

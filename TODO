@@ -9,7 +9,8 @@ moul:
     ✔ Finalize `export` @done(20-06-12 12:26)
     ☐ Finalize
       ✔ Support darkmode @done(20-06-12 15:36)
-      ☐ Implement style config
+      ✔ Implement style config @done(20-06-13 11:08)
+      ✔ Hot rebuild @done(20-06-13 12:02)
       ☐ Support favicons
       ☐ Support custom js
       ☐ Support custom css

@@ -1,7 +1,10 @@
 base = "/" # replace with your full domain name where this collection will be deploy to
+ga_measurement_id = ""
 
 [style]
+theme = "system-preference" # possible value "system-preference | dark | light"
 cover = "center" # posible value "left | center | right"
+content = "left" # possible value "left | center | right"
 
 [profile]
 name = "Moul"
