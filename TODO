@@ -1,5 +1,6 @@
 moul:
     ☐ Rewrite collection
+      ✔ Add option to hide exif @done(20-06-14 13:10)
       ☐ Improve photo collection in small screen
     ☐ Finalize
       ☐ Improve output for `init`, and `export`

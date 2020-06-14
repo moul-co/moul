@@ -26,6 +26,7 @@ export interface Photo {
 })
 export class AppService {
 	measurementId: string
+	exif = true
 	collection: Photo[]
 	photo = new ReplaySubject<Photo>(1)
 	previous: string

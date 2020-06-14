@@ -49,10 +49,15 @@ export class AppComponent implements OnInit, AfterViewInit {
 		const measurementId = document.querySelector(
 			'#ga-measurement-id'
 		) as HTMLInputElement
+		const exif = document.querySelector('#exif') as HTMLInputElement
 
 		if (measurementId.value) {
 			this.appService.measurementId = measurementId.value
 		}
+		if (exif.value == 'false') {
+			this.appService.exif = false
+		}
+
 		this.photos = JSON.parse(pi.value)
 
 		this.calculate()

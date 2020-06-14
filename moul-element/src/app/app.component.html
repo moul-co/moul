@@ -7,7 +7,11 @@
 </div>
 
 <ng-container *ngIf="!appService.hideUI">
-	<div class="exif" [class]="appService.showExif ? 'active' : ''">
+	<div
+		*ngIf="appService.exif"
+		class="exif"
+		[class]="appService.showExif ? 'active' : ''"
+	>
 		<ul class="exif-wrap">
 			<li class="exif-item">
 				<span class="exif-label">Camera Make</span>
@@ -47,7 +51,11 @@
 			</li>
 		</ul>
 	</div>
-	<a (click)="appService.toggleInfo()" class="icon info">
+	<a
+		*ngIf="appService.exif"
+		(click)="appService.toggleInfo()"
+		class="icon info"
+	>
 		<ng-container *ngIf="!appService.showExif; else cameraOff">
 			<svg viewBox="0 0 24 24">
 				<path

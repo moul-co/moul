@@ -51,6 +51,7 @@ var Export = &cobra.Command{
 		moulConfig.SetConfigName("moul")
 		moulConfig.SetDefault("ga_measurement_id", "")
 		moulConfig.SetDefault("favicon", "false")
+		moulConfig.SetDefault("exif", "true")
 		moulConfig.AddConfigPath(".")
 		err = moulConfig.ReadInConfig()
 		if err != nil {
@@ -157,6 +158,7 @@ var Export = &cobra.Command{
 		ctx.Set("version", version)
 		ctx.Set("base", moulConfig.Get("base"))
 		ctx.Set("favicon", moulConfig.Get("favicon"))
+		ctx.Set("exif", moulConfig.Get("exif"))
 		ctx.Set("profile", moulConfig.Get("profile"))
 		ctx.Set("cover", cover)
 		ctx.Set("avatar", avatar)
