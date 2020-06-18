@@ -12,11 +12,16 @@
 	bottom: 0;
 }
 .content {
-	max-height: 100vh;
 	overflow: hidden;
 	position: relative;
 }
 img {
-	width: auto;
-	height: 100vh;
+	width: 100%;
+	height: auto;
+}
+@media screen and (min-width: 601px) {
+	img {
+		width: auto;
+		height: 100vh;
+	}
 }

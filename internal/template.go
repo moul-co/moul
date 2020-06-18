@@ -109,7 +109,8 @@ func Template() string {
         }
         header {
             position: relative;
-            height: 70vh;
+            width: 100%;
+            height: 60vh;
             margin-bottom: 32px;
         }
   
@@ -170,7 +171,6 @@ func Template() string {
             transition: all var(--transition)
         }
         .avatar img:hover {
-            border: 2px solid #fff;
             box-shadow: 0 1px 2px 0 rgba(0,0,0,.2), 0 2px 6px 2px rgba(0,0,0,.1);
         }
         h1 {
