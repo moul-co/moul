@@ -21,7 +21,7 @@ var Init = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
-		s.Prefix = "Creating a new collection... "
+		s.Prefix = "■ Creating a new collection... "
 		s.Start()
 		time.Sleep(1 * time.Second)
 		if _, err := os.Stat(args[0]); !os.IsNotExist(err) {
@@ -64,17 +64,17 @@ var Init = &cobra.Command{
 		fmt.Print("\nSuccess! Created collection at")
 		color.Blue(" `%s`", filepath.Join(cwd, args[0]))
 
-		fmt.Print("\nAdd your cover into")
+		fmt.Print("\n■ Add your cover into")
 		color.Blue(" `%s`", filepath.Join(args[0], "photos", "cover"))
-		fmt.Print("Add your avatar into")
+		fmt.Print("■ Add your avatar into")
 		color.Blue(" `%s`", filepath.Join(args[0], "photos", "avatar"))
-		fmt.Print("Add your collection into")
+		fmt.Print("■ Add your collection into")
 		color.Blue(" `%s`", filepath.Join(args[0], "photos", "collection"))
-		fmt.Print("Add your information in")
+		fmt.Print("■ Add your information in")
 		color.Blue(" `%s`", filepath.Join(args[0], "moul.toml"))
-		fmt.Print("\nPreview your photo collection:")
+		fmt.Print("\n● Preview your photo collection:")
 		color.Blue(" `moul`")
-		fmt.Print("Export your photo collection:")
+		fmt.Print("● Export your photo collection:")
 		color.Blue(" `moul export`")
 	},
 }

@@ -31,7 +31,7 @@ var Export = &cobra.Command{
 	Long:  `Export photo collection to static website that can be deploy anywhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
-		s.Prefix = "Exporting photo collection... "
+		s.Prefix = "■ Exporting photo collection... "
 		s.Start()
 		start := time.Now()
 
@@ -160,6 +160,7 @@ var Export = &cobra.Command{
 		ctx.Set("base", moulConfig.Get("base"))
 		ctx.Set("favicon", moulConfig.Get("favicon"))
 		ctx.Set("exif", moulConfig.Get("exif"))
+		ctx.Set("style", moulConfig.Get("style"))
 		ctx.Set("profile", moulConfig.Get("profile"))
 		ctx.Set("cover", cover)
 		ctx.Set("avatar", avatar)
@@ -192,7 +193,7 @@ var Export = &cobra.Command{
 		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
-		fmt.Print("\nSuccess! Exported photo collection in")
+		fmt.Print("\n● Success! Exported photo collection in")
 		color.Green(" `%s`", time.Since(start))
 		s.Stop()
 	},
