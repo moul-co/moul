@@ -3,6 +3,7 @@ module github.com/moulco/moul
 go 1.14
 
 require (
+	github.com/EdlinOrg/prominentcolor v1.0.0
 	github.com/briandowns/spinner v1.9.0
 	github.com/denisbrodbeck/sqip v0.7.0
 	github.com/disintegration/imaging v1.6.2
@@ -17,8 +18,10 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/gosimple/slug v1.9.0
 	github.com/karrick/godirwalk v1.15.6 // indirect
+	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/oliamb/cutter v0.2.2 // indirect
 	github.com/otiai10/copy v1.1.1
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v1.0.0

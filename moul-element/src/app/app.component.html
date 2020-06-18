@@ -101,7 +101,11 @@
 	</a>
 </ng-container>
 
-<div *ngIf="showBackdrop" class="backdrop"></div>
+<div
+	*ngIf="showBackdrop"
+	class="backdrop"
+	[ngStyle]="{ background: (appService.photo | async).color }"
+></div>
 
 <main [@routeSlide]="appService.routeTrigger | async">
 	<router-outlet></router-outlet>

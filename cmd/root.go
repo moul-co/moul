@@ -66,6 +66,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 			Width:    750,
 			Height:   int(math.Round(height)),
 			Exif:     ex,
+			Color:    internal.GetDominantColor(photo),
 		})
 	}
 	mcj, _ := json.Marshal(mc)
