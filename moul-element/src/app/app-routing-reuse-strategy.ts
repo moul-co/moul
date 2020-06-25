@@ -5,7 +5,9 @@ import {
 } from '@angular/router'
 
 import { PhotoComponent } from './photo/photo.component'
+import { Injectable } from '@angular/core'
 
+@Injectable()
 export class CustomReuseStrategy implements RouteReuseStrategy {
 	handlers: { [key: string]: DetachedRouteHandle } = {}
 
