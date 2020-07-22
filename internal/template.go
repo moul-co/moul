@@ -27,6 +27,18 @@ func Template() string {
         }
     </script>
     <% } %>
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:creator" content="@thasophearak" />
+    <meta property="og:url" content="<%= base %>" />
+    <meta property="og:type" content="website" />
+    <%= if (len(content["title"]) > 0) { %>
+        <meta property="og:title" content="<%= content["title"] %>" />
+    <% } %>
+    <%= if (len(content["description"]) > 0) { %>
+        <meta property="og:description" content="<%= content["description"] %>" />
+    <% } %>
+    <meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+    
     <style>
         :root {
             --font: -apple-system, BlinkMacSystemFont, 'San Francisco', Ubuntu, 'Google Sans', Roboto, Noto, 'Segoe UI', Arial, sans-serif;
