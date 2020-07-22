@@ -14,6 +14,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
+	"github.com/gobuffalo/helpers/text"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
@@ -78,9 +79,10 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 
 	t := internal.Template()
 	ctx := plush.NewContext()
+	ctx.Set("md", text.Markdown)
 	ctx.Set("isProd", false)
 	ctx.Set("version", version)
-	ctx.Set("base", moulConfig.Get("base"))
+	ctx.Set("base", "/")
 	ctx.Set("favicon", moulConfig.Get("favicon"))
 	ctx.Set("exif", moulConfig.Get("exif"))
 	ctx.Set("style", moulConfig.Get("style"))

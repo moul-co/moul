@@ -225,7 +225,7 @@ func Template() string {
         .content-wrap {
             max-width: 800px;
             width: 100%;
-            margin: 0 auto 32px;
+            margin: 0 auto 64px;
             padding: 0 32px;
             text-align: left;
         }
@@ -239,6 +239,10 @@ func Template() string {
             font-size: 18px;
             line-height: 1.5;
         }
+        .content-wrap p a {
+            color: var(--primary);
+            text-decoration: none;
+        }
         .tags {
             display: inline-flex;
             margin-bottom: 20px;
@@ -249,7 +253,7 @@ func Template() string {
             padding: 6px 12px;
             border-radius: 5px;
             background: rgba(255, 255, 255, .06);
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,.1), 0 2px 6px 2px rgba(0,0,0,.1);
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,.04), 0 2px 6px 2px rgba(0,0,0,.08);
         }
     </style>
 </head>
@@ -355,7 +359,7 @@ func Template() string {
             </div>
         <% } %>
         <%= if (len(content["description"]) > 0) { %>
-        <p><%= content["description"] %></p>
+        <%= md(content["description"]) %>
         <% } %>
     </div>
 

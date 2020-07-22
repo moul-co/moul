@@ -11,6 +11,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/gobuffalo/helpers/text"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
@@ -155,6 +156,7 @@ var Export = &cobra.Command{
 
 		t := internal.Template()
 		ctx := plush.NewContext()
+		ctx.Set("md", text.Markdown)
 		ctx.Set("isProd", true)
 		ctx.Set("version", version)
 		ctx.Set("base", moulConfig.Get("base"))

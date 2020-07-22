@@ -11,7 +11,7 @@ require (
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fogleman/primitive v0.0.0-20190214200932-673f57e7b1b5 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/gobuffalo/helpers v0.6.1 // indirect
+	github.com/gobuffalo/helpers v0.6.1
 	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/tags v2.1.7+incompatible // indirect
