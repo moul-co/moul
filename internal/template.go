@@ -379,6 +379,7 @@ func Template() string {
     <input type="hidden" id="photos" value="<%= collectionString %>">
     <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
     <input type="hidden" id="exif" value="<%= exif %>">
+    <input type="hidden" id="by" value="<%= by %>">
 </div>
 
 <script src="assets/moul.js" defer></script>

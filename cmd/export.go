@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -89,6 +90,8 @@ var Export = &cobra.Command{
 		for _, photo := range photos {
 			fn := filepath.Base(photo)
 			name := internal.GetFileName(fn, slugName)
+			fnName := strings.ToLower(strings.TrimSuffix(fn, filepath.Ext(fn)))
+			fmt.Println("slugName", slugName)
 
 			pid := config.GetString(slug.Make(fn) + ".id")
 
@@ -114,7 +117,7 @@ var Export = &cobra.Command{
 
 			mc = append(mc, internal.Collection{
 				ID:       pid,
-				Name:     name,
+				Name:     fnName,
 				WidthHd:  widthHd,
 				HeightHd: heightHd,
 				Width:    width,
@@ -164,6 +167,7 @@ var Export = &cobra.Command{
 		ctx.Set("exif", moulConfig.Get("exif"))
 		ctx.Set("style", moulConfig.Get("style"))
 		ctx.Set("profile", moulConfig.Get("profile"))
+		ctx.Set("by", slugName)
 		ctx.Set("cover", cover)
 		ctx.Set("avatar", avatar)
 		ctx.Set("content", moulConfig.Get("content"))

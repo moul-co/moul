@@ -87,6 +87,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	ctx.Set("exif", moulConfig.Get("exif"))
 	ctx.Set("style", moulConfig.Get("style"))
 	ctx.Set("profile", moulConfig.Get("profile"))
+	ctx.Set("by", "")
 	ctx.Set("avatar", avatarName)
 
 	ctx.Set("cover", map[string]string{

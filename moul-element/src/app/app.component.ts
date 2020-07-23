@@ -28,6 +28,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 	container = {}
 	showBackdrop = false
 	hideUI = true
+	by: string
 
 	@ViewChild('next') next: ElementRef<HTMLElement>
 	@ViewChild('previous') previous: ElementRef<HTMLElement>
@@ -50,6 +51,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 			'#ga-measurement-id'
 		) as HTMLInputElement
 		const exif = document.querySelector('#exif') as HTMLInputElement
+		const by = document.querySelector('#by') as HTMLInputElement
+		this.by = by.value
 
 		if (measurementId.value) {
 			this.appService.measurementId = measurementId.value
@@ -85,13 +88,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 		let calculated = []
 		layout.positions.map((_, i: number) => {
 			const srcHd = this.photos[i].id
-				? `photos/${this.photos[i].id}/collection/2048/${this.photos[i].name}.jpg`
+				? `photos/${this.photos[i].id}/collection/2048/${this.photos[i].name}-by-${this.by}.jpg`
 				: `photos/collection/${this.photos[i].src}`
 			const src = this.photos[i].id
-				? `photos/${this.photos[i].id}/collection/750/${this.photos[i].name}.jpg`
+				? `photos/${this.photos[i].id}/collection/750/${this.photos[i].name}-by-${this.by}.jpg`
 				: `photos/collection/${this.photos[i].src}`
 			const sqip = this.photos[i].id
-				? `photos/${this.photos[i].id}/collection/sqip/${this.photos[i].name}.svg`
+				? `photos/${this.photos[i].id}/collection/sqip/${this.photos[i].name}-by-${this.by}.svg`
 				: ''
 
 			calculated.push({
