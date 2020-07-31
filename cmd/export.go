@@ -123,7 +123,7 @@ var Export = &cobra.Command{
 				Width:    width,
 				Height:   height,
 				Exif:     ex,
-				Color:    internal.GetDominantColor(photo),
+				Color:    "rgba(0, 0, 0, .93)",
 			})
 		}
 		mcj, _ := json.Marshal(mc)
