@@ -12,6 +12,7 @@ func Template() string {
     <title><%= content["title"] %> by <%= profile["name"] %></title>
     <meta name="generator" content="Moul <%= version %>">
     <link rel="preload" href="assets/moul.js" as="script">
+    <link rel="preload" href="assets/moul.css" as="style">
     <%= if (favicon == "true"){ %>
     <link rel="alternate icon" class="favicon-alternate" type="image/png" href="">
     <link rel="icon" type="image/svg+xml" href="photos/favicon/favicon.svg">
@@ -265,6 +266,7 @@ func Template() string {
             box-shadow: 0 1px 2px 0 rgba(0,0,0,.04), 0 2px 6px 2px rgba(0,0,0,.08);
         }
     </style>
+    <link rel="stylesheet" href="assets/moul.css">
 </head>
 <body>
 <div id="moul">
@@ -372,7 +374,7 @@ func Template() string {
         <% } %>
     </div>
 
-    <moul-collection></moul-collection>
+    <div class="moul-collection"></div>
     <input type="hidden" id="photos" value="<%= collectionString %>">
     <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
     <input type="hidden" id="exif" value="<%= exif %>">
