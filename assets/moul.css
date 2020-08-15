@@ -1,5 +1,4 @@
 @import '../node_modules/photoswipe/dist/photoswipe.css';
-@import '../node_modules/photoswipe/dist/default-skin/default-skin.css';
 
 .collection {
 	margin: 0 auto 15px;
@@ -16,8 +15,6 @@
 .collection figure a img {
 	position: absolute;
 }
-
-.pswp__ui--fit .pswp__caption,
-.pswp__ui--fit .pswp__top-bar {
-	background-color: rgba(0, 0, 0, 0) !important;
+.pswp__ui.pswp__ui--fit {
+	display: none;
 }

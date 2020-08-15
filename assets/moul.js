@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { render } from 'react-dom'
 import { fixed_partition } from 'image-layout'
-// import photoswipe from '../node_modules/moul-photoswipe/moul-photoswipe'
+import ps from './ps'
 import lazySizes from 'lazysizes'
 ;(() => {
 	const throttle = (type, name, obj) => {
@@ -25,15 +25,15 @@ const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 
 const calculate = (collection, containerWidth) => {
-	let idealElementHeight = 350
+	let idealElementHeight = 320
 	if (containerWidth < 600) {
-		idealElementHeight = 250
+		idealElementHeight = 280
 	}
 
 	const layout = fixed_partition(collection, {
 		containerWidth,
 		idealElementHeight,
-		spacing: 16,
+		spacing: 8,
 	})
 
 	const calculated = []
@@ -107,15 +107,15 @@ const Collection = ({ photos }) => {
 	const [collection, setCollection] = useState(
 		JSON.parse($('#photos').getAttribute('value'))
 	)
-	const [containerWidth, setContainerWidth] = useState(window.innerWidth - 32)
+	const [containerWidth, setContainerWidth] = useState(window.innerWidth - 16)
 
 	function handleResize() {
-		setContainerWidth(window.innerWidth - 32)
+		setContainerWidth(window.innerWidth - 16)
 	}
 
 	useEffect(() => {
 		window.addEventListener('optimizedResize', handleResize)
-		// photoswipe('.collection')
+		ps('.collection')
 		lazySizes.init()
 
 		return () => {
