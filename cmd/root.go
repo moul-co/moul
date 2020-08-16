@@ -14,6 +14,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
+	"github.com/gobuffalo/helpers/iterators"
 	"github.com/gobuffalo/helpers/text"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
@@ -80,6 +81,10 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	t := internal.Template()
 	ctx := plush.NewContext()
 	ctx.Set("md", text.Markdown)
+	ctx.Set("between", iterators.Between)
+	ctx.Set("toString", func(i int) string {
+		return strconv.Itoa(i)
+	})
 	ctx.Set("isProd", false)
 	ctx.Set("version", version)
 	ctx.Set("base", "/")
@@ -94,6 +99,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 		"name": coverName,
 	})
 	ctx.Set("content", moulConfig.Get("content"))
+	ctx.Set("section", moulConfig.Get("section"))
 
 	ctx.Set("social", moulConfig.Get("social"))
 	ctx.Set("collectionString", string(mcj))

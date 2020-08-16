@@ -376,11 +376,27 @@ func Template() string {
 
     <div class="moul-collection"></div>
     <input type="hidden" id="photos" value="<%= collectionString %>">
-    <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
-    <input type="hidden" id="exif" value="<%= exif %>">
-    <input type="hidden" id="by" value="<%= by %>">
+
+    <%= for (v) in between(0,10) { %>
+        <%= if (len(section) >= v) { %>
+            <%= if ((len(section[toString(v)]["title"]) > 0) || (len(section[toString(v)]["description"]) > 0)){ %>
+                <section class="content-wrap">
+                    <%= if (len(section[toString(v)]["title"]) > 0) { %>
+                        <h2><%= section[toString(v)]["title"] %></h2>
+                    <% } %>
+
+                    <%= if (len(section[toString(v)]["description"]) > 0) { %>
+                        <p><%= section[toString(v)]["description"] %></p>
+                    <% } %>
+                </section>
+            <% } %>
+        <% } %>
+    <% } %>
 </div>
 
+<input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
+<input type="hidden" id="exif" value="<%= exif %>">
+<input type="hidden" id="by" value="<%= by %>">
 
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
