@@ -91,7 +91,6 @@ var Export = &cobra.Command{
 			fn := filepath.Base(photo)
 			name := internal.GetFileName(fn, slugName)
 			fnName := strings.ToLower(strings.TrimSuffix(fn, filepath.Ext(fn)))
-			fmt.Println("slugName", slugName)
 
 			pid := config.GetString(slug.Make(fn) + ".id")
 

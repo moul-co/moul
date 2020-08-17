@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"encoding/json"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -40,4 +42,32 @@ func RemoveAll(path string) error {
 		}
 	}
 	return nil
+}
+
+// GetPhotoCollection func
+func GetPhotoCollection(dir, slugName string) string {
+	sectionPath := filepath.Join(".", "photos", dir)
+	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
+		sectionPhotos := GetPhotos(sectionPath)
+		sc := []Collection{}
+		for _, p := range sectionPhotos {
+			widthHd, heightHd := GetPhotoDimension(p)
+			height := float64(heightHd) / float64(widthHd) * 750
+			fn := filepath.Base(p)
+			name := GetFileName(fn, slugName)
+
+			sc = append(sc, Collection{
+				Name:     name,
+				Src:      fn,
+				WidthHd:  widthHd,
+				HeightHd: heightHd,
+				Width:    750,
+				Height:   int(math.Round(height)),
+				Color:    "rgba(0, 0, 0, .93)",
+			})
+		}
+		scj, _ := json.Marshal(sc)
+		return string(scj)
+	}
+	return ""
 }

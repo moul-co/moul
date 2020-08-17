@@ -21,7 +21,6 @@ import (
 	"github.com/moulco/moul/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/xiam/exif"
 )
 
 const (
@@ -35,56 +34,37 @@ var (
 
 func getTemplate(moulConfig *viper.Viper, dir string) string {
 	slugName := slug.Make(moulConfig.GetString("profile.name"))
-	path := filepath.Join(dir, "photos", "collection")
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		color.Red("`collection` folder is not found!")
-		os.Exit(1)
-	}
-	photos := internal.GetPhotos(path)
-	mc := []internal.Collection{}
-
-	for _, photo := range photos {
-		widthHd, heightHd := internal.GetPhotoDimension(photo)
-		height := float64(heightHd) / float64(widthHd) * 750
-		ex := internal.Exif{}
-		data, err := exif.Read(photo)
-		if err == nil {
-			ex.Make = data.Tags["Manufacturer"]
-			ex.Model = data.Tags["Model"]
-			ex.Aperture = data.Tags["F-Number"]
-			ex.DateTime = data.Tags["Date and Time"]
-			ex.ExposureTime = data.Tags["Exposure Time"]
-			ex.FocalLength = data.Tags["Focal Length"]
-			ex.Iso = data.Tags["ISO Speed Ratings"]
-		}
-		fn := filepath.Base(photo)
-		name := internal.GetFileName(fn, slugName)
-
-		mc = append(mc, internal.Collection{
-			Name:     name,
-			Src:      fn,
-			WidthHd:  widthHd,
-			HeightHd: heightHd,
-			Width:    750,
-			Height:   int(math.Round(height)),
-			Exif:     ex,
-			Color:    "rgba(0, 0, 0, .93)",
-		})
-	}
-	mcj, _ := json.Marshal(mc)
+	t := internal.Template()
+	ctx := plush.NewContext()
 
 	sectionPath := filepath.Join(dir, "photos", "section")
 	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
 		sectionDir := internal.GetDirs(sectionPath)
-		for k, sc := range sectionDir {
+		for k, sd := range sectionDir {
 			if k > 0 {
-				sectionPhotos := internal.GetPhotos(sc)
+				sectionPhotos := internal.GetPhotos(sd)
+				sc := []internal.Collection{}
+				scs := map[string]string{}
 				for _, p := range sectionPhotos {
 					widthHd, heightHd := internal.GetPhotoDimension(p)
 					height := float64(heightHd) / float64(widthHd) * 750
+					fn := filepath.Base(p)
+					name := internal.GetFileName(fn, slugName)
 
-					fmt.Println(p, widthHd, heightHd, 750, height)
+					sc = append(sc, internal.Collection{
+						Name:     name,
+						Src:      fn,
+						WidthHd:  widthHd,
+						HeightHd: heightHd,
+						Width:    750,
+						Height:   int(math.Round(height)),
+						Color:    "rgba(0, 0, 0, .93)",
+					})
+
+					scj, _ := json.Marshal(sc)
+					scs[strconv.Itoa(k)] = string(scj)
 				}
+				ctx.Set("scs", scs)
 			}
 		}
 	}
@@ -94,13 +74,15 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
 	avatarName := filepath.Base(avatar[0])
 
-	t := internal.Template()
-	ctx := plush.NewContext()
 	ctx.Set("md", text.Markdown)
 	ctx.Set("between", iterators.Between)
 	ctx.Set("toString", func(i int) string {
 		return strconv.Itoa(i)
 	})
+	ctx.Set("joinPath", func(path, i string) string {
+		return filepath.Join(path, i)
+	})
+	ctx.Set("getPhotos", internal.GetPhotoCollection)
 	ctx.Set("isProd", false)
 	ctx.Set("version", version)
 	ctx.Set("base", "/")
@@ -116,9 +98,9 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	})
 	ctx.Set("content", moulConfig.Get("content"))
 	ctx.Set("section", moulConfig.Get("section"))
+	ctx.Set("slugName", slugName)
 
 	ctx.Set("social", moulConfig.Get("social"))
-	ctx.Set("collectionString", string(mcj))
 	ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
 
 	ts, err := plush.Render(t, ctx)

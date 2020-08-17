@@ -375,7 +375,7 @@ func Template() string {
     </div>
 
     <div class="moul-collection"></div>
-    <input type="hidden" id="photos" value="<%= collectionString %>">
+    <input type="hidden" id="photos" value="<%= getPhotos("collection", slugName) %>">
 
     <%= for (v) in between(0,10) { %>
         <%= if (len(section) >= v) { %>
@@ -388,6 +388,10 @@ func Template() string {
                     <%= if (len(section[toString(v)]["description"]) > 0) { %>
                         <p><%= section[toString(v)]["description"] %></p>
                     <% } %>
+                    <input
+                        type="hidden"
+                        class="section-collection"
+                        value="<%= getPhotos(joinPath("section", toString(v)), slugName) %>">
                 </section>
             <% } %>
         <% } %>
