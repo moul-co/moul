@@ -73,6 +73,22 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	}
 	mcj, _ := json.Marshal(mc)
 
+	sectionPath := filepath.Join(dir, "photos", "section")
+	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
+		sectionDir := internal.GetDirs(sectionPath)
+		for k, sc := range sectionDir {
+			if k > 0 {
+				sectionPhotos := internal.GetPhotos(sc)
+				for _, p := range sectionPhotos {
+					widthHd, heightHd := internal.GetPhotoDimension(p)
+					height := float64(heightHd) / float64(widthHd) * 750
+
+					fmt.Println(p, widthHd, heightHd, 750, height)
+				}
+			}
+		}
+	}
+
 	cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
 	coverName := filepath.Base(cover[0])
 	avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))

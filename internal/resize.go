@@ -88,6 +88,23 @@ func manipulate(id, inPath, author, photoType string, size int) {
 	}
 }
 
+// GetDirs func
+func GetDirs(path string) []string {
+	var folders []string
+
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			folders = append(folders, path)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
+	return folders
+}
+
 // GetPhotos given path
 func GetPhotos(path string) []string {
 	var photos []string
