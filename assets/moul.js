@@ -24,8 +24,8 @@ import lazySizes from 'lazysizes'
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 
-const calculate = (collection, containerWidth) => {
-	let idealElementHeight = 320
+const calculate = (collection, containerWidth, cp) => {
+	let idealElementHeight = 330
 	if (containerWidth < 600) {
 		idealElementHeight = 280
 	}
@@ -39,13 +39,13 @@ const calculate = (collection, containerWidth) => {
 	const calculated = []
 	layout.positions.map((p, i) => {
 		const srcHd = collection[i].id
-			? `photos/${collection[i].id}/collection/2048/${collection[i].name}.jpg`
-			: `photos/collection/${collection[i].src}`
+			? `photos/${collection[i].id}/${cp}/2048/${collection[i].name}.jpg`
+			: `photos/${cp}/${collection[i].src}`
 		const src = collection[i].id
-			? `photos/${collection[i].id}/collection/750/${collection[i].name}.jpg`
-			: `photos/collection/${collection[i].src}`
+			? `photos/${collection[i].id}/${cp}/750/${collection[i].name}.jpg`
+			: `photos/${cp}/${collection[i].src}`
 		const sqip = collection[i].id
-			? `photos/${collection[i].id}/collection/sqip/${collection[i].name}.svg`
+			? `photos/${collection[i].id}/${cp}/sqip/${collection[i].name}.svg`
 			: ''
 
 		calculated.push({
@@ -73,8 +73,12 @@ const calculate = (collection, containerWidth) => {
 	}
 }
 
-const Layout = ({ collection, containerWidth }) => {
-	const { calculated, width, height } = calculate(collection, containerWidth)
+const Layout = ({ collection, containerWidth, cp }) => {
+	const { calculated, width, height } = calculate(
+		collection,
+		containerWidth,
+		cp
+	)
 	const container = { width, height }
 
 	return (
@@ -103,10 +107,8 @@ const Layout = ({ collection, containerWidth }) => {
 	)
 }
 
-const Collection = ({ photos }) => {
-	const [collection, setCollection] = useState(
-		JSON.parse($('#photos').getAttribute('value'))
-	)
+const Collection = ({ photos, cp }) => {
+	const [collection, setCollection] = useState(photos)
 	const [containerWidth, setContainerWidth] = useState(window.innerWidth - 16)
 
 	function handleResize() {
@@ -125,9 +127,18 @@ const Collection = ({ photos }) => {
 
 	return (
 		<>
-			<Layout collection={collection} containerWidth={containerWidth} />
+			<Layout collection={collection} containerWidth={containerWidth} cp={cp} />
 		</>
 	)
 }
 
-render(<Collection />, $$('.moul-collection')[0])
+const collections = $$('.photo-collection')
+collections.forEach((c, i) => {
+	render(
+		<Collection
+			photos={JSON.parse(c.getAttribute('value'))}
+			cp={c.getAttribute('data-cp')}
+		/>,
+		$(`.moul-collection-${i}`)
+	)
+})
