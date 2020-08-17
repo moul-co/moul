@@ -185,6 +185,7 @@ func Template() string {
         }
         h1 {
             font-size: 30px;
+            line-height: 1.25;
             margin: 0 0 16px;
             font-weight: 400;
             color: var(--foreground);
@@ -244,6 +245,15 @@ func Template() string {
         }
         .content-wrap.right {
             text-align: right;
+        }
+        .content-wrap h2 {
+            font-size: 30px;
+            line-height: 1.25;
+            margin: 0 0 16px;
+            font-weight: 400;
+        }
+        .content-wrap p:empty {
+            display: none;
         }
         .content-wrap p {
             font-size: 18px;
@@ -390,7 +400,7 @@ func Template() string {
                     <% } %>
 
                     <%= if (len(section[toString(v)]["description"]) > 0) { %>
-                        <p><%= section[toString(v)]["description"] %></p>
+                        <p><%= md(section[toString(v)]["description"]) %></p>
                     <% } %>
                     <%= if (len(getPhotos(joinPath("section", toString(v)), slugName)) > 0) { %>
                         <input

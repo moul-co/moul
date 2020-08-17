@@ -1,7 +1,7 @@
 @import '../node_modules/photoswipe/dist/photoswipe.css';
 
 .collection {
-	margin: 0 auto 15px;
+	margin: 0 auto 64px;
 	position: relative;
 }
 .collection figure {
