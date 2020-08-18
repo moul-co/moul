@@ -411,7 +411,11 @@ func Template() string {
                         <input
                             type="hidden"
                             class="photo-collection photo-collection-<%= toString(v) %>"
-                            data-cp="<%= "section/" + toString(v) %>"
+                            <%= if (isProd == true) { %>
+                                data-cp="<%= "section-" + toString(v) %>"
+                            <% } else { %>
+                                data-cp="<%= "section/" + toString(v) %>"
+                            <% } %>
                             value="<%= getPhotos(joinPath("section", toString(v)), slugName) %>">
                     <% } %>
                 </section>

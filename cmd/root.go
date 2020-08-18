@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,38 +35,6 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	t := internal.Template()
 	ctx := plush.NewContext()
 
-	sectionPath := filepath.Join(dir, "photos", "section")
-	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
-		sectionDir := internal.GetDirs(sectionPath)
-		for k, sd := range sectionDir {
-			if k > 0 {
-				sectionPhotos := internal.GetPhotos(sd)
-				sc := []internal.Collection{}
-				scs := map[string]string{}
-				for _, p := range sectionPhotos {
-					widthHd, heightHd := internal.GetPhotoDimension(p)
-					height := float64(heightHd) / float64(widthHd) * 750
-					fn := filepath.Base(p)
-					name := internal.GetFileName(fn, slugName)
-
-					sc = append(sc, internal.Collection{
-						Name:     name,
-						Src:      fn,
-						WidthHd:  widthHd,
-						HeightHd: heightHd,
-						Width:    750,
-						Height:   int(math.Round(height)),
-						Color:    "rgba(0, 0, 0, .93)",
-					})
-
-					scj, _ := json.Marshal(sc)
-					scs[strconv.Itoa(k)] = string(scj)
-				}
-				ctx.Set("scs", scs)
-			}
-		}
-	}
-
 	cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
 	coverName := filepath.Base(cover[0])
 	avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
@@ -82,7 +48,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	ctx.Set("joinPath", func(path, i string) string {
 		return filepath.Join(path, i)
 	})
-	ctx.Set("getPhotos", internal.GetPhotoCollection)
+	ctx.Set("getPhotos", internal.GetPhotoDev)
 	ctx.Set("isProd", false)
 	ctx.Set("version", version)
 	ctx.Set("base", "/")

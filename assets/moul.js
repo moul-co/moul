@@ -37,15 +37,16 @@ const calculate = (collection, containerWidth, cp) => {
 	})
 
 	const calculated = []
+	const by = $('#by').value
 	layout.positions.map((p, i) => {
 		const srcHd = collection[i].id
-			? `photos/${collection[i].id}/${cp}/2048/${collection[i].name}.jpg`
+			? `photos/${collection[i].id}/${cp}/2048/${collection[i].name}-by-${by}.jpg`
 			: `photos/${cp}/${collection[i].src}`
 		const src = collection[i].id
-			? `photos/${collection[i].id}/${cp}/750/${collection[i].name}.jpg`
+			? `photos/${collection[i].id}/${cp}/750/${collection[i].name}-by-${by}.jpg`
 			: `photos/${cp}/${collection[i].src}`
 		const sqip = collection[i].id
-			? `photos/${collection[i].id}/${cp}/sqip/${collection[i].name}.svg`
+			? `photos/${collection[i].id}/${cp}/sqip/${collection[i].name}-by-${by}.svg`
 			: ''
 
 		calculated.push({

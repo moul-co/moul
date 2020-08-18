@@ -1,17 +1,17 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/gobuffalo/helpers/iterators"
 	"github.com/gobuffalo/helpers/text"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
@@ -23,7 +23,6 @@ import (
 	"github.com/tdewolff/minify/v2/css"
 	"github.com/tdewolff/minify/v2/html"
 	"github.com/tdewolff/minify/v2/svg"
-	"github.com/xiam/exif"
 )
 
 // Export cmd
@@ -62,8 +61,6 @@ var Export = &cobra.Command{
 
 		slugName := slug.Make(moulConfig.GetString("profile.name"))
 
-		internal.Resize(collectionPath, slugName, "collection", []int{2048, 750})
-
 		coverPath := filepath.Join(dir, "photos", "cover")
 		if _, err := os.Stat(coverPath); os.IsNotExist(err) {
 			color.Yellow("Skipped `cover`")
@@ -78,54 +75,11 @@ var Export = &cobra.Command{
 			internal.Resize(avatarPath, slugName, "avatar", []int{512, 320})
 		}
 
-		photos := internal.GetPhotos(collectionPath)
-		mc := []internal.Collection{}
-
 		config := viper.New()
 		config.AddConfigPath(".moul")
 		config.SetConfigType("toml")
 		config.SetConfigName("collection")
 		config.ReadInConfig()
-
-		for _, photo := range photos {
-			fn := filepath.Base(photo)
-			name := internal.GetFileName(fn, slugName)
-			fnName := strings.ToLower(strings.TrimSuffix(fn, filepath.Ext(fn)))
-
-			pid := config.GetString(slug.Make(fn) + ".id")
-
-			widthHd, heightHd := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", pid, "collection", "2048", name+".jpg"),
-			)
-			width, height := internal.GetPhotoDimension(
-				filepath.Join(".moul", "photos", pid, "collection", "750", name+".jpg"),
-			)
-			ex := internal.Exif{}
-			data, err := exif.Read(
-				filepath.Join(filepath.Join(".", "photos", "collection", fn)),
-			)
-			if err == nil {
-				ex.Make = data.Tags["Manufacturer"]
-				ex.Model = data.Tags["Model"]
-				ex.Aperture = data.Tags["F-Number"]
-				ex.DateTime = data.Tags["Date and Time"]
-				ex.ExposureTime = data.Tags["Exposure Time"]
-				ex.FocalLength = data.Tags["Focal Length"]
-				ex.Iso = data.Tags["ISO Speed Ratings"]
-			}
-
-			mc = append(mc, internal.Collection{
-				ID:       pid,
-				Name:     fnName,
-				WidthHd:  widthHd,
-				HeightHd: heightHd,
-				Width:    width,
-				Height:   height,
-				Exif:     ex,
-				Color:    "rgba(0, 0, 0, .93)",
-			})
-		}
-		mcj, _ := json.Marshal(mc)
 
 		coverPhotos := internal.GetPhotos(coverPath)
 		config.SetConfigName("cover")
@@ -159,6 +113,15 @@ var Export = &cobra.Command{
 		t := internal.Template()
 		ctx := plush.NewContext()
 		ctx.Set("md", text.Markdown)
+		ctx.Set("between", iterators.Between)
+		ctx.Set("toString", func(i int) string {
+			return strconv.Itoa(i)
+		})
+		ctx.Set("joinPath", func(path, i string) string {
+			return filepath.Join(path, i)
+		})
+		ctx.Set("getPhotos", internal.GetPhotoProd)
+
 		ctx.Set("isProd", true)
 		ctx.Set("version", version)
 		ctx.Set("base", moulConfig.Get("base"))
@@ -170,8 +133,9 @@ var Export = &cobra.Command{
 		ctx.Set("cover", cover)
 		ctx.Set("avatar", avatar)
 		ctx.Set("content", moulConfig.Get("content"))
+		ctx.Set("section", moulConfig.Get("section"))
+		ctx.Set("slugName", slugName)
 		ctx.Set("social", moulConfig.Get("social"))
-		ctx.Set("collectionString", string(mcj))
 		ctx.Set("measurementId", moulConfig.Get("ga_measurement_id"))
 
 		ts, err := plush.Render(t, ctx)

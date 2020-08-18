@@ -2,11 +2,15 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
+	"github.com/gosimple/slug"
+	"github.com/spf13/viper"
 )
 
 // GetDirectory func
@@ -44,8 +48,9 @@ func RemoveAll(path string) error {
 	return nil
 }
 
-// GetPhotoCollection func
-func GetPhotoCollection(dir, slugName string) string {
+// GetPhotoDev func
+func GetPhotoDev(dir, slugName string) string {
+	fmt.Println(strings.Split(dir, "/")[0])
 	sectionPath := filepath.Join(".", "photos", dir)
 	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
 		sectionPhotos := GetPhotos(sectionPath)
@@ -63,6 +68,47 @@ func GetPhotoCollection(dir, slugName string) string {
 				HeightHd: heightHd,
 				Width:    750,
 				Height:   int(math.Round(height)),
+				Color:    "rgba(0, 0, 0, .93)",
+			})
+		}
+		scj, _ := json.Marshal(sc)
+		return string(scj)
+	}
+	return ""
+}
+
+// GetPhotoProd func
+func GetPhotoProd(dir, slugName string) string {
+	sectionPath := filepath.Join(".", "photos", dir)
+	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
+		Resize(sectionPath, slugName, slug.Make(dir), []int{2048, 750})
+		config := viper.New()
+		config.AddConfigPath(".moul")
+		config.SetConfigType("toml")
+		config.SetConfigName(slug.Make(dir))
+		config.ReadInConfig()
+		sectionPhotos := GetPhotos(sectionPath)
+		sc := []Collection{}
+
+		for _, photo := range sectionPhotos {
+			fn := filepath.Base(photo)
+			name := GetFileName(fn, slugName)
+			fnName := strings.ToLower(strings.TrimSuffix(fn, filepath.Ext(fn)))
+			pid := config.GetString(slug.Make(fn) + ".id")
+			fmt.Println("pid:", pid)
+			widthHd, heightHd := GetPhotoDimension(
+				filepath.Join(".moul", "photos", pid, slug.Make(dir), "2048", name+".jpg"),
+			)
+			width, height := GetPhotoDimension(
+				filepath.Join(".moul", "photos", pid, slug.Make(dir), "750", name+".jpg"),
+			)
+			sc = append(sc, Collection{
+				ID:       pid,
+				Name:     fnName,
+				WidthHd:  widthHd,
+				HeightHd: heightHd,
+				Width:    width,
+				Height:   height,
 				Color:    "rgba(0, 0, 0, .93)",
 			})
 		}

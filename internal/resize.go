@@ -155,7 +155,7 @@ func Resize(inPath, author, outPrefix string, sizes []int) {
 	config := viper.New()
 	config.AddConfigPath(".moul")
 	config.SetConfigType("toml")
-	config.SetConfigName(outPrefix)
+	config.SetConfigName(slug.Make(outPrefix))
 	config.ReadInConfig()
 
 	for _, photo := range photos {
@@ -165,12 +165,12 @@ func Resize(inPath, author, outPrefix string, sizes []int) {
 			continue
 		}
 		for _, size := range sizes {
-			manipulate(unique, photo, author, outPrefix, size)
+			manipulate(unique, photo, author, slug.Make(outPrefix), size)
 		}
-		makeSQIP(unique, photo, author, outPrefix)
+		makeSQIP(unique, photo, author, slug.Make(outPrefix))
 
 		config.Set(fn+".sha", GetSHA1(photo))
 		config.Set(fn+".id", unique)
 	}
-	config.WriteConfigAs(filepath.Join(".", ".moul", outPrefix+".toml"))
+	config.WriteConfigAs(filepath.Join(".", ".moul", slug.Make(outPrefix)+".toml"))
 }
