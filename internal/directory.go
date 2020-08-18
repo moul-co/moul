@@ -50,7 +50,6 @@ func RemoveAll(path string) error {
 
 // GetPhotoDev func
 func GetPhotoDev(dir, slugName string) string {
-	fmt.Println(strings.Split(dir, "/")[0])
 	sectionPath := filepath.Join(".", "photos", dir)
 	if _, err := os.Stat(sectionPath); !os.IsNotExist(err) {
 		sectionPhotos := GetPhotos(sectionPath)
