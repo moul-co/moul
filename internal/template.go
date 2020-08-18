@@ -275,6 +275,11 @@ func Template() string {
             background: rgba(255, 255, 255, .06);
             box-shadow: 0 1px 2px 0 rgba(0,0,0,.04), 0 2px 6px 2px rgba(0,0,0,.08);
         }
+        footer p {
+            text-align: center;
+            padding: 0 16px 64px;
+            margin: 0;
+        }
     </style>
     <link rel="stylesheet" href="assets/moul.css">
 </head>
@@ -415,6 +420,10 @@ func Template() string {
         <% } %>
     <% } %>
 </div>
+
+<footer>
+    <p>Copyright © <%= profile["name"] %>. All Rights Reserved.</p>
+</footer>
 
 <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
 <input type="hidden" id="exif" value="<%= exif %>">
