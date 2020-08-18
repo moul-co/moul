@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"os"
 	"path/filepath"
@@ -94,7 +93,6 @@ func GetPhotoProd(dir, slugName string) string {
 			name := GetFileName(fn, slugName)
 			fnName := strings.ToLower(strings.TrimSuffix(fn, filepath.Ext(fn)))
 			pid := config.GetString(slug.Make(fn) + ".id")
-			fmt.Println("pid:", pid)
 			widthHd, heightHd := GetPhotoDimension(
 				filepath.Join(".moul", "photos", pid, slug.Make(dir), "2048", name+".jpg"),
 			)
