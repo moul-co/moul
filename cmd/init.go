@@ -56,6 +56,10 @@ var Init = &cobra.Command{
 		ioutil.WriteFile(
 			filepath.Join(args[0], ".moul", "assets", "moul.js"), []byte(mjs), 0644,
 		)
+		mcss, _ := box.FindString("moul.css")
+		ioutil.WriteFile(
+			filepath.Join(args[0], ".moul", "assets", "moul.css"), []byte(mcss), 0644,
+		)
 
 		mtoml, _ := box.FindString("moul.toml")
 		ioutil.WriteFile(filepath.Join(args[0], "moul.toml"), []byte(mtoml), 0644)
@@ -73,8 +77,8 @@ var Init = &cobra.Command{
 		fmt.Print("■ Add your information in")
 		color.Blue(" `%s`", filepath.Join(args[0], "moul.toml"))
 		fmt.Print("\n● Preview your photo collection:")
-		color.Blue(" `moul`")
+		color.Green(" `moul`")
 		fmt.Print("● Export your photo collection:")
-		color.Blue(" `moul export`")
+		color.Green(" `moul export`")
 	},
 }
