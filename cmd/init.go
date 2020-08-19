@@ -51,7 +51,7 @@ var Init = &cobra.Command{
 			os.MkdirAll(filepath.Join(".", args[0], folder), os.ModePerm)
 		}
 
-		box := packr.New("assets", "assets")
+		box := packr.New("assets", "./assets")
 		mjs, _ := box.FindString("moul.js")
 		ioutil.WriteFile(
 			filepath.Join(args[0], ".moul", "assets", "moul.js"), []byte(mjs), 0644,
