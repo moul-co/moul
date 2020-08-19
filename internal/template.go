@@ -430,7 +430,6 @@ func Template() string {
 </footer>
 
 <input type="hidden" id="ga-measurement-id" value="<%= measurementId %>">
-<input type="hidden" id="exif" value="<%= exif %>">
 <input type="hidden" id="by" value="<%= by %>">
 
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">

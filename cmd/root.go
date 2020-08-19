@@ -53,7 +53,6 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	ctx.Set("version", version)
 	ctx.Set("base", "/")
 	ctx.Set("favicon", moulConfig.Get("favicon"))
-	ctx.Set("exif", moulConfig.Get("exif"))
 	ctx.Set("style", moulConfig.Get("style"))
 	ctx.Set("profile", moulConfig.Get("profile"))
 	ctx.Set("by", "")
@@ -97,7 +96,6 @@ func Execute() {
 			moulConfig.SetConfigName("moul")
 			moulConfig.SetDefault("ga_measurement_id", "")
 			moulConfig.SetDefault("favicon", "false")
-			moulConfig.SetDefault("exif", "true")
 			moulConfig.AddConfigPath(".")
 			err = moulConfig.ReadInConfig()
 			if err != nil {
