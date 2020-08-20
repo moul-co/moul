@@ -32,8 +32,8 @@ func Template() string {
     <%= if (len(content["title"]) > 0) { %>
         <meta property="og:title" content="<%= content["title"] %>" />
     <% } %>
-    <%= if (len(content["description"]) > 0) { %>
-        <meta property="og:description" content="<%= content["description"] %>" />
+    <%= if (len(content["text"]) > 0) { %>
+        <meta property="og:description" content="<%= content["text"] %>" />
     <% } %>
     <meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
     
@@ -384,8 +384,8 @@ func Template() string {
             <% } %>
             </div>
         <% } %>
-        <%= if (len(content["description"]) > 0) { %>
-        <%= md(content["description"]) %>
+        <%= if (len(content["text"]) > 0) { %>
+        <%= md(content["text"]) %>
         <% } %>
     </div>
 
@@ -404,8 +404,8 @@ func Template() string {
                         <h2><%= section[toString(v)]["title"] %></h2>
                     <% } %>
 
-                    <%= if (len(section[toString(v)]["description"]) > 0) { %>
-                        <p><%= md(section[toString(v)]["description"]) %></p>
+                    <%= if (len(section[toString(v)]["text"]) > 0) { %>
+                        <p><%= md(section[toString(v)]["text"]) %></p>
                     <% } %>
                     <%= if (len(getPhotos(joinPath("section", toString(v)), slugName)) > 0) { %>
                         <input
