@@ -19,7 +19,7 @@ youtube = ""
 
 [content]
 title = "Moul Demo"
-tags = ["photography", "tool"]
-description = """
+tags = ["Photography", "Tool"]
+text = """
 multi-line text
 """
