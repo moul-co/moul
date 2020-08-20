@@ -122,7 +122,7 @@ var Export = &cobra.Command{
 		ctx.Set("getPhotos", internal.GetPhotoProd)
 
 		ctx.Set("isProd", true)
-		ctx.Set("version", version)
+		ctx.Set("version", Version)
 		ctx.Set("base", moulConfig.Get("base"))
 		ctx.Set("favicon", moulConfig.Get("favicon"))
 		ctx.Set("style", moulConfig.Get("style"))

@@ -23,7 +23,7 @@ import (
 
 const (
 	// Version constant
-	version = "3.0.0-beta"
+	Version = "3.0.0-beta"
 )
 
 var (
@@ -50,7 +50,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	})
 	ctx.Set("getPhotos", internal.GetPhotoDev)
 	ctx.Set("isProd", false)
-	ctx.Set("version", version)
+	ctx.Set("version", Version)
 	ctx.Set("base", "/")
 	ctx.Set("favicon", moulConfig.Get("favicon"))
 	ctx.Set("style", moulConfig.Get("style"))
@@ -134,7 +134,7 @@ func Execute() {
 
 	rootCmd.AddCommand(Init)
 	rootCmd.AddCommand(Export)
-	rootCmd.AddCommand(Version)
+	rootCmd.AddCommand(VersionCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)

@@ -6,12 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Version version
-var Version = &cobra.Command{
+// VersionCmd version
+var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Version",
 	Long:  "Version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(version)
+		fmt.Println(Version)
 	},
 }
