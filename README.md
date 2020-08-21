@@ -1,3 +1,14 @@
-# Moul
+# Moul • The minimalist publishing tool for photographers
 
-> [WIP] A publishing tool for photographers, visual storytellers.
+## Usage
+
+```
+# Create new photo collection
+$ moul create my-collection
+
+# Preview photo collection
+$ moul preview
+
+# Export photo collection
+$ moul export
+```

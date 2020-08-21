@@ -78,73 +78,85 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 	return ts
 }
 
+func previewFunc(cmd *cobra.Command, args []string) {
+	v := semver.MustParse(Version)
+	latest, found, _ := selfupdate.DetectLatest("moulco/moul")
+	if found && !latest.Version.LTE(v) {
+		color.Yellow("Newer version is available for update.")
+		fmt.Print("Update to latest version by:")
+		color.Green(" moul update\n\n")
+	}
+	s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
+	s.Prefix = "■ Starting dev server... "
+	s.Start()
+	time.Sleep(1 * time.Second)
+	dir, err := internal.GetDirectory()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	moulConfig := viper.New()
+	moulConfig.SetConfigName("moul")
+	moulConfig.SetDefault("ga_measurement_id", "")
+	moulConfig.SetDefault("favicon", "false")
+	moulConfig.AddConfigPath(".")
+	err = moulConfig.ReadInConfig()
+	if err != nil {
+		fmt.Printf("Fatal error config file: %s \n", err)
+	}
+
+	var ts string
+	moulConfig.WatchConfig()
+	moulConfig.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Print("    ◆ Config file changed:")
+		color.HiBlack(" `%s`", filepath.Base(e.Name))
+		ts = getTemplate(moulConfig, dir)
+		fmt.Print("    ◆ Rebuilt:")
+		color.HiBlack(" http://localhost:5000/")
+	})
+	ts = getTemplate(moulConfig, dir)
+
+	fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
+	photoFolder := http.FileServer(http.Dir("photos"))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Length", strconv.Itoa(len(ts)))
+		w.Write([]byte(ts))
+	})
+	s.Stop()
+	fmt.Print("● Preview: ")
+	color.Green("http://localhost:5000/")
+	color.HiBlack("\n`Ctrl + C` to quit!")
+	http.ListenAndServe(":5000", nil)
+}
+
 // Execute func
 func Execute() {
 	var rootCmd = &cobra.Command{
 		Use:   "moul",
-		Short: "A publishing tool for photographers, visual storytellers.",
+		Short: "The minimalist publishing tool for photographers",
 		Run: func(cmd *cobra.Command, args []string) {
-			v := semver.MustParse(Version)
-			latest, found, _ := selfupdate.DetectLatest("moulco/moul")
-			if found && !latest.Version.LTE(v) {
-				color.Yellow("Newer version is available for update.")
-				fmt.Print("Update to latest version by:")
-				color.Green(" moul update\n\n")
-			}
-			s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
-			s.Prefix = "■ Starting dev server... "
-			s.Start()
-			time.Sleep(1 * time.Second)
-			dir, err := internal.GetDirectory()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-
-			moulConfig := viper.New()
-			moulConfig.SetConfigName("moul")
-			moulConfig.SetDefault("ga_measurement_id", "")
-			moulConfig.SetDefault("favicon", "false")
-			moulConfig.AddConfigPath(".")
-			err = moulConfig.ReadInConfig()
-			if err != nil {
-				fmt.Printf("Fatal error config file: %s \n", err)
-			}
-
-			var ts string
-			moulConfig.WatchConfig()
-			moulConfig.OnConfigChange(func(e fsnotify.Event) {
-				fmt.Print("    ◆ Config file changed:")
-				color.HiBlack(" `%s`", filepath.Base(e.Name))
-				ts = getTemplate(moulConfig, dir)
-				fmt.Print("    ◆ Rebuilt:")
-				color.HiBlack(" http://localhost:5000/")
-			})
-			ts = getTemplate(moulConfig, dir)
-
-			fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
-			photoFolder := http.FileServer(http.Dir("photos"))
-			http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-			http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
-			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "text/html")
-				w.Header().Set("Content-Length", strconv.Itoa(len(ts)))
-				w.Write([]byte(ts))
-			})
-			s.Stop()
-			fmt.Print("● Preview: ")
-			color.Green("http://localhost:5000/")
-			color.HiBlack("\n`Ctrl + C` to quit!")
-			http.ListenAndServe(":5000", nil)
+			previewFunc(cmd, args)
+		},
+	}
+	var previewCmd = &cobra.Command{
+		Use:   "preview",
+		Short: "Preview photo collection",
+		Run: func(cmd *cobra.Command, args []string) {
+			previewFunc(cmd, args)
 		},
 	}
 
 	Export.Flags().StringVar(&output, "o", "dist", "output directory")
 
-	rootCmd.AddCommand(Init)
+	rootCmd.AddCommand(Create)
 	rootCmd.AddCommand(Export)
-	rootCmd.AddCommand(VersionCmd)
 	rootCmd.AddCommand(Update)
+	rootCmd.AddCommand(VersionCmd)
+	rootCmd.AddCommand(previewCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)

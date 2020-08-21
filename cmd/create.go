@@ -13,11 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Init cmd
-var Init = &cobra.Command{
-	Use:   "init [collection-name]",
-	Short: "Initialize photo collection",
-	Long:  `init is for initializing new photo collection.`,
+// Create cmd
+var Create = &cobra.Command{
+	Use:   "create [collection-name]",
+	Short: "Create photo collection",
+	Long:  `create is for creating new photo collection.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
@@ -68,16 +68,12 @@ var Init = &cobra.Command{
 		fmt.Print("\nSuccess! Created collection at")
 		color.Blue(" `%s`", filepath.Join(cwd, args[0]))
 
-		fmt.Print("\n■ Add your cover into")
-		color.Blue(" `%s`", filepath.Join(args[0], "photos", "cover"))
-		fmt.Print("■ Add your avatar into")
-		color.Blue(" `%s`", filepath.Join(args[0], "photos", "avatar"))
-		fmt.Print("■ Add your collection into")
-		color.Blue(" `%s`", filepath.Join(args[0], "photos", "collection"))
+		fmt.Print("\n■ Add your `cover`, `avatar`, and `collection`\ninto")
+		color.Blue(" `%s`", filepath.Join(args[0], "photos", "cover|avatar|collection"))
 		fmt.Print("■ Add your information in")
 		color.Blue(" `%s`", filepath.Join(args[0], "moul.toml"))
 		fmt.Print("\n● Preview your photo collection:")
-		color.Green(" `moul`")
+		color.Green(" `moul preview`")
 		fmt.Print("● Export your photo collection:")
 		color.Green(" `moul export`")
 	},
