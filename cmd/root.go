@@ -135,6 +135,7 @@ func Execute() {
 	rootCmd.AddCommand(Init)
 	rootCmd.AddCommand(Export)
 	rootCmd.AddCommand(VersionCmd)
+	rootCmd.AddCommand(Update)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)
