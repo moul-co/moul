@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/blang/semver"
+	"github.com/fatih/color"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/cobra"
 )
@@ -17,13 +18,13 @@ var Update = &cobra.Command{
 
 		latest, err := selfupdate.UpdateSelf(v, "moulco/moul")
 		if err != nil {
-			log.Println("Binary update failed:", err)
+			color.Red("Binary update failed:", err)
 		}
 
 		if latest.Version.Equals(v) {
-			log.Println("Current binary is the latest version", Version)
+			fmt.Println("Current binary is the latest version", Version)
 		} else {
-			log.Println("Successfully updated to version", latest.Version)
+			color.Green("Successfully updated to version", latest.Version)
 		}
 	},
 }

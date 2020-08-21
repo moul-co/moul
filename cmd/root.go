@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/blang/semver"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
@@ -17,6 +18,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -82,6 +84,13 @@ func Execute() {
 		Use:   "moul",
 		Short: "A publishing tool for photographers, visual storytellers.",
 		Run: func(cmd *cobra.Command, args []string) {
+			v := semver.MustParse(Version)
+			latest, found, _ := selfupdate.DetectLatest("moulco/moul")
+			if found && !latest.Version.LTE(v) {
+				color.Yellow("Newer version is available for update.")
+				fmt.Print("Update to latest version by:")
+				color.Green(" moul update\n\n")
+			}
 			s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
 			s.Prefix = "■ Starting dev server... "
 			s.Start()

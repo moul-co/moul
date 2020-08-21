@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/blang/semver"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/gobuffalo/helpers/iterators"
@@ -17,6 +18,7 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
 	"github.com/otiai10/copy"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tdewolff/minify/v2"
@@ -31,6 +33,14 @@ var Export = &cobra.Command{
 	Short: "Export photo collection",
 	Long:  `Export photo collection to static website that can be deploy anywhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		v := semver.MustParse(Version)
+		latest, found, _ := selfupdate.DetectLatest("moulco/moul")
+		if found && !latest.Version.LTE(v) {
+			color.Yellow("Newer version is available for update.")
+			fmt.Print("Update to latest version by:")
+			color.Green(" moul update\n\n")
+		}
+
 		s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
 		s.Prefix = "■ Exporting photo collection... "
 		s.Start()
