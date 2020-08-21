@@ -25,17 +25,23 @@ func Template() string {
         }
     </script>
     <% } %>
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:creator" content="@thasophearak" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <%= if (len(social["twitter"]) > 0 ) { %>
+        <meta name="twitter:creator" content="@<%= social["twitter"] %>" />
+    <% } %>
+
     <meta property="og:url" content="<%= base %>" />
     <meta property="og:type" content="website" />
     <%= if (len(content["title"]) > 0) { %>
         <meta property="og:title" content="<%= content["title"] %>" />
+        <meta name="twitter:title" content="<%= content["title"] %>" />
     <% } %>
     <%= if (len(content["text"]) > 0) { %>
         <meta property="og:description" content="<%= content["text"] %>" />
+        <meta name="twitter:description" content="<%= content["text"] %>">
     <% } %>
     <meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+    <meta name="twitter:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
     
     <style>
         :root {
