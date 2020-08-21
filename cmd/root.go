@@ -100,6 +100,7 @@ func previewFunc(cmd *cobra.Command, args []string) {
 	moulConfig.SetConfigName("moul")
 	moulConfig.SetDefault("ga_measurement_id", "")
 	moulConfig.SetDefault("favicon", "false")
+	moulConfig.SetDefault("content", map[string]string{})
 	moulConfig.AddConfigPath(".")
 	err = moulConfig.ReadInConfig()
 	if err != nil {
