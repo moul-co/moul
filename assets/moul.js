@@ -108,7 +108,7 @@ const Layout = ({ collection, containerWidth, cp }) => {
 	)
 }
 
-const Collection = ({ photos, cp }) => {
+const Collection = ({ photos, cp, cid }) => {
 	const [collection, setCollection] = useState(photos)
 	const [containerWidth, setContainerWidth] = useState(window.innerWidth - 16)
 
@@ -118,8 +118,8 @@ const Collection = ({ photos, cp }) => {
 
 	useEffect(() => {
 		window.addEventListener('optimizedResize', handleResize)
-		ps('.collection')
 		lazySizes.init()
+		ps(cid)
 
 		return () => {
 			window.removeEventListener('optimizedResize', handleResize)
@@ -139,6 +139,7 @@ collections.forEach((c, i) => {
 		<Collection
 			photos={JSON.parse(c.getAttribute('value'))}
 			cp={c.getAttribute('data-cp')}
+			cid={i}
 		/>,
 		$(`.moul-collection-${i}`)
 	)
