@@ -8,8 +8,12 @@ func Template() string {
 <head>
     <base href="<%= base %>">
     <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= content["title"] %> by <%= profile["name"] %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%= if (len(content["title"]) > 0) { %>
+        <title><%= content["title"] %> by <%= profile["name"] %></title>
+    <% } else { %>
+        <title><%= profile["name"] %></title>
+    <% } %>
     <meta name="generator" content="Moul <%= version %>">
     <link rel="preload" href="assets/moul.js" as="script">
     <link rel="preload" href="assets/moul.css" as="style">
