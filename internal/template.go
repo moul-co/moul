@@ -87,7 +87,7 @@ func Template() string {
             }
             @media (prefers-color-scheme: dark) {
                 :root {
-                    --background: #131619;
+                    --background: #121313;
                     --foreground: #f2f3f5;
                     --tag-color: #888;
                     --regular-text: rgba(242, 243, 245, 0.6);
@@ -150,6 +150,7 @@ func Template() string {
             width: 100%;
             height: 100%;
             -o-object-fit: cover;
+            font-family: "object-fit:cover";
             object-fit: cover;
         }
   
@@ -301,16 +302,16 @@ func Template() string {
                 <picture>
                     <%= if (isProd == true) { %>
                     <source
-                        media="(max-width: 600px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
+                        media="(min-width: 1200px)"
+                        data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
                     >
                     <source
-                        media="(min-width: 601px)"
+                        media="(min-width: 600px)"
                         data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
                     >
                     <source
-                        media="(min-width: 1201px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
+                        media="(min-width: 320px)"
+                        data-srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
                     >
                     <img
                         alt="cover"
