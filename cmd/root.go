@@ -120,8 +120,14 @@ func previewFunc(cmd *cobra.Command, args []string) {
 
 	fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
 	photoFolder := http.FileServer(http.Dir("photos"))
+
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
+	if moulConfig.GetBool("favicon") == true {
+		favicon := http.FileServer(http.Dir("favicon"))
+		http.Handle("/favicon/", http.StripPrefix("/favicon/", favicon))
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", strconv.Itoa(len(ts)))

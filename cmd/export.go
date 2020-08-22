@@ -169,6 +169,7 @@ var Export = &cobra.Command{
 
 		copy.Copy(filepath.Join(".", ".moul", "photos"), filepath.Join(out, "photos"))
 		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
+		copy.Copy(filepath.Join(".", "favicon"), filepath.Join(out, "favicon"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
 		fmt.Print("\n● Success! Exported photo collection in")

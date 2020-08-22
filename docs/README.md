@@ -12,9 +12,9 @@ base = "/"
 ga_measurement_id = ""
 
 # Default to false, if true, below files are expected.
-# `photos/favicon/favicon.svg`
-# `photos/favicon/favicon-dark.png`
-# `photos/favicon/favicon-light.png`
+# `favicon/favicon.svg`
+# `favicon/favicon-dark.png`
+# `favicon/favicon-light.png`
 # see example
 favicon = "true"
 

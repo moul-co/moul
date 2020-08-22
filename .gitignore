@@ -5,7 +5,8 @@ node_modules
 package-lock.json
 
 cmd/assets/*
-photos
+photos/
+!docs/example/photos/
 /moul.toml
 .moul
 dist

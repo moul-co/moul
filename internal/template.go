@@ -19,13 +19,13 @@ func Template() string {
     <link rel="preload" href="assets/moul.css" as="style">
     <%= if (favicon == "true"){ %>
     <link rel="alternate icon" class="favicon-alternate" type="image/png" href="">
-    <link rel="icon" type="image/svg+xml" href="photos/favicon/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
     <script>
         const alternate = document.querySelector('.favicon-alternate');
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            alternate.href= 'photos/favicon/favicon-dark.png';
+            alternate.href= 'favicon/favicon-dark.png';
         } else {
-            alternate.href= 'photos/favicon/favicon-light.png';
+            alternate.href= 'favicon/favicon-light.png';
         }
     </script>
     <% } %>
