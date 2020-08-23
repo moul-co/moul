@@ -6,7 +6,7 @@ Demo: [https://demo.moul.app](https://demo.moul.app)
 
 - `Simplicity` Simple text configuration control your photo collection
 - `Flexible` Available in various layouts, easy to adjust with predefined layout
-- `Smart` Look great for aspect ratio without crop your composition
+- `Smart` Look great for any aspect ratio without crop your composition
 - `Self-hosted` Deploy exported collection to any hosting providers
 - `The One` One Binary to rule them all
 - `Moul Platform` Deploy your photos to global CDN with just 1 command _(coming soon)_
