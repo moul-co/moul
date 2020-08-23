@@ -4,12 +4,12 @@ Demo: [https://demo.moul.app](https://demo.moul.app)
 
 ## Features
 
-- `Simplicity` simple text configuration control your photo collection
-- `Flexible` available in various layouts, easy to adjust with predefined layout
-- `Smart` look great for aspect ratio without crop your composition
+- `Simplicity` Simple text configuration control your photo collection
+- `Flexible` Available in various layouts, easy to adjust with predefined layout
+- `Smart` Look great for aspect ratio without crop your composition
 - `Self-hosted` Deploy exported collection to any hosting providers
-- `The One` one Binary to rule them all
-- `Moul Platform` deploy your photos to global CDN with just 1 command _(coming soon)_
+- `The One` One Binary to rule them all
+- `Moul Platform` Deploy your photos to global CDN with just 1 command _(coming soon)_
 
 ## Installation
 
@@ -27,7 +27,7 @@ curl -s https://moul.app/install.sh | sh
 
 ## Usage
 
-Just 3 simple commands
+Just 3 simple commands:
 
 ### Create new photo collection
 
@@ -47,6 +47,6 @@ $ moul preview
 $ moul export
 ```
 
-## Configuration
+## `moul.toml` Configuration
 
-See full option [here](https://github.com/moulco/moul/tree/master/docs)
+See full options [here](https://github.com/moulco/moul/tree/master/docs)
