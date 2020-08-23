@@ -15,6 +15,9 @@
 .collection figure a img {
 	position: absolute;
 }
-.pswp__ui.pswp__ui--fit {
-	display: none;
+
+.pswp__ui,
+.pswp__button,
+.pswp__ui .pswp__ui--fit {
+	display: none !important;
 }
