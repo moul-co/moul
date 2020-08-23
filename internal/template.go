@@ -306,12 +306,8 @@ func Template() string {
                         data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
                     >
                     <source
-                        media="(min-width: 600px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
-                    >
-                    <source
                         media="(min-width: 320px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/620/<%= cover["name"] %>.jpg"
+                        data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
                     >
                     <img
                         alt="cover"
