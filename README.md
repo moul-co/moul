@@ -27,7 +27,7 @@ curl -s https://moul.app/install.sh | sh
 
 ## Usage
 
-Enter the following into the terminal:
+Just 3 simple commands
 
 ### Create new photo collection
 
