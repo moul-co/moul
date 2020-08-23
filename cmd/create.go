@@ -52,14 +52,6 @@ var Create = &cobra.Command{
 		}
 
 		box := packr.New("assets", "./assets")
-		mjs, _ := box.FindString("moul.js")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "moul.js"), []byte(mjs), 0644,
-		)
-		mcss, _ := box.FindString("moul.css")
-		ioutil.WriteFile(
-			filepath.Join(args[0], ".moul", "assets", "moul.css"), []byte(mcss), 0644,
-		)
 
 		mtoml, _ := box.FindString("moul.toml")
 		ioutil.WriteFile(filepath.Join(args[0], "moul.toml"), []byte(mtoml), 0644)
