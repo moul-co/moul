@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/blang/semver"
@@ -89,8 +90,6 @@ var Export = &cobra.Command{
 		config := viper.New()
 		config.AddConfigPath(".moul")
 		config.SetConfigType("toml")
-		config.SetConfigName("collection")
-		config.ReadInConfig()
 
 		coverPhotos := internal.GetPhotos(coverPath)
 		config.SetConfigName("cover")
@@ -178,9 +177,17 @@ var Export = &cobra.Command{
 		ioutil.WriteFile(
 			filepath.Join(out, "assets", "moul.css"), []byte(mcss), 0644,
 		)
-		copy.Copy(filepath.Join(".", ".moul", "photos"), filepath.Join(out, "photos"))
 		copy.Copy(filepath.Join(".", "favicon"), filepath.Join(out, "favicon"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
+
+		config.SetConfigName("photos")
+		config.ReadInConfig()
+
+		for _, k := range config.AllKeys() {
+			for _, v := range config.GetStringSlice(k) {
+				copy.Copy(v, filepath.Join(out, strings.Split(v, ".moul")[1]))
+			}
+		}
 
 		fmt.Print("\n● Success! Exported photo collection in")
 		color.Green(" `%s`", time.Since(start))

@@ -146,19 +146,47 @@ func Resize(inPath, author, outPrefix string, sizes []int) {
 	config.SetConfigName(slug.Make(outPrefix))
 	config.ReadInConfig()
 
+	allPhotos := viper.New()
+	allPhotos.AddConfigPath(".moul")
+	allPhotos.SetConfigType("toml")
+	allPhotos.SetConfigName("photos")
+	allPhotos.ReadInConfig()
+	ap := allPhotos.GetStringSlice(slug.Make(outPrefix))
+
 	for _, photo := range photos {
 		fn := slug.Make(filepath.Base(photo))
+
+		pt := filepath.Base(photo)
+		name := GetFileName(pt, author)
 
 		if config.GetString(fn+".sha") == GetSHA1(photo) {
 			continue
 		}
 		for _, size := range sizes {
 			manipulate(unique, photo, author, slug.Make(outPrefix), size)
+
+			ap = append(ap,
+				filepath.Join(".", ".moul", "photos",
+					unique,
+					slug.Make(outPrefix),
+					strconv.Itoa(size),
+					name+".jpg"),
+			)
 		}
+		ap = append(ap,
+			filepath.Join(".", ".moul", "photos",
+				unique,
+				slug.Make(outPrefix),
+				"sqip",
+				name+".svg"),
+		)
 		makeSQIP(unique, photo, author, slug.Make(outPrefix))
 
 		config.Set(fn+".sha", GetSHA1(photo))
 		config.Set(fn+".id", unique)
 	}
+	allPhotos.Set(slug.Make(outPrefix), ap)
+
 	config.WriteConfigAs(filepath.Join(".", ".moul", slug.Make(outPrefix)+".toml"))
+	allPhotos.WriteConfigAs(filepath.Join(".", ".moul", "photos.toml"))
 }
