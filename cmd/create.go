@@ -42,7 +42,6 @@ var Create = &cobra.Command{
 			filepath.Join("photos", "cover"),
 			filepath.Join("photos", "avatar"),
 			filepath.Join("photos", "collection"),
-			filepath.Join(".moul", "assets"),
 			filepath.Join(".moul", "photos", "cover"),
 			filepath.Join(".moul", "photos", "avatar"),
 			filepath.Join(".moul", "photos", "collection"),
