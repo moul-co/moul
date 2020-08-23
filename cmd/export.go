@@ -14,6 +14,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/gobuffalo/helpers/iterators"
 	"github.com/gobuffalo/helpers/text"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
@@ -167,8 +168,17 @@ var Export = &cobra.Command{
 		}
 		os.MkdirAll(out, os.ModePerm)
 
+		os.MkdirAll(filepath.Join(out, "assets"), os.ModePerm)
+		box := packr.New("assets", "./assets")
+		mjs, _ := box.FindString("moul.js")
+		ioutil.WriteFile(
+			filepath.Join(out, "assets", "moul.js"), []byte(mjs), 0644,
+		)
+		mcss, _ := box.FindString("moul.css")
+		ioutil.WriteFile(
+			filepath.Join(out, "assets", "moul.css"), []byte(mcss), 0644,
+		)
 		copy.Copy(filepath.Join(".", ".moul", "photos"), filepath.Join(out, "photos"))
-		copy.Copy(filepath.Join(".", ".moul", "assets"), filepath.Join(out, "assets"))
 		copy.Copy(filepath.Join(".", "favicon"), filepath.Join(out, "favicon"))
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 

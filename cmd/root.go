@@ -15,6 +15,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gobuffalo/helpers/iterators"
 	"github.com/gobuffalo/helpers/text"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gosimple/slug"
 	"github.com/moulco/moul/internal"
@@ -118,10 +119,9 @@ func previewFunc(cmd *cobra.Command, args []string) {
 	})
 	ts = getTemplate(moulConfig, dir)
 
-	fs := http.FileServer(http.Dir(filepath.Join(".", ".moul", "assets")))
+	box := packr.New("assets", "./assets")
 	photoFolder := http.FileServer(http.Dir("photos"))
-
-	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(box)))
 	http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
 	if moulConfig.GetBool("favicon") == true {
 		favicon := http.FileServer(http.Dir("favicon"))
