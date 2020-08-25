@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version constant
-	Version = "3.0.0"
+	Version = "3.0.1"
 )
 
 var (
