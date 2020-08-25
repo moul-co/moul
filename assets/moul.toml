@@ -1,14 +1,15 @@
-base = "/" # replace with your full domain name where this collection will be deploy to
+# docs: https://github.com/moulco/moul/tree/master/docs#example-moultoml
+base = "/"
 ga_measurement_id = ""
 
 [style]
-theme = "system-preference" # possible value "system-preference | dark | light"
-cover = "center" # posible value "left | center | right"
-content = "left" # possible value "left | center | right"
+theme = "system-preference"
+cover = "center"
+content = "left"
 
 [profile]
 name = "Moul"
-bio = "A publishing tool for photographers, visual storytellers."
+bio = "The minimalist publishing tool for photographers"
 
 [social]
 twitter = ""
@@ -16,10 +17,3 @@ github = "moulco/moul"
 instagram = "moul.co"
 facebook = ""
 youtube = ""
-
-[content]
-title = "Moul Demo"
-tags = ["Photography", "Tool"]
-text = """
-multi-line text
-"""
