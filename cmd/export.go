@@ -95,23 +95,32 @@ var Export = &cobra.Command{
 		config.SetConfigName("cover")
 		config.ReadInConfig()
 
-		cid := config.GetString(slug.Make(filepath.Base(coverPhotos[0])) + ".id")
+		var cname, aname string
+
+		if len(coverPhotos) > 0 {
+			cname = filepath.Base(coverPhotos[0])
+		}
+		cid := config.GetString(slug.Make(cname) + ".id")
 		coverPathToSqip := filepath.Join(".moul", "photos", cid, "cover", "sqip",
-			internal.GetFileName(filepath.Base(coverPhotos[0]), slugName)+".svg",
+			internal.GetFileName(cname, slugName)+".svg",
 		)
 		inlineCover := internal.GetEncodedSvg(coverPathToSqip)
 		cover := map[string]string{
 			"id":   cid,
-			"name": internal.GetFileName(filepath.Base(coverPhotos[0]), slugName),
+			"name": internal.GetFileName(cname, slugName),
 			"sqip": inlineCover,
 		}
 
 		avatarPhotos := internal.GetPhotos(avatarPath)
 		config.SetConfigName("avatar")
 		config.ReadInConfig()
-		aid := config.GetString(slug.Make(filepath.Base(avatarPhotos[0])) + ".id")
+
+		if len(avatarPhotos) > 0 {
+			aname = filepath.Base(avatarPhotos[0])
+		}
+		aid := config.GetString(slug.Make(aname) + ".id")
 		avatarPathToSqip := filepath.Join(".moul", "photos", aid, "avatar", "sqip",
-			internal.GetFileName(filepath.Base(avatarPhotos[0]), slugName)+".svg",
+			internal.GetFileName(aname, slugName)+".svg",
 		)
 		inlineAvatar := internal.GetEncodedSvg(avatarPathToSqip)
 		avatar := map[string]string{
