@@ -35,13 +35,19 @@ var (
 
 func getTemplate(moulConfig *viper.Viper, dir string) string {
 	slugName := slug.Make(moulConfig.GetString("profile.name"))
+	var coverName, avatarName string
 	t := internal.Template()
 	ctx := plush.NewContext()
 
 	cover := internal.GetPhotos(filepath.Join(dir, "photos", "cover"))
-	coverName := filepath.Base(cover[0])
+	if len(cover) > 0 {
+		coverName = filepath.Base(cover[0])
+	}
+
 	avatar := internal.GetPhotos(filepath.Join(dir, "photos", "avatar"))
-	avatarName := filepath.Base(avatar[0])
+	if len(avatar) > 0 {
+		avatarName = filepath.Base(avatar[0])
+	}
 
 	ctx.Set("md", text.Markdown)
 	ctx.Set("between", iterators.Between)

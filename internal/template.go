@@ -297,6 +297,7 @@ func Template() string {
 <body>
 <div id="moul">
     <div class="heading <%= style["cover"] %>">
+        <%= if (len(cover["name"]) > 0) { %>
         <header>
             <div class="cover">
                 <picture>
@@ -323,21 +324,24 @@ func Template() string {
                 </picture>
             </div>
         </header>
+        <% } %>
         <div class="profile">
-            <%= if (isProd == true) { %>
-            <a href="photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg" class="avatar">
-                <img
-                    src="<%= avatar["sqip"] %>"
-                    data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
-                    class="lazyload"
-                    alt="<%= profile["name"] %>'s avatar">
-            </a>
-            <% } else { %>
-            <a href="photos/avatar/<%= avatar %>" class="avatar">
-                <img
-                    src="photos/avatar/<%= avatar %>"
-                    alt="<%= profile["name"] %> 's avatar">
-            </a>
+            <%= if (len(avatar) > 0) { %>
+                <%= if (isProd == true) { %>
+                <a href="photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg" class="avatar">
+                    <img
+                        src="<%= avatar["sqip"] %>"
+                        data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
+                        class="lazyload"
+                        alt="<%= profile["name"] %>'s avatar">
+                </a>
+                <% } else { %>
+                <a href="photos/avatar/<%= avatar %>" class="avatar">
+                    <img
+                        src="photos/avatar/<%= avatar %>"
+                        alt="<%= profile["name"] %> 's avatar">
+                </a>
+                <% } %>
             <% } %>
             <h2><%= profile["name"] %></h2>
             <p><%= profile["bio"] %></p>

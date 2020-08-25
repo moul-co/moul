@@ -101,7 +101,7 @@ func GetPhotos(path string) []string {
 		if info.IsDir() {
 			return nil
 		}
-		if filepath.Ext(path) == ".jpeg" || filepath.Ext(path) == ".jpg" || filepath.Ext(path) == ".png" {
+		if strings.ToLower(filepath.Ext(path)) == ".jpeg" || strings.ToLower(filepath.Ext(path)) == ".jpg" || strings.ToLower(filepath.Ext(path)) == ".png" {
 			photos = append(photos, path)
 		}
 		return nil
