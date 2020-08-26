@@ -134,6 +134,7 @@ func previewFunc(cmd *cobra.Command, args []string) {
 		http.Handle("/favicon/", http.StripPrefix("/favicon/", favicon))
 	}
 
+	http.HandleFunc("/img/", internal.ImageHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", strconv.Itoa(len(ts)))
