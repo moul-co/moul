@@ -297,50 +297,73 @@ func Template() string {
 <body>
 <div id="moul">
     <div class="heading <%= style["cover"] %>">
-        <%= if (len(cover["name"]) > 0) { %>
-        <header>
-            <div class="cover">
-                <picture>
-                    <%= if (isProd == true) { %>
-                    <source
-                        media="(min-width: 1200px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
-                    >
-                    <source
-                        media="(min-width: 320px)"
-                        data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
-                    >
-                    <img
-                        alt="cover"
-                        class="lazyload"
-                        src="<%= cover["sqip"] %>"
-                    >
-                    <% } else { %>
-                    <img
-                        alt="cover"
-                        src="photos/cover/<%= cover["name"] %>"
-                    >
-                    <% } %>
-                </picture>
-            </div>
-        </header>
+        <%= if (isProd == true) { %>
+            <%= if (len(cover["name"]) > 0) { %>
+                <header>
+                    <div class="cover">
+                        <picture>
+                            <source
+                                media="(min-width: 1200px)"
+                                data-srcset="photos/<%= cover["id"] %>/cover/2560/<%= cover["name"] %>.jpg"
+                            >
+                            <source
+                                media="(min-width: 320px)"
+                                data-srcset="photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg"
+                            >
+                            <img
+                                alt="cover"
+                                class="lazyload"
+                                src="<%= cover["sqip"] %>"
+                            >
+                        </picture>
+                    </div>
+                </header>
+            <% } %>
+        <% } else { %>
+            <header>
+                <div class="cover">
+                    <picture>
+                        <%= if (len(cover["name"]) > 0) { %>
+                            <img
+                                alt="cover"
+                                class="lazyload"
+                                src="photos/cover/<%= cover["name"] %>"
+                            >
+                        <% } else { %>
+                            <img
+                                alt="cover"
+                                src="img/?width=2560&height=1280&title=Cover&text=Recommended 2:1 or 16:9 aspect ratio"
+                            >
+                        <% } %>
+                    </picture>
+                </div>
+            </header>
         <% } %>
+
         <div class="profile">
-            <%= if (len(avatar) > 0) { %>
-                <%= if (isProd == true) { %>
-                <a href="photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg" class="avatar">
-                    <img
-                        src="<%= avatar["sqip"] %>"
-                        data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
-                        class="lazyload"
-                        alt="<%= profile["name"] %>'s avatar">
-                </a>
+            <%= if (isProd == true) { %>
+                <%= if (len(avatar) > 0) { %>
+                    <a href="photos/<%= avatar["id"] %>/avatar/512/<%= avatar["name"] %>.jpg" class="avatar">
+                        <img
+                            src="<%= avatar["sqip"] %>"
+                            data-src="photos/<%= avatar["id"] %>/avatar/320/<%= avatar["name"] %>.jpg"
+                            class="lazyload"
+                            alt="<%= profile["name"] %>'s avatar">
+                    </a>
+                <% } %>
+            <% } else { %>
+                <%= if (len(avatar) > 0) { %>
+                    <a href="photos/avatar/<%= avatar %>" class="avatar">
+                        <img
+                            src="photos/avatar/<%= avatar %>"
+                            alt="<%= profile["name"] %> 's avatar">
+                    </a>
                 <% } else { %>
-                <a href="photos/avatar/<%= avatar %>" class="avatar">
-                    <img
-                        src="photos/avatar/<%= avatar %>"
-                        alt="<%= profile["name"] %> 's avatar">
-                </a>
+                    <a href="img/?width=512&height=512&title=Avatar&text=1:1" class="avatar">
+                        <img
+                            src="img/?width=450&height=450&title=Avatar&text=1:1"
+                            alt="<%= profile["name"] %> 's avatar">
+                    </a>
                 <% } %>
             <% } %>
             <h2><%= profile["name"] %></h2>

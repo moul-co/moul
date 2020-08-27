@@ -132,11 +132,7 @@ func loadImage(fileInput string) (image.Image, error) {
 
 // Resize func
 func Resize(inPath, author, outPrefix string, sizes []int) {
-	// weight := "100"
-	// author := "sophearak-tha"
-	// path := "path-to-src/photos"
 	unique := UniqueID()
-	// sizes := []int{2560, 1280, 620},
 
 	photos := GetPhotos(inPath)
 

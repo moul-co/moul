@@ -8,7 +8,7 @@ require (
 	github.com/denisbrodbeck/sqip v0.7.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.9.0
-	github.com/fogleman/gg v1.3.0 // indirect
+	github.com/fogleman/gg v1.3.0
 	github.com/fogleman/primitive v0.0.0-20200504002142-0373c216458b // indirect
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gobuffalo/flect v0.2.1 // indirect
@@ -18,7 +18,7 @@ require (
 	github.com/gobuffalo/tags v2.1.7+incompatible // indirect
 	github.com/gobuffalo/validate/v3 v3.3.0 // indirect
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
-	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gosimple/slug v1.9.0
 	github.com/karrick/godirwalk v1.16.1 // indirect
