@@ -125,7 +125,7 @@ var Export = &cobra.Command{
 		inlineAvatar := internal.GetEncodedSvg(avatarPathToSqip)
 		avatar := map[string]string{
 			"id":   aid,
-			"name": internal.GetFileName(filepath.Base(avatarPhotos[0]), slugName),
+			"name": internal.GetFileName(aname, slugName),
 			"sqip": inlineAvatar,
 		}
 
