@@ -24,7 +24,7 @@ var Update = &cobra.Command{
 		if latest.Version.Equals(v) {
 			fmt.Println("Current binary is the latest version", Version)
 		} else {
-			color.Green("Successfully updated to version", latest.Version)
+			color.Green("Successfully updated to latest version")
 		}
 	},
 }
