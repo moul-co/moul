@@ -291,6 +291,18 @@ func Template() string {
             padding: 0 16px 64px;
             margin: 0;
         }
+        .moul-collection {
+            margin: 0px auto 64px;
+            position: relative;
+        }
+        .moul-collection figure {
+            margin: 0px;
+        }
+        .moul-collection figure a {
+            display: block;
+            font-size: 0;
+            float: left;
+        }
     </style>
     <link rel="stylesheet" href="assets/moul.css">
 </head>
