@@ -15,8 +15,8 @@ func Template() string {
         <title><%= profile["name"] %></title>
     <% } %>
     <meta name="generator" content="Moul <%= version %>">
-    <link rel="preload" href="assets/moul.bb6f3.js" as="script">
-    <link rel="preload" href="assets/moul.bb6f3.css" as="style">
+    <link rel="preload" href="assets/moul.ddca0.js" as="script">
+    <link rel="preload" href="assets/moul.ddca0.css" as="style">
     <%= if (favicon == "true"){ %>
     <link rel="alternate icon" class="favicon-alternate" type="image/png" href="">
     <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
@@ -304,7 +304,7 @@ func Template() string {
             float: left;
         }
     </style>
-    <link rel="stylesheet" href="assets/moul.bb6f3.css">
+    <link rel="stylesheet" href="assets/moul.ddca0.css">
 </head>
 <body>
 <div id="moul">
@@ -515,7 +515,7 @@ func Template() string {
     </div>
 </div>
 
-<script src="assets/moul.bb6f3.js" defer></script>
+<script src="assets/moul.ddca0.js" defer></script>
 <%= if (len(measurementId) > 0 ) { %>
 <script async src="https://www.googletagmanager.com/gtag/js?id=<%= measurementId %>"></script>
 <script>
