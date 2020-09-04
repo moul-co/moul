@@ -178,15 +178,17 @@ var Export = &cobra.Command{
 
 		os.MkdirAll(filepath.Join(out, "assets"), os.ModePerm)
 		box := packr.New("assets", "./assets")
-		mjs, _ := box.FindString("moul.js")
+		mjs, _ := box.FindString("moul.bb6f3.js")
 		ioutil.WriteFile(
-			filepath.Join(out, "assets", "moul.js"), []byte(mjs), 0644,
+			filepath.Join(out, "assets", "moul.bb6f3.js"), []byte(mjs), 0644,
 		)
-		mcss, _ := box.FindString("moul.css")
+		mcss, _ := box.FindString("moul.bb6f3.css")
 		ioutil.WriteFile(
-			filepath.Join(out, "assets", "moul.css"), []byte(mcss), 0644,
+			filepath.Join(out, "assets", "moul.bb6f3.css"), []byte(mcss), 0644,
 		)
-		copy.Copy(filepath.Join(".", "favicon"), filepath.Join(out, "favicon"))
+		if moulConfig.GetBool("favicon") == true {
+			copy.Copy(filepath.Join(".", "favicon"), filepath.Join(out, "favicon"))
+		}
 		copy.Copy(filepath.Join(".", ".moul", "index.html"), filepath.Join(out, "index.html"))
 
 		config.SetConfigName("photos")
