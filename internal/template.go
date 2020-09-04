@@ -303,6 +303,9 @@ func Template() string {
             font-size: 0;
             float: left;
         }
+        .pswp__bg {
+            background: #131619 !important;
+        }
     </style>
     <link rel="stylesheet" href="assets/moul.ddca0.css">
 </head>
