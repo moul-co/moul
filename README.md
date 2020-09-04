@@ -1,6 +1,8 @@
 ![Cover](https://repository-images.githubusercontent.com/251067944/54739d80-e557-11ea-94f9-cbb44497aa1a)
 
-# Moul • The minimalist publishing tool for photographers
+# Moul
+
+> The minimalist publishing tool for photographers
 
 Demo: [https://demo.moul.app](https://demo.moul.app)
 
