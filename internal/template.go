@@ -304,7 +304,7 @@ func Template() string {
             float: left;
         }
         .pswp__bg {
-            background: #131619 !important;
+            background: #090a0b !important;
         }
     </style>
     <link rel="stylesheet" href="assets/moul.0c839.css">
