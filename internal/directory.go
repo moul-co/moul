@@ -21,6 +21,13 @@ func GetDirectory() (string, error) {
 
 	if _, err := os.Stat(filepath.Join(dir, "moul.toml")); os.IsNotExist(err) {
 		color.Red("`moul.toml` file is not found!")
+		color.Green("Run `moul create my-collection` to get start")
+		return "", err
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, "photos")); os.IsNotExist(err) {
+		color.Red("`photos` directory is not found!")
+		color.Green("Run `moul create my-collection` to get start")
 		return "", err
 	}
 
