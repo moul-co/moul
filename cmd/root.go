@@ -34,8 +34,15 @@ const (
 )
 
 var (
-	output string
+	output  string
+	verbose bool
 )
+
+func info(s string) {
+	if verbose == true {
+		fmt.Println(s)
+	}
+}
 
 // ImageHandler func
 func ImageHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,6 +148,7 @@ func getTemplate(moulConfig *viper.Viper, dir string) string {
 }
 
 func previewFunc(cmd *cobra.Command, args []string) {
+	info("Checking for update...")
 	v := semver.MustParse(Version)
 	latest, found, _ := selfupdate.DetectLatest("moulco/moul")
 	if found && !latest.Version.LTE(v) {
@@ -148,16 +156,19 @@ func previewFunc(cmd *cobra.Command, args []string) {
 		fmt.Print("Update to latest version by:")
 		color.Green(" moul update\n\n")
 	}
+	info("Start a spinner...")
 	s := spinner.New(spinner.CharSets[21], 100*time.Millisecond)
 	s.Prefix = "■ Starting dev server... "
 	s.Start()
 	time.Sleep(1 * time.Second)
+	info("Get working directory...")
 	dir, err := internal.GetDirectory()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
+	info("Create moulConfig viper instance...")
 	moulConfig := viper.New()
 	moulConfig.SetConfigName("moul")
 	moulConfig.SetDefault("ga_measurement_id", "")
@@ -171,6 +182,7 @@ func previewFunc(cmd *cobra.Command, args []string) {
 
 	var ts string
 	moulConfig.WatchConfig()
+	info("Watch config change...")
 	moulConfig.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Print("    ◆ Config file changed:")
 		color.HiBlack(" `%s`", filepath.Base(e.Name))
@@ -180,15 +192,19 @@ func previewFunc(cmd *cobra.Command, args []string) {
 	})
 	ts = getTemplate(moulConfig, dir)
 
+	info("Create packr instance...")
 	box := packr.New("assets", "./assets")
 	photoFolder := http.FileServer(http.Dir("photos"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(box)))
 	http.Handle("/photos/", http.StripPrefix("/photos/", photoFolder))
+
+	info("Check for favicon...")
 	if moulConfig.GetBool("favicon") == true {
 		favicon := http.FileServer(http.Dir("favicon"))
 		http.Handle("/favicon/", http.StripPrefix("/favicon/", favicon))
 	}
 
+	info("Handle /img/ ...")
 	http.HandleFunc("/img/", ImageHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
@@ -199,6 +215,7 @@ func previewFunc(cmd *cobra.Command, args []string) {
 	fmt.Print("● Preview: ")
 	color.Green("http://localhost:5000/")
 	color.HiBlack("\n`Ctrl + C` to quit!")
+	info("Done ...")
 	http.ListenAndServe(":5000", nil)
 }
 
@@ -220,6 +237,7 @@ func Execute() {
 	}
 
 	Export.Flags().StringVar(&output, "o", "dist", "output directory")
+	Export.Flags().BoolVar(&verbose, "v", false, "verbose output")
 
 	rootCmd.AddCommand(Create)
 	rootCmd.AddCommand(Export)
