@@ -13,7 +13,6 @@ Demo: [https://demo.moul.app](https://demo.moul.app)
 - `Smart` Look great for any aspect ratio without crop your composition
 - `Self-hosted` Deploy exported collection to any hosting providers
 - `The One` One Binary to rule them all
-- `Moul Platform` Deploy your photos to global CDN with just 1 command _(coming soon)_
 
 ## Installation
 
