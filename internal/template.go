@@ -448,7 +448,7 @@ func Template() string {
     <%= for (v) in between(0,10) { %>
         <%= if (len(section) >= v) { %>
             <%= if ((len(section[toString(v)]["title"]) > 0) || (len(section[toString(v)]["description"]) > 0)){ %>
-                <section class="content-wrap">
+                <section class="content-wrap <%= style["section"] %>">
                     <%= if (len(section[toString(v)]["title"]) > 0) { %>
                         <h2><%= section[toString(v)]["title"] %></h2>
                     <% } %>

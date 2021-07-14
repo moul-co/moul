@@ -23,6 +23,7 @@ favicon = "true"
 theme = "system-preference" # possible value "system-preference | dark | light"
 cover = "center" # possible value "left | center | right"
 content = "left" # possible value "left | center | right"
+section = "left" # possible value "left | center | right"
 
 # Profile information
 [profile]

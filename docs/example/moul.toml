@@ -5,6 +5,7 @@ favicon = "true"
 theme = "system-preference"
 cover = "center"
 content = "left"
+section = "left"
 
 [profile]
 name = "Moul"
