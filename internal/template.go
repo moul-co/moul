@@ -44,8 +44,10 @@ func Template() string {
         <meta property="og:description" content="<%= content["text"] %>" />
         <meta name="twitter:description" content="<%= content["text"] %>">
     <% } %>
-    <meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
-    <meta name="twitter:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+		<%= if (len(content["cover"]) > 0) { %>
+				<meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+				<meta name="twitter:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+    <% } %>
     
     <style>
         :root {
@@ -313,7 +315,7 @@ func Template() string {
 <div id="moul">
     <div class="heading <%= style["cover"] %>">
         <%= if (isProd == true) { %>
-            <%= if (len(cover["name"]) > 0) { %>
+            <%= if (style["cover"] != "none" && len(cover["name"]) > 0) { %>
                 <header>
                     <div class="cover">
                         <picture>
@@ -334,7 +336,7 @@ func Template() string {
                     </div>
                 </header>
             <% } %>
-        <% } else { %>
+        <% } else if (style["cover"] != "none") { %>
             <header>
                 <div class="cover">
                     <picture>
