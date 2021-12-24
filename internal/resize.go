@@ -98,6 +98,9 @@ func GetPhotos(path string) []string {
 	var photos []string
 	// folder to walk through
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		if info.IsDir() {
 			return nil
 		}

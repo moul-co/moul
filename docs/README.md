@@ -21,7 +21,7 @@ favicon = "true"
 # Control the style of the page.
 [style]
 theme = "system-preference" # possible value "system-preference | dark | light"
-cover = "center" # possible value "left | center | right"
+cover = "center" # possible value "left | center | right | none"
 content = "left" # possible value "left | center | right"
 
 # Profile information
