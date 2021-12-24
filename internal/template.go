@@ -44,9 +44,9 @@ func Template() string {
         <meta property="og:description" content="<%= content["text"] %>" />
         <meta name="twitter:description" content="<%= content["text"] %>">
     <% } %>
-		<%= if (len(content["cover"]) > 0) { %>
-				<meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
-				<meta name="twitter:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+    <%= if (len(content["cover"]) > 0) { %>
+        <meta property="og:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
+        <meta name="twitter:image" content="<%= base %>photos/<%= cover["id"] %>/cover/1280/<%= cover["name"] %>.jpg" />
     <% } %>
     
     <style>
