@@ -1,12 +1,7 @@
-.DS_Store
-.cache
-bin/moul*
 node_modules
-package-lock.json
 
-cmd/assets/*
-photos/
-!docs/example/photos/
-/moul.toml
-.moul
-dist
+/.cache
+/server/build
+/public/build
+.env
+package-lock.json
