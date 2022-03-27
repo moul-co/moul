@@ -13,7 +13,7 @@ export default function Stories({ stories }: any) {
 								data-srcset={getPhotoSrcSet(story?.cover)}
 								data-sizes="auto"
 								className="lazy w-full h-full object-cover rounded-2xl"
-								alt="cover"
+								alt="Story cover"
 							/>
 						</picture>
 						<div className="absolute bottom-0 w-full transition ease-out duration-1000 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-gradient-to-t after:from-[#000] z-10 group-hover:translate-y-full">

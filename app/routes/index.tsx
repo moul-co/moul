@@ -13,15 +13,20 @@ function storyFromModule(mod: any) {
 }
 export async function loader() {
 	let stories = [storyFromModule(s1), storyFromModule(s2)].reverse()
-
-	console.log('MOUL_PROFILE_NAME', process.env.MOUL_PROFILE_NAME)
+	let {
+		MOUL_PROFILE_NAME,
+		MOUL_PROFILE_BIO,
+		MOUL_PROFILE_SOCIAL_TWITTER,
+		MOUL_PROFILE_SOCIAL_GITHUB,
+		MOUL_PROFILE_SOCIAL_YOUTUBE,
+	} = process.env
 	let profile = {
-		name: process.env.MOUL_PROFILE_NAME,
-		bio: process.env.MOUL_PROFILE_BIO,
+		name: MOUL_PROFILE_NAME,
+		bio: MOUL_PROFILE_BIO,
 		social: {
-			twitter: process.env.MOUL_PROFILE_SOCIAL_TWITTER,
-			github: process.env.MOUL_PROFILE_SOCIAL_GITHUB,
-			youtube: process.env.MOUL_PROFILE_SOCIAL_YOUTUBE,
+			twitter: MOUL_PROFILE_SOCIAL_TWITTER,
+			github: MOUL_PROFILE_SOCIAL_GITHUB,
+			youtube: MOUL_PROFILE_SOCIAL_YOUTUBE,
 		},
 	}
 
