@@ -5,3 +5,5 @@ node_modules
 /public/build
 .env
 package-lock.json
+public/__moul
+public/profile

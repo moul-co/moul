@@ -20,7 +20,7 @@ func GetSHA1(filePath string) string {
 	if _, err := io.Copy(hash, file); err != nil {
 		fmt.Println(err)
 	}
-	hashInBytes := hash.Sum(nil)[:20]
+	hashInBytes := hash.Sum(nil)[:8]
 	sha1String = hex.EncodeToString(hashInBytes)
 
 	return sha1String
