@@ -1,8 +1,11 @@
+import dotenv from 'dotenv'
 import express from 'express'
 import compression from 'compression'
 import morgan from 'morgan'
 import { createRequestHandler } from '@remix-run/express'
 import * as serverBuild from '@remix-run/dev/server-build'
+
+dotenv.config()
 
 const app = express()
 

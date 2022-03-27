@@ -11,7 +11,11 @@ import (
 )
 
 func GetFileName(filePath, author string) string {
-	return slug.Make(strings.TrimSuffix(filePath, filepath.Ext(filePath))) + "-by-" + slug.Make(author)
+	fn := slug.Make(strings.TrimSuffix(filePath, filepath.Ext(filePath)))
+	if author == "" {
+		return fn
+	}
+	return fn + "-by-" + slug.Make(author)
 }
 
 // GetWidthHeight given path
@@ -43,4 +47,24 @@ func GetImage(filePath string) (image.Image, error) {
 	}
 
 	return img, nil
+}
+
+func GetPhotos(path string) []string {
+	var photos []string
+	// folder to walk through
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		if strings.ToLower(filepath.Ext(path)) == ".jpeg" || strings.ToLower(filepath.Ext(path)) == ".jpg" || strings.ToLower(filepath.Ext(path)) == ".png" {
+			photos = append(photos, path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return photos
 }

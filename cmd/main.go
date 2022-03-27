@@ -12,14 +12,16 @@ import (
 
 	"github.com/bbrks/go-blurhash"
 	"github.com/disintegration/imaging"
+	"github.com/gobuffalo/envy"
 	"github.com/gosimple/slug"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 )
 
 var (
-	sizes = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
-	cache *viper.Viper
+	sizes  = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
+	cache  *viper.Viper
+	config *viper.Viper
 )
 
 func init() {
@@ -32,6 +34,12 @@ func init() {
 		cache.SetConfigType("toml")
 		cache.SetConfigName("cache")
 		cache.ReadInConfig()
+	}
+
+	if config == nil {
+		config = viper.New()
+		config.AddConfigPath(filepath.Join(".", "app", "photos"))
+		config.SetConfigType("json")
 	}
 }
 
@@ -85,7 +93,10 @@ func main() {
 		Name:  "moul",
 		Usage: "",
 		Action: func(c *cli.Context) error {
-			resize("./public/profile/DSCF1983-1024.jpg", "Phearak S. Tha")
+			photos := internal.GetPhotos(envy.Get("MOUL_PHOTOS_PATH", filepath.Join(".", "public", "photos")))
+			for _, p := range photos {
+				resize(p, envy.Get("MOUL_PROFILE_NAME", ""))
+			}
 			return nil
 		},
 	}

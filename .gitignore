@@ -6,4 +6,6 @@ node_modules
 .env
 package-lock.json
 public/__moul
-public/profile
+public/photos
+app/photos
+build

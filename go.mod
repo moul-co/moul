@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/bbrks/go-blurhash v1.1.1
 	github.com/disintegration/imaging v1.6.2
+	github.com/gobuffalo/envy v1.10.1
 	github.com/gosimple/slug v1.12.0
 	github.com/spf13/viper v1.10.1
 	github.com/urfave/cli/v2 v2.4.0
@@ -15,9 +16,11 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
