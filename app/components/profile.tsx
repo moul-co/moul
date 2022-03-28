@@ -1,5 +1,5 @@
 import { Link } from 'remix'
-import { getPhotoSrcSet } from '~/utils/photos'
+import { getPhotoSrcSet } from '~/utils'
 
 export let Profile = ({ profile }: any) => {
 	let { name, bio, social, picture } = profile

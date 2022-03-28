@@ -1,5 +1,5 @@
 import { Link } from 'remix'
-import { getPhotoSrcSet } from '~/utils/photos'
+import { getPhotoSrcSet } from '~/utils'
 
 export default function Stories({ stories }: any) {
 	return (

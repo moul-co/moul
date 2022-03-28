@@ -1,3 +1,4 @@
+export const isBrowser = () => typeof window !== 'undefined'
 /**
  * Maintain aspect ratio on scale size
  *
@@ -20,7 +21,7 @@ export let getDimension = (
 export interface Photo {
 	order: number
 	hash: string
-	blurhash: string
+	bh: string
 	width: number
 	height: number
 	type: string
@@ -32,4 +33,8 @@ export let getPhotoSrcSet = (photo: any) => {
 	${prefix}/${photo?.hash}/md/${photo?.fn} 768w,
 	${prefix}/${photo?.hash}/lg/${photo?.fn} 1024w,
 	${prefix}/${photo?.hash}/xl/${photo?.fn} 1440w`
+}
+
+export default {
+	isBrowser,
 }

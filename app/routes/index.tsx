@@ -1,18 +1,10 @@
 import { json, useLoaderData } from 'remix'
 import Stories from '~/components/stories'
 
-import * as s1 from '~/routes/virachey-the-raw-beauty-of-nature.mdx'
-import * as s2 from '~/routes/sunset-at-its-finest.mdx'
 import { Profile } from '~/components/profile'
 
-function storyFromModule(mod: any) {
-	return {
-		slug: mod.filename.replace(/\.mdx?$/, ''),
-		...mod.attributes.meta,
-	}
-}
 export async function loader() {
-	let stories = [storyFromModule(s1), storyFromModule(s2)].reverse()
+	// let stories = getStories()
 	let {
 		MOUL_PROFILE_NAME,
 		MOUL_PROFILE_BIO,
@@ -32,7 +24,7 @@ export async function loader() {
 
 	return json({
 		profile,
-		stories,
+		// stories,
 	})
 }
 

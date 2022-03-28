@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"image/jpeg"
 	"log"
 	"math"
 	"moul/internal"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bbrks/go-blurhash"
 	"github.com/disintegration/imaging"
@@ -88,6 +91,32 @@ func resize(photoPath, photographer string) {
 	cache.WriteConfigAs(filepath.Join(".", "public", "__moul", "cache.toml"))
 }
 
+type Block struct {
+	Type string `json:"type"` // title, heading, subheading, paragraph, quote, "photos", "cover"
+	Text string `json:"text"`
+}
+type Photo struct {
+	Name   string `json:"name"`
+	Order  int16  `json:"order"`
+	Hash   string `json:"hash"`
+	BH     string `json:"bh"`
+	Width  int16  `json:"width"`
+	Height int16  `json:"height"`
+	Type   string `json:"type"`
+}
+type Social struct {
+	GitHub    string `json:"github"`
+	Twitter   string `json:"twitter"`
+	YouTube   string `json:"youtube"`
+	Facebook  string `json:"facebook"`
+	Instagram string `json:"instagram"`
+}
+type Profile struct {
+	Name   string `json:"name"`
+	Bio    string `json:"bio"`
+	Social Social `json:"social"`
+}
+
 func main() {
 	app := &cli.App{
 		Name:  "moul",
@@ -98,6 +127,104 @@ func main() {
 				resize(p, envy.Get("MOUL_PROFILE_NAME", ""))
 			}
 			return nil
+		},
+		Commands: []*cli.Command{
+			{
+				Name:    "build",
+				Aliases: []string{"b"},
+				Usage:   "",
+				Action: func(c *cli.Context) error {
+					var stories []string
+					err := filepath.Walk(filepath.Join(".", "stories"), func(path string, info os.FileInfo, err error) error {
+						if info.IsDir() {
+							return nil
+						}
+						if strings.ToLower(filepath.Ext(path)) == ".md" {
+							stories = append(stories, path)
+						}
+						return nil
+					})
+					if err != nil {
+						log.Fatal(err)
+					}
+					for _, s := range stories {
+						f, err := os.Open(s)
+						if err != nil {
+							log.Fatal(err)
+						}
+						defer f.Close()
+						scanner := bufio.NewScanner(f)
+						blocks := []Block{}
+						for scanner.Scan() {
+							block := Block{}
+							line := scanner.Text()
+							if len(line) == 0 {
+								continue
+							} else if strings.HasPrefix(line, "# ") {
+								block.Type = "title"
+								block.Text = strings.TrimPrefix(line, "# ")
+							} else if strings.HasPrefix(line, "## ") {
+								block.Type = "heading"
+								block.Text = strings.TrimPrefix(line, "## ")
+							} else if strings.HasPrefix(line, "### ") {
+								block.Type = "subheading"
+								block.Text = strings.TrimPrefix(line, "### ")
+							} else if strings.HasPrefix(line, "> ") {
+								block.Type = "quote"
+								block.Text = strings.TrimPrefix(line, "> ")
+							} else if strings.HasPrefix(line, "{{ photos") {
+								clean := slug.Make(strings.Split(line, "`")[1])
+								if len(clean) == 0 {
+									continue
+								}
+								block.Type = "photos"
+								block.Text = clean
+							} else {
+								block.Type = "paragraph"
+								block.Text = line
+							}
+							blocks = append(blocks, block)
+						}
+						if err := scanner.Err(); err != nil {
+							log.Fatal(err)
+						}
+						jsonStory := strings.TrimSuffix(filepath.Base(s), filepath.Ext(filepath.Base(s))) + ".json"
+						b, err := json.Marshal(blocks)
+						if err != nil {
+							log.Fatal(err)
+						}
+						file, err := os.Create(filepath.Join(".", "app", "data", jsonStory))
+						if err != nil {
+							log.Fatal(err)
+						}
+						defer file.Close()
+						file.WriteString(string(b))
+					}
+
+					profile := &Profile{
+						Name: envy.Get("MOUL_PROFILE_NAME", ""),
+						Bio:  envy.Get("MOUL_PROFILE_BIO", ""),
+						Social: Social{
+							Twitter:   envy.Get("MOUL_PROFILE_SOCIAL_TWITTER", ""),
+							GitHub:    envy.Get("MOUL_PROFILE_SOCIAL_GITHUB", ""),
+							YouTube:   envy.Get("MOUL_PROFILE_SOCIAL_YOUTUBE", ""),
+							Facebook:  envy.Get("MOUL_PROFILE_SOCIAL_FACEBOOK", ""),
+							Instagram: envy.Get("MOUL_PROFILE_SOCIAL_INSTAGRAM", ""),
+						},
+					}
+					p, err := json.Marshal(profile)
+					if err != nil {
+						log.Fatal(err)
+					}
+					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer profileFile.Close()
+					profileFile.WriteString(string(p))
+					return nil
+				},
+			},
 		},
 	}
 
