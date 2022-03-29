@@ -225,6 +225,26 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "new",
+				Aliases: []string{"n"},
+				Usage:   "",
+				Action: func(c *cli.Context) error {
+					title := c.Args().First()
+					fn := slug.Make(title)
+					md, err := os.Create(filepath.Join(".", "stories", fn+".md"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer md.Close()
+					md.WriteString("# " + title)
+
+					if err := os.MkdirAll(filepath.Join(".", "photos", fn, "cover"), 0755); err != nil {
+						log.Fatal(err)
+					}
+					return nil
+				},
+			},
 		},
 	}
 
