@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"moul/internal"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,7 +26,44 @@ var (
 	sizes  = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
 	cache  *viper.Viper
 	config *viper.Viper
+
+	photoURL = "http://localhost:1234/"
 )
+
+type Block struct {
+	Type string `json:"type"` // title, heading, subheading, paragraph, quote, "photos", "cover"
+	Text string `json:"text"`
+}
+type Photo struct {
+	Name   string `json:"name"`
+	Order  int    `json:"order"`
+	Hash   string `json:"hash"`
+	BH     string `json:"bh"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+	Type   string `json:"type"`
+	URL    string `json:"url"`
+}
+type Social struct {
+	GitHub    string `json:"github"`
+	Twitter   string `json:"twitter"`
+	YouTube   string `json:"youtube"`
+	Facebook  string `json:"facebook"`
+	Instagram string `json:"instagram"`
+}
+type Profile struct {
+	Name    string `json:"name"`
+	Bio     string `json:"bio"`
+	Social  Social `json:"social"`
+	Cover   Photo  `json:"cover"`
+	Picture Photo  `json:"picture"`
+}
+type Story struct {
+	Slug    string  `json:"slug"`
+	Blocks  []Block `json:"blocks"`
+	Profile Profile `json:"profile"`
+	Photos  []Photo `json:"photos"`
+}
 
 func init() {
 	if err := os.MkdirAll(filepath.Join(".", "public", "__moul"), 0755); err != nil {
@@ -91,30 +129,134 @@ func resize(photoPath, photographer string) {
 	cache.WriteConfigAs(filepath.Join(".", "public", "__moul", "cache.toml"))
 }
 
-type Block struct {
-	Type string `json:"type"` // title, heading, subheading, paragraph, quote, "photos", "cover"
-	Text string `json:"text"`
+func parseMd() []Story {
+	profile := parseProfile()
+	var stories []Story
+	var storiesMd []string
+	err := filepath.Walk(filepath.Join(".", "stories"), func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		if strings.ToLower(filepath.Ext(path)) == ".md" {
+			storiesMd = append(storiesMd, path)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, s := range storiesMd {
+		f, err := os.Open(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		cleanFn := slug.Make(strings.TrimSuffix(filepath.Base(s), filepath.Ext(s)))
+		scanner := bufio.NewScanner(f)
+		blocks := []Block{}
+		photos := []Photo{}
+		for scanner.Scan() {
+			block := Block{}
+			line := scanner.Text()
+			if len(line) == 0 {
+				continue
+			} else if strings.HasPrefix(line, "# ") {
+				block.Type = "title"
+				block.Text = strings.TrimPrefix(line, "# ")
+			} else if strings.HasPrefix(line, "## ") {
+				block.Type = "heading"
+				block.Text = strings.TrimPrefix(line, "## ")
+			} else if strings.HasPrefix(line, "### ") {
+				block.Type = "subheading"
+				block.Text = strings.TrimPrefix(line, "### ")
+			} else if strings.HasPrefix(line, "> ") {
+				block.Type = "quote"
+				block.Text = strings.TrimPrefix(line, "> ")
+			} else if strings.HasPrefix(line, "{{ photos") {
+				clean := slug.Make(strings.Split(line, "`")[1])
+				if len(clean) == 0 {
+					continue
+				}
+				block.Type = "photos"
+				block.Text = clean
+				allPhotos := internal.GetPhotos(filepath.Join(".", "photos", cleanFn, clean))
+				for i, p := range allPhotos {
+					w, h := internal.GetWidthHeight(filepath.Join(".", p))
+					photos = append(photos, Photo{
+						Hash:   internal.GetSHA1(p),
+						Width:  w,
+						Height: h,
+						URL:    photoURL + p,
+						Order:  i + 1,
+						Type:   clean,
+					})
+				}
+			} else {
+				block.Type = "paragraph"
+				block.Text = line
+			}
+			blocks = append(blocks, block)
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+		coverPath := filepath.Join(".", "photos", cleanFn, "cover")
+		exist, err := internal.IsExists(coverPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if exist {
+			cover := internal.GetPhotos(coverPath)
+			w, h := internal.GetWidthHeight(filepath.Join(".", cover[0]))
+			photos = append(photos, Photo{
+				Hash:   internal.GetSHA1(cover[0]),
+				Width:  w,
+				Height: h,
+				URL:    photoURL + cover[0],
+				Type:   "cover",
+			})
+		}
+
+		stories = append(stories, Story{
+			Slug:    cleanFn,
+			Blocks:  blocks,
+			Profile: *profile,
+			Photos:  photos,
+		})
+	}
+	return stories
 }
-type Photo struct {
-	Name   string `json:"name"`
-	Order  int16  `json:"order"`
-	Hash   string `json:"hash"`
-	BH     string `json:"bh"`
-	Width  int16  `json:"width"`
-	Height int16  `json:"height"`
-	Type   string `json:"type"`
-}
-type Social struct {
-	GitHub    string `json:"github"`
-	Twitter   string `json:"twitter"`
-	YouTube   string `json:"youtube"`
-	Facebook  string `json:"facebook"`
-	Instagram string `json:"instagram"`
-}
-type Profile struct {
-	Name   string `json:"name"`
-	Bio    string `json:"bio"`
-	Social Social `json:"social"`
+
+func parseProfile() *Profile {
+	profilePath := filepath.Join(".", "photos", "profile")
+	profileCover := internal.GetPhotos(filepath.Join(profilePath, "cover"))[0]
+	wPC, hPC := internal.GetWidthHeight(profileCover)
+	profilePicture := internal.GetPhotos(filepath.Join(profilePath, "picture"))[0]
+	wPP, hPP := internal.GetWidthHeight(profilePicture)
+
+	return &Profile{
+		Name: envy.Get("MOUL_PROFILE_NAME", ""),
+		Bio:  envy.Get("MOUL_PROFILE_BIO", ""),
+		Social: Social{
+			Twitter:   envy.Get("MOUL_PROFILE_SOCIAL_TWITTER", ""),
+			GitHub:    envy.Get("MOUL_PROFILE_SOCIAL_GITHUB", ""),
+			YouTube:   envy.Get("MOUL_PROFILE_SOCIAL_YOUTUBE", ""),
+			Facebook:  envy.Get("MOUL_PROFILE_SOCIAL_FACEBOOK", ""),
+			Instagram: envy.Get("MOUL_PROFILE_SOCIAL_INSTAGRAM", ""),
+		},
+		Cover: Photo{
+			URL:    photoURL + profileCover,
+			Hash:   internal.GetSHA1(filepath.Join(".", profileCover)),
+			Width:  wPC,
+			Height: hPC,
+		},
+		Picture: Photo{
+			URL:    photoURL + profilePicture,
+			Hash:   internal.GetSHA1(filepath.Join(".", profilePicture)),
+			Width:  wPP,
+			Height: hPP,
+		},
+	}
 }
 
 func main() {
@@ -134,94 +276,6 @@ func main() {
 				Aliases: []string{"b"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
-					var stories []string
-					err := filepath.Walk(filepath.Join(".", "stories"), func(path string, info os.FileInfo, err error) error {
-						if info.IsDir() {
-							return nil
-						}
-						if strings.ToLower(filepath.Ext(path)) == ".md" {
-							stories = append(stories, path)
-						}
-						return nil
-					})
-					if err != nil {
-						log.Fatal(err)
-					}
-					for _, s := range stories {
-						f, err := os.Open(s)
-						if err != nil {
-							log.Fatal(err)
-						}
-						defer f.Close()
-						scanner := bufio.NewScanner(f)
-						blocks := []Block{}
-						for scanner.Scan() {
-							block := Block{}
-							line := scanner.Text()
-							if len(line) == 0 {
-								continue
-							} else if strings.HasPrefix(line, "# ") {
-								block.Type = "title"
-								block.Text = strings.TrimPrefix(line, "# ")
-							} else if strings.HasPrefix(line, "## ") {
-								block.Type = "heading"
-								block.Text = strings.TrimPrefix(line, "## ")
-							} else if strings.HasPrefix(line, "### ") {
-								block.Type = "subheading"
-								block.Text = strings.TrimPrefix(line, "### ")
-							} else if strings.HasPrefix(line, "> ") {
-								block.Type = "quote"
-								block.Text = strings.TrimPrefix(line, "> ")
-							} else if strings.HasPrefix(line, "{{ photos") {
-								clean := slug.Make(strings.Split(line, "`")[1])
-								if len(clean) == 0 {
-									continue
-								}
-								block.Type = "photos"
-								block.Text = clean
-							} else {
-								block.Type = "paragraph"
-								block.Text = line
-							}
-							blocks = append(blocks, block)
-						}
-						if err := scanner.Err(); err != nil {
-							log.Fatal(err)
-						}
-						jsonStory := strings.TrimSuffix(filepath.Base(s), filepath.Ext(filepath.Base(s))) + ".json"
-						b, err := json.Marshal(blocks)
-						if err != nil {
-							log.Fatal(err)
-						}
-						file, err := os.Create(filepath.Join(".", "app", "data", jsonStory))
-						if err != nil {
-							log.Fatal(err)
-						}
-						defer file.Close()
-						file.WriteString(string(b))
-					}
-
-					profile := &Profile{
-						Name: envy.Get("MOUL_PROFILE_NAME", ""),
-						Bio:  envy.Get("MOUL_PROFILE_BIO", ""),
-						Social: Social{
-							Twitter:   envy.Get("MOUL_PROFILE_SOCIAL_TWITTER", ""),
-							GitHub:    envy.Get("MOUL_PROFILE_SOCIAL_GITHUB", ""),
-							YouTube:   envy.Get("MOUL_PROFILE_SOCIAL_YOUTUBE", ""),
-							Facebook:  envy.Get("MOUL_PROFILE_SOCIAL_FACEBOOK", ""),
-							Instagram: envy.Get("MOUL_PROFILE_SOCIAL_INSTAGRAM", ""),
-						},
-					}
-					p, err := json.Marshal(profile)
-					if err != nil {
-						log.Fatal(err)
-					}
-					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer profileFile.Close()
-					profileFile.WriteString(string(p))
 					return nil
 				},
 			},
@@ -242,6 +296,42 @@ func main() {
 					if err := os.MkdirAll(filepath.Join(".", "photos", fn, "cover"), 0755); err != nil {
 						log.Fatal(err)
 					}
+					return nil
+				},
+			},
+			{
+				Name:    "dev",
+				Aliases: []string{"d"},
+				Usage:   "",
+				Action: func(c *cli.Context) error {
+					profile := parseProfile()
+					p, err := json.Marshal(profile)
+					if err != nil {
+						log.Fatal(err)
+					}
+					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer profileFile.Close()
+					profileFile.WriteString(string(p))
+
+					stories := parseMd()
+					s, err := json.Marshal(stories)
+					if err != nil {
+						log.Fatal(err)
+					}
+					storiesFile, err := os.Create(filepath.Join(".", "app", "data", "stories.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer storiesFile.Close()
+					storiesFile.WriteString(string(s))
+
+					fs := http.FileServer(http.Dir("photos/"))
+					http.Handle("/photos/", http.StripPrefix("/photos/", fs))
+					http.ListenAndServe(":1234", nil)
+
 					return nil
 				},
 			},

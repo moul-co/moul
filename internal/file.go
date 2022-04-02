@@ -2,11 +2,13 @@ package internal
 
 import (
 	"image"
+	_ "image/jpeg"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/edwvee/exiffix"
 	"github.com/gosimple/slug"
 )
 
@@ -18,19 +20,19 @@ func GetFileName(filePath, author string) string {
 	return fn + "-by-" + slug.Make(author)
 }
 
+//! workaround orientation issue: https://github.com/golang/go/issues/4341
 // GetWidthHeight given path
 func GetWidthHeight(filePath string) (int, int) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	image, _, err := image.DecodeConfig(file)
+	defer file.Close()
+	img, _, err := exiffix.Decode(file)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	return image.Width, image.Height
+	return img.Bounds().Dx(), img.Bounds().Dy()
 }
 
 // GetImage
@@ -67,4 +69,15 @@ func GetPhotos(path string) []string {
 	}
 
 	return photos
+}
+
+func IsExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

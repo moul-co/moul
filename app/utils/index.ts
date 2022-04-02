@@ -25,6 +25,7 @@ export interface Photo {
 	width: number
 	height: number
 	type: string
+	url: string
 }
 
 export let getPhotoSrcSet = (photo: any) => {

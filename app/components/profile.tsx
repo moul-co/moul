@@ -5,33 +5,40 @@ export let Profile = ({ profile }: any) => {
 	let { name, bio, social, picture } = profile
 
 	return (
-		<div className="my-16">
-			{picture ? (
-				<>
+		<section className="mb-16">
+			<div className="flex justify-center">
+				{picture && (
 					<Link to="/">
-						<picture>
-							<img
-								src={`data:image/jpeg;charset=utf-8;base64,${picture?.bh}`}
-								data-srcset={getPhotoSrcSet(picture)}
-								data-sizes="auto"
-								className="lazy"
-								alt="Profile picture"
-							/>
+						<picture className="w-36 h-36 rounded-full">
+							{picture.bh ? (
+								<img
+									src={`data:image/jpeg;charset=utf-8;base64,${picture.bh}`}
+									data-srcset={getPhotoSrcSet(picture)}
+									data-sizes="auto"
+									className="lazy w-36 h-36 rounded-full"
+									alt="Profile picture"
+								/>
+							) : (
+								<img
+									src={picture.url}
+									data-sizes="auto"
+									className="lazy w-36 h-36 rounded-full mx-auto"
+									alt="Profile picture"
+								/>
+							)}
 						</picture>
 					</Link>
-					<h2>{name}</h2>
-					<p>{bio}</p>
-				</>
-			) : (
-				<div className="text-center pb-2 px-6">
-					<Link to="/" className="inline-flex">
-						<h2 className="text-3xl font-bold leading-normal text-neutral-100">
-							{name}
-						</h2>
-					</Link>
-					<p className="leading-normal text-neutral-400 mb-2">{bio}</p>
-				</div>
-			)}
+				)}
+			</div>
+			<div className="text-center pb-2 px-6">
+				<Link to="/" className="inline-flex">
+					<h2 className="text-3xl font-bold leading-normal text-neutral-100">
+						{name}
+					</h2>
+				</Link>
+				<p className="leading-normal text-neutral-400 mb-2">{bio}</p>
+			</div>
+
 			<div className="flex justify-center">
 				{social.twitter && (
 					<a href={`https://twitter.com/` + social.twitter} className="mx-2">
@@ -103,6 +110,6 @@ export let Profile = ({ profile }: any) => {
 					</a>
 				)}
 			</div>
-		</div>
+		</section>
 	)
 }

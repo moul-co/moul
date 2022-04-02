@@ -6,4 +6,18 @@ But one thing that we can't deny is how magnificent the sunset around the temple
 
 {{ photos `section-1` }}
 
+After I got a bove photos, I decided to go next day as well. And oh did I made the right decision!!!
+
+{{ photos `section-2` }}
+
+It looks like straight out of a magic world to me. I didn't stop there, the next day I went to the same area.
+
+{{ photos `section-3` }}
+
+{{ photos `section-4` }}
+
+Well, guess what? I went to that place again!
+
+{{ photos `section-5` }}
+
 > There are no post-processing done in all above photos. It is straight out of camera.

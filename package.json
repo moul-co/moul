@@ -20,6 +20,7 @@
 		"compression": "1.7.4",
 		"cross-env": "7.0.3",
 		"express": "4.17.1",
+		"framer-motion": "6.2.8",
 		"image-layout": "0.4.1",
 		"morgan": "1.10.0",
 		"react": "17.0.2",
