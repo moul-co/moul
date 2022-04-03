@@ -155,6 +155,31 @@ func parseMd() []Story {
 		scanner := bufio.NewScanner(f)
 		blocks := []Block{}
 		photos := []Photo{}
+
+		coverPath := filepath.Join(".", "photos", cleanFn, "cover")
+		exist, err := internal.IsExists(coverPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if exist {
+			cover := internal.GetPhotos(coverPath)
+			w, h := internal.GetWidthHeight(filepath.Join(".", cover[0]))
+			photos = append(photos, Photo{
+				Hash:   internal.GetSHA1(cover[0]),
+				Width:  w,
+				Height: h,
+				URL:    photoURL + cover[0],
+				Type:   "cover",
+				Order:  1,
+			})
+		}
+		order := 1
+		for _, v := range photos {
+			if v.Type == "cover" {
+				order = 2
+			}
+		}
+
 		for scanner.Scan() {
 			block := Block{}
 			line := scanner.Text()
@@ -180,14 +205,15 @@ func parseMd() []Story {
 				block.Type = "photos"
 				block.Text = clean
 				allPhotos := internal.GetPhotos(filepath.Join(".", "photos", cleanFn, clean))
-				for i, p := range allPhotos {
+				for _, p := range allPhotos {
 					w, h := internal.GetWidthHeight(filepath.Join(".", p))
+					order++
 					photos = append(photos, Photo{
 						Hash:   internal.GetSHA1(p),
 						Width:  w,
 						Height: h,
 						URL:    photoURL + p,
-						Order:  i + 1,
+						Order:  order,
 						Type:   clean,
 					})
 				}
@@ -199,22 +225,6 @@ func parseMd() []Story {
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
-		}
-		coverPath := filepath.Join(".", "photos", cleanFn, "cover")
-		exist, err := internal.IsExists(coverPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if exist {
-			cover := internal.GetPhotos(coverPath)
-			w, h := internal.GetWidthHeight(filepath.Join(".", cover[0]))
-			photos = append(photos, Photo{
-				Hash:   internal.GetSHA1(cover[0]),
-				Width:  w,
-				Height: h,
-				URL:    photoURL + cover[0],
-				Type:   "cover",
-			})
 		}
 
 		stories = append(stories, Story{

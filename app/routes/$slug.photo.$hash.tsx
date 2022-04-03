@@ -25,9 +25,9 @@ export default function Photo() {
 	let { currentPhoto, photos, slug } = useLoaderData()
 	let navigation = useNavigate()
 
-	let [photo, setPhoto] = useState(currentPhoto.cloudflareId)
+	let [photo, setPhoto] = useState(currentPhoto.hash)
 
-	let [hash, setHash] = useState(currentPhoto.hash)
+	let [hash, setHash] = useState(currentPhoto.bh)
 	let [width, setWidth] = useState(0)
 	let [height, setHeight] = useState(0)
 
@@ -48,16 +48,16 @@ export default function Photo() {
 			paintPhotos()
 		}
 
-		setCurrentIndex(photos.findIndex((p: any) => p.cloudflareId === photo))
+		setCurrentIndex(photos.findIndex((p: any) => p.hash === photo))
 		if (currentIndex > 0 && currentIndex < photos.length - 1) {
-			setNext(photos[currentIndex + 1].cloudflareId)
-			setPrev(photos[currentIndex - 1].cloudflareId)
+			setNext(photos[currentIndex + 1].hash)
+			setPrev(photos[currentIndex - 1].hash)
 		} else if (currentIndex === photos.length - 1) {
 			setNext('')
-			setPrev(photos[currentIndex - 1].cloudflareId)
+			setPrev(photos[currentIndex - 1].hash)
 		} else if (currentIndex === 0) {
 			setPrev('')
-			setNext(photos[currentIndex + 1].cloudflareId)
+			setNext(photos[currentIndex + 1].hash)
 		}
 
 		window.addEventListener('resize', () => {
@@ -88,11 +88,9 @@ export default function Photo() {
 		if (pn.length) {
 			let isPhoto = pn[pn.length - 2] == 'photo'
 			if (isPhoto) {
-				let pIdx = photos.findIndex(
-					(p: any) => p.cloudflareId === pn[pn.length - 1]
-				)
-				setPhoto(photos[pIdx].cloudflareId)
-				setHash(photos[pIdx].hash)
+				let pIdx = photos.findIndex((p: any) => p.hash === pn[pn.length - 1])
+				setPhoto(photos[pIdx].hash)
+				setHash(photos[pIdx].bh)
 			}
 		}
 	}
@@ -110,7 +108,7 @@ export default function Photo() {
 		setCurrentWidth(window.innerWidth)
 		setWrapper(photos.length * window.innerWidth)
 
-		const activeIndex = photos.findIndex((p: any) => p.cloudflareId === photo)
+		const activeIndex = photos.findIndex((p: any) => p.hash === photo)
 		// @ts-ignore
 		setActive(`translateX(-${currentWidth * activeIndex}px)`)
 
@@ -133,16 +131,16 @@ export default function Photo() {
 	let handleNext = () => {
 		setTransition('all var(--transition-photos)')
 		let photoIndex = currentIndex + 1
-		setPhoto(photos[photoIndex].cloudflareId)
-		setHash(photos[photoIndex].hash)
+		setPhoto(photos[photoIndex].hash)
+		setHash(photos[photoIndex].bh)
 
 		navigation(`/${slug}/photo/${next}`)
 	}
 	let handlePrev = () => {
 		setTransition('all var(--transition-photos)')
 		let photoIndex = currentIndex - 1
-		setPhoto(photos[photoIndex].cloudflareId)
-		setHash(photos[photoIndex].hash)
+		setPhoto(photos[photoIndex].hash)
+		setHash(photos[photoIndex].bh)
 
 		navigation(`/${slug}/photo/${prev}`)
 	}
@@ -235,29 +233,54 @@ export default function Photo() {
 												}}
 											>
 												<picture>
-													<motion.img
-														src={`data:image/jpeg;charset=utf-8;base64,${p.bh}`}
-														className="lazy"
-														data-sizes="auto"
-														data-srcset={getPhotoSrcSet(p)}
-														onClick={toggleUI}
-														data-size={`${p.width}:${p.height}`}
-														drag="x"
-														dragConstraints={{
-															left: 0,
-															right: 0,
-														}}
-														dragElastic={0}
-														onDragEnd={(e, { offset, velocity }) => {
-															const swipe = swipePower(offset.x, velocity.x)
-															if (swipe < -swipeConfidenceThreshold) {
-																handleNext()
-															} else if (swipe > swipeConfidenceThreshold) {
-																handlePrev()
-															}
-														}}
-														alt="photo"
-													/>
+													{p.bh ? (
+														<motion.img
+															src={`data:image/jpeg;charset=utf-8;base64,${p.bh}`}
+															className="lazy"
+															data-sizes="auto"
+															data-srcset={getPhotoSrcSet(p)}
+															onClick={toggleUI}
+															data-size={`${p.width}:${p.height}`}
+															drag="x"
+															dragConstraints={{
+																left: 0,
+																right: 0,
+															}}
+															dragElastic={0}
+															onDragEnd={(e, { offset, velocity }) => {
+																const swipe = swipePower(offset.x, velocity.x)
+																if (swipe < -swipeConfidenceThreshold) {
+																	handleNext()
+																} else if (swipe > swipeConfidenceThreshold) {
+																	handlePrev()
+																}
+															}}
+															alt="photo"
+														/>
+													) : (
+														<motion.img
+															src={p.url}
+															className="lazy"
+															data-sizes="auto"
+															onClick={toggleUI}
+															data-size={`${p.width}:${p.height}`}
+															drag="x"
+															dragConstraints={{
+																left: 0,
+																right: 0,
+															}}
+															dragElastic={0}
+															onDragEnd={(e, { offset, velocity }) => {
+																const swipe = swipePower(offset.x, velocity.x)
+																if (swipe < -swipeConfidenceThreshold) {
+																	handleNext()
+																} else if (swipe > swipeConfidenceThreshold) {
+																	handlePrev()
+																}
+															}}
+															alt="photo"
+														/>
+													)}
 												</picture>
 											</div>
 										))}

@@ -18,16 +18,16 @@ export let loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export let meta: MetaFunction = ({ data }) => {
-	let title =
-		data.story?.title && data.story.profile?.name
-			? `${data.story.title} | ${data.story.profile?.name}`
-			: `${data.story.profile?.name}`
+	// let title =
+	// 	data.story?.title && data.story?.profile?.name
+	// 		? `${data.story.title} | ${data.story.profile?.name}`
+	// 		: `${data.story.profile?.name}`
 
-	let description = data.story?.description
+	// let description = data.story?.description
 
 	return {
-		title,
-		description,
+		// title,
+		// description,
 	}
 }
 

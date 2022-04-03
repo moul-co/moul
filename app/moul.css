@@ -717,11 +717,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 	line-height: 2.25rem;
 }
 
-.text-2xl {
-	font-size: 1.5rem;
-	line-height: 2rem;
-}
-
 .text-5xl {
 	font-size: 3rem;
 	line-height: 1;
@@ -823,6 +818,24 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .ease-out {
 	transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+:root {
+	--transition-photos: 550ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::-moz-selection {
+	--tw-bg-opacity: 1;
+	background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+	--tw-text-opacity: 1;
+	color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+::selection {
+	--tw-bg-opacity: 1;
+	background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+	--tw-text-opacity: 1;
+	color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .moul-content-photos img {
