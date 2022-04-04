@@ -7,27 +7,39 @@ import { getDimension, getPhotoSrcSet, isBrowser, Photo } from '~/utils'
 
 import stories from '~/data/stories.json'
 
-export let loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ request }) => {
 	if (new URL(request.url).pathname === '/favicon.ico') return null
 	const slug = new URL(request.url).pathname.split('/').pop() || ''
 	const story = stories.find((s) => s.slug == slug)
 	const cover = story?.photos.find((p) => p.type === 'cover')
 	const title = story?.blocks.find((b) => b.type === 'title')?.text
 
-	return json({ status: 'ok', story, cover, title })
+	return json({ status: 'ok', story, cover, title, canonical: request.url })
 }
 
-export let meta: MetaFunction = ({ data }) => {
-	// let title =
-	// 	data.story?.title && data.story?.profile?.name
-	// 		? `${data.story.title} | ${data.story.profile?.name}`
-	// 		: `${data.story.profile?.name}`
-
-	// let description = data.story?.description
+export const meta: MetaFunction = ({ data }) => {
+	const { name, bio, social } = data.story.profile
+	const { title: t, cover } = data
+	const title = t ? `${t} | ${name}` : name
+	const fallback = data.story.photos.find((p: Photo) => p.order == 1)
+	const imgURL =
+		cover && cover.bh
+			? `` // get full url
+			: cover && cover.url
+			? cover.url
+			: fallback && fallback.bh
+			? ``
+			: fallback.url
 
 	return {
-		// title,
-		// description,
+		title,
+		description: bio,
+		'og:title': title,
+		'og:url': data.canonical,
+		'og:description': bio,
+		'og:image': imgURL,
+		'twitter:card': 'summary_large_image',
+		'twitter:creator': social.twitter ? social.twitter : '',
 	}
 }
 
@@ -38,14 +50,14 @@ export default function Story() {
 		paintGrid()
 
 		if (isBrowser()) {
-			window.addEventListener('resize', () => {
-				paintGrid()
-			})
+			window.addEventListener('resize', paintGrid)
+		}
+		return () => {
+			window.removeEventListener('resize', paintGrid)
 		}
 	}, [])
 
 	const paintGrid = () => {
-		console.time('grid')
 		const grid = document.querySelectorAll('.moul-content-photos')
 		grid.forEach((el: any) => {
 			const photos = el.querySelectorAll('.moul-grid')
@@ -78,7 +90,6 @@ export default function Story() {
 				photos[i].style.height = `${layout.positions[i].height}px`
 			})
 		})
-		console.timeEnd('grid')
 	}
 
 	return (
@@ -128,8 +139,8 @@ export default function Story() {
 						</div>
 						<Profile profile={story.profile} />
 						{title && (
-							<div className="moul-content-title mx-auto font-bold max-w-3xl mb-6 text-neutral-50 px-6 xs:px-0">
-								<h1 className="text-5xl">{title}</h1>
+							<div className="moul-content-title mx-auto font-bold max-w-3xl mb-6 text-neutral-900 dark:text-neutral-50 px-6 xs:px-0">
+								<h1 className="text-4xl sm:text-5xl">{title}</h1>
 							</div>
 						)}
 					</div>
@@ -137,22 +148,22 @@ export default function Story() {
 						{story.blocks.map((b: any, i: number) => (
 							<div className={`leading-relaxed moul-content-${b.type}`} key={i}>
 								{b.type === 'quote' && (
-									<blockquote className="px-6 xs:px-0 text-xl text-g max-w-3xl mx-auto my-12 text-neutral-400 border-neutral-400 border-l-4 pl-4">
+									<blockquote className="px-6 xs:px-0 text-xl text-g max-w-3xl mx-auto my-12 text-neutral-800 border-neutral-800 dark:text-neutral-400 dark:border-neutral-400 border-l-4 pl-4">
 										{b.text}
 									</blockquote>
 								)}
 								{b.type === 'paragraph' && (
-									<p className="px-6 xs:px-0 text-xl max-w-3xl mx-auto my-12 text-neutral-200">
+									<p className="px-6 xs:px-0 text-xl max-w-3xl mx-auto my-12 text-neutral-700 dark:text-neutral-200">
 										{b.text}
 									</p>
 								)}
 								{b.type === 'heading' && (
-									<h2 className="px-6 xs:px-0 text-4xl max-w-3xl mx-auto my-12 text-neutral-100">
+									<h2 className="px-6 xs:px-0 text-3xl font-bold sm:text-4xl max-w-3xl mx-auto my-12 text-neutral-800 dark:text-neutral-100">
 										{b.text}
 									</h2>
 								)}
 								{b.type === 'subheading' && (
-									<h3 className="px-6 xs:px-0 text-3xl max-w-3xl mx-auto my-12 text-neutral-100">
+									<h3 className="px-6 xs:px-0 text-2xl font-bold sm:text-3xl max-w-3xl mx-auto my-12 text-neutral-800 dark:text-neutral-100">
 										{b.text}
 									</h3>
 								)}
@@ -189,7 +200,7 @@ export default function Story() {
 						))}
 					</div>
 
-					<footer className="flex flex-col w-full text-center my-16 text-neutral-400">
+					<footer className="flex flex-col w-full text-center my-16 text-neutral-500 dark:text-neutral-400">
 						{story?.profile.name && (
 							<p>Copyright © {story.profile.name}. All Rights Reserved.</p>
 						)}

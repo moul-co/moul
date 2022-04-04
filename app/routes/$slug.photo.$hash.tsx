@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link, LoaderFunction, useLoaderData, useNavigate } from 'remix'
+import {
+	Link,
+	LoaderFunction,
+	MetaFunction,
+	useLoaderData,
+	useNavigate,
+} from 'remix'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getDimension, isBrowser, getPhotoSrcSet, Photo } from '~/utils'
+
 import stories from '~/data/stories.json'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -12,9 +19,27 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		currentPhoto,
 		photos: story?.photos,
 		slug,
+		story,
 	}
 }
 
+export const meta: MetaFunction = ({ data }) => {
+	const { name, bio, social } = data.story.profile
+	const { title: t, currentPhoto } = data
+	const title = t ? `${t} | ${name}` : name
+	const imgURL = currentPhoto && currentPhoto.bh ? `` : currentPhoto.url
+
+	return {
+		title,
+		description: bio,
+		'og:title': title,
+		'og:url': data.canonical,
+		'og:description': bio,
+		'og:image': imgURL,
+		'twitter:card': 'summary_large_image',
+		'twitter:creator': social.twitter ? social.twitter : '',
+	}
+}
 // https://codesandbox.io/s/framer-motion-image-gallery-pqvx3?from-embed=&file=/src/Example.tsx
 let swipeConfidenceThreshold = 10000
 let swipePower = (offset: number, velocity: number) => {
@@ -60,9 +85,7 @@ export default function Photo() {
 			setNext(photos[currentIndex + 1].hash)
 		}
 
-		window.addEventListener('resize', () => {
-			paintPhotos()
-		})
+		window.addEventListener('resize', paintPhotos)
 		window.addEventListener('popstate', handlePopstate)
 
 		return () => {
@@ -159,13 +182,13 @@ export default function Photo() {
 				<>
 					{prev && (
 						<button
-							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-transparent is-prev left-4"
+							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-prev left-4 rounded-full"
 							onClick={handlePrev}
 						>
 							<svg
 								fill="currentColor"
 								viewBox="0 0 16 16"
-								className="w-6 h-6 rounded-full"
+								className="w-9 h-9 rounded-full p-1"
 							>
 								<path
 									fillRule="evenodd"
@@ -176,13 +199,13 @@ export default function Photo() {
 					)}
 					{next && (
 						<button
-							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-transparent is-next right-4"
+							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-next right-4 rounded-full"
 							onClick={handleNext}
 						>
 							<svg
 								fill="currentColor"
 								viewBox="0 0 16 16"
-								className="w-6 h-6 rounded-full"
+								className="w-9 h-9 rounded-full p-1"
 							>
 								<path
 									fillRule="evenodd"
@@ -193,12 +216,12 @@ export default function Photo() {
 					)}
 					<Link
 						to={'/' + slug}
-						className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-transparent top-4 left-4 is-close"
+						className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors top-4 left-4 is-close rounded-full"
 					>
 						<svg
 							fill="currentColor"
 							viewBox="0 0 16 16"
-							className="w-6 h-6 rounded-full"
+							className="w-9 h-9 rounded-full p-1"
 						>
 							<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
 						</svg>

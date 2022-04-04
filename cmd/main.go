@@ -207,7 +207,6 @@ func parseMd() []Story {
 				allPhotos := internal.GetPhotos(filepath.Join(".", "photos", cleanFn, clean))
 				for _, p := range allPhotos {
 					w, h := internal.GetWidthHeight(filepath.Join(".", p))
-					order++
 					photos = append(photos, Photo{
 						Hash:   internal.GetSHA1(p),
 						Width:  w,
@@ -216,6 +215,7 @@ func parseMd() []Story {
 						Order:  order,
 						Type:   clean,
 					})
+					order++
 				}
 			} else {
 				block.Type = "paragraph"

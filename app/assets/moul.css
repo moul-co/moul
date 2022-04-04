@@ -30,11 +30,15 @@
 	transition: all var(--transition-photos);
 }
 .moul-darkbox-btn.is-prev {
-	top: calc(50vh - 25px);
+	top: calc(50vh - 18px);
 }
 .moul-darkbox-btn.is-next {
-	top: calc(50vh - 25px);
+	top: calc(50vh - 18px);
 }
 .moul-content-photos {
 	margin-bottom: 16px;
+}
+.moul-content-photos:not(.is-grid) .relative {
+	display: flex;
+	justify-content: space-between;
 }
