@@ -66,12 +66,12 @@ type Story struct {
 }
 
 func init() {
-	if err := os.MkdirAll(filepath.Join(".", "public", "__moul"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(".", "photos", "__moul"), 0755); err != nil {
 		log.Fatal(err)
 	}
 	if cache == nil {
 		cache = viper.New()
-		cache.AddConfigPath(filepath.Join(".", "public", "__moul"))
+		cache.AddConfigPath(filepath.Join(".", "photos", "__moul"))
 		cache.SetConfigType("toml")
 		cache.SetConfigName("cache")
 		cache.ReadInConfig()
@@ -84,13 +84,13 @@ func init() {
 	}
 }
 
-func resize(photoPath, photographer string) {
+func resize(photoPath, photographer string) (string, string) {
 	cleanFn := slug.Make(photoPath)
 	cleanFnWithName := internal.GetFileName(filepath.Base(photoPath), photographer)
 	hash := internal.GetSHA1(photoPath)
 	baseDir := filepath.Join(".", "public", "__moul", "photos", hash)
 
-	imgSrc, err := imaging.Open(photoPath)
+	imgSrc, err := imaging.Open(photoPath, imaging.AutoOrientation(true))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,9 +124,44 @@ func resize(photoPath, photographer string) {
 	_ = jpeg.Encode(buf, decoded, &jpeg.Options{Quality: 90})
 
 	cache.Set(cleanFn+".hash", hash)
-	cache.Set(cleanFn+".fn", cleanFnWithName+".jpeg")
+	cache.Set(cleanFn+".name", cleanFnWithName+".jpeg")
 	cache.Set(cleanFn+".bh", base64.StdEncoding.EncodeToString(buf.Bytes()))
-	cache.WriteConfigAs(filepath.Join(".", "public", "__moul", "cache.toml"))
+	cache.WriteConfigAs(filepath.Join(".", "photos", "__moul", "cache.toml"))
+	return cleanFnWithName + ".jpeg", base64.StdEncoding.EncodeToString(buf.Bytes())
+}
+
+func processPhoto(photoPath string) Photo {
+	cleanPhotoPath := slug.Make(photoPath)
+	photo := Photo{}
+
+	photo.Hash = internal.GetSHA1(filepath.Join(".", photoPath))
+	if cache.GetInt(cleanPhotoPath+".width") > 0 && cache.GetInt(cleanPhotoPath+".height") > 0 {
+		photo.Width = cache.GetInt(cleanPhotoPath + ".width")
+		photo.Height = cache.GetInt(cleanPhotoPath + ".height")
+	} else {
+		pcW, pcH := internal.GetWidthHeight(photoPath)
+		photo.Width = pcW
+		photo.Height = pcH
+		cache.Set(cleanPhotoPath+".width", pcW)
+		cache.Set(cleanPhotoPath+".height", pcH)
+		cache.WriteConfigAs(filepath.Join(".", "photos", "__moul", "cache.toml"))
+	}
+
+	if envy.Get("MOUL_ENV", "") == "prod" {
+		if len(cache.GetString(cleanPhotoPath+".name")) > 0 && len(cache.GetString(cleanPhotoPath+".bh")) > 0 {
+			photo.Name = cache.GetString(cleanPhotoPath + ".name")
+			photo.BH = cache.GetString(cleanPhotoPath + ".bh")
+		} else {
+			pcName, pcBh := resize(photoPath, envy.Get("MOUL_PROFILE_NAME", ""))
+			photo.Name = pcName
+			photo.BH = pcBh
+			photo.URL = ""
+		}
+	} else {
+		photo.URL = photoURL + photoPath
+	}
+
+	return photo
 }
 
 func parseMd() []Story {
@@ -162,16 +197,11 @@ func parseMd() []Story {
 			log.Fatal(err)
 		}
 		if exist {
-			cover := internal.GetPhotos(coverPath)
-			w, h := internal.GetWidthHeight(filepath.Join(".", cover[0]))
-			photos = append(photos, Photo{
-				Hash:   internal.GetSHA1(cover[0]),
-				Width:  w,
-				Height: h,
-				URL:    photoURL + cover[0],
-				Type:   "cover",
-				Order:  1,
-			})
+			coverDir := internal.GetPhotos(coverPath)
+			cover := processPhoto(coverDir[0])
+			cover.Type = "cover"
+			cover.Order = 1
+			photos = append(photos, cover)
 		}
 		order := 1
 		for _, v := range photos {
@@ -206,15 +236,10 @@ func parseMd() []Story {
 				block.Text = clean
 				allPhotos := internal.GetPhotos(filepath.Join(".", "photos", cleanFn, clean))
 				for _, p := range allPhotos {
-					w, h := internal.GetWidthHeight(filepath.Join(".", p))
-					photos = append(photos, Photo{
-						Hash:   internal.GetSHA1(p),
-						Width:  w,
-						Height: h,
-						URL:    photoURL + p,
-						Order:  order,
-						Type:   clean,
-					})
+					photo := processPhoto(p)
+					photo.Order = order
+					photo.Type = clean
+					photos = append(photos, photo)
 					order++
 				}
 			} else {
@@ -238,14 +263,16 @@ func parseMd() []Story {
 }
 
 func parseProfile() *Profile {
+	photographer := envy.Get("MOUL_PROFILE_NAME", "")
 	profilePath := filepath.Join(".", "photos", "profile")
 	profileCover := internal.GetPhotos(filepath.Join(profilePath, "cover"))[0]
-	wPC, hPC := internal.GetWidthHeight(profileCover)
 	profilePicture := internal.GetPhotos(filepath.Join(profilePath, "picture"))[0]
-	wPP, hPP := internal.GetWidthHeight(profilePicture)
+
+	cover := processPhoto(profileCover)
+	picture := processPhoto(profilePicture)
 
 	return &Profile{
-		Name: envy.Get("MOUL_PROFILE_NAME", ""),
+		Name: photographer,
 		Bio:  envy.Get("MOUL_PROFILE_BIO", ""),
 		Social: Social{
 			Twitter:   envy.Get("MOUL_PROFILE_SOCIAL_TWITTER", ""),
@@ -254,18 +281,8 @@ func parseProfile() *Profile {
 			Facebook:  envy.Get("MOUL_PROFILE_SOCIAL_FACEBOOK", ""),
 			Instagram: envy.Get("MOUL_PROFILE_SOCIAL_INSTAGRAM", ""),
 		},
-		Cover: Photo{
-			URL:    photoURL + profileCover,
-			Hash:   internal.GetSHA1(filepath.Join(".", profileCover)),
-			Width:  wPC,
-			Height: hPC,
-		},
-		Picture: Photo{
-			URL:    photoURL + profilePicture,
-			Hash:   internal.GetSHA1(filepath.Join(".", profilePicture)),
-			Width:  wPP,
-			Height: hPP,
-		},
+		Cover:   cover,
+		Picture: picture,
 	}
 }
 
@@ -274,10 +291,10 @@ func main() {
 		Name:  "moul",
 		Usage: "",
 		Action: func(c *cli.Context) error {
-			photos := internal.GetPhotos(envy.Get("MOUL_PHOTOS_PATH", filepath.Join(".", "public", "photos")))
-			for _, p := range photos {
-				resize(p, envy.Get("MOUL_PROFILE_NAME", ""))
-			}
+			// photos := internal.GetPhotos(envy.Get("MOUL_PHOTOS_PATH", filepath.Join(".", "photos", "sunset-at-its-finest", "section-4")))
+			// for _, p := range photos {
+			// 	resize(p, envy.Get("MOUL_PROFILE_NAME", ""))
+			// }
 			return nil
 		},
 		Commands: []*cli.Command{
@@ -286,6 +303,30 @@ func main() {
 				Aliases: []string{"b"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
+					envy.Set("MOUL_ENV", "prod")
+					profile := parseProfile()
+					p, err := json.Marshal(profile)
+					if err != nil {
+						log.Fatal(err)
+					}
+					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer profileFile.Close()
+					profileFile.WriteString(string(p))
+
+					stories := parseMd()
+					s, err := json.Marshal(stories)
+					if err != nil {
+						log.Fatal(err)
+					}
+					storiesFile, err := os.Create(filepath.Join(".", "app", "data", "stories.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer storiesFile.Close()
+					storiesFile.WriteString(string(s))
 					return nil
 				},
 			},
@@ -314,6 +355,7 @@ func main() {
 				Aliases: []string{"d"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
+					envy.Set("MOUL_ENV", "dev")
 					profile := parseProfile()
 					p, err := json.Marshal(profile)
 					if err != nil {

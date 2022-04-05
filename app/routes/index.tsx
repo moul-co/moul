@@ -45,7 +45,7 @@ export default function Index() {
 	const { profile, stories } = useLoaderData()
 	return (
 		<div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
-			<section className="w-full h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] relative mb-16">
+			<section className="w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[800px] relative mb-16">
 				{profile?.cover && <Cover photo={profile.cover} />}
 			</section>
 			<Profile profile={profile} />

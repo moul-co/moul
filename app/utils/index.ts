@@ -30,10 +30,10 @@ export interface Photo {
 
 export let getPhotoSrcSet = (photo: any) => {
 	const prefix = '/__moul/photos'
-	return `${prefix}/${photo?.hash}/sm/${photo?.fn} 320w,
-	${prefix}/${photo?.hash}/md/${photo?.fn} 768w,
-	${prefix}/${photo?.hash}/lg/${photo?.fn} 1024w,
-	${prefix}/${photo?.hash}/xl/${photo?.fn} 1440w`
+	return `${prefix}/${photo?.hash}/sm/${photo?.name} 320w,
+	${prefix}/${photo?.hash}/md/${photo?.name} 768w,
+	${prefix}/${photo?.hash}/lg/${photo?.name} 1024w,
+	${prefix}/${photo?.hash}/xl/${photo?.name} 1440w`
 }
 
 export default {
