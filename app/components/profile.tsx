@@ -5,7 +5,7 @@ export let Profile = ({ profile }: any) => {
 	let { name, bio, social, picture } = profile
 
 	return (
-		<section className="mb-16">
+		<section className="my-16">
 			<div className="flex justify-center">
 				{picture && (
 					<Link to="/">

@@ -1,9 +1,22 @@
 import { useEffect } from 'react'
-import { json, LoaderFunction, useLoaderData, Link, MetaFunction } from 'remix'
+import {
+	json,
+	LoaderFunction,
+	useLoaderData,
+	Link,
+	MetaFunction,
+	HeadersFunction,
+} from 'remix'
 import { fixed_partition } from 'image-layout'
 
 import { Profile } from '~/components/profile'
-import { getDimension, getPhotoSrcSet, isBrowser, Photo } from '~/utils'
+import {
+	getDimension,
+	getPhotoSrc,
+	getPhotoSrcSet,
+	isBrowser,
+	Photo,
+} from '~/utils'
 
 import stories from '~/data/stories.json'
 
@@ -14,7 +27,16 @@ export const loader: LoaderFunction = async ({ request }) => {
 	const cover = story?.photos.find((p) => p.type === 'cover')
 	const title = story?.blocks.find((b) => b.type === 'title')?.text
 
-	return json({ status: 'ok', story, cover, title, canonical: request.url })
+	return json(
+		{ status: 'ok', story, cover, title, canonical: request.url },
+		{ headers: { Link: request.url } }
+	)
+}
+
+export const headers: HeadersFunction = ({ loaderHeaders }) => {
+	return {
+		Link: `${loaderHeaders.get('Link')}; rel="canonical"`,
+	}
 }
 
 export const meta: MetaFunction = ({ data }) => {
@@ -24,11 +46,11 @@ export const meta: MetaFunction = ({ data }) => {
 	const fallback = data.story.photos.find((p: Photo) => p.order == 1)
 	const imgURL =
 		cover && cover.bh
-			? `` // get full url
+			? getPhotoSrc(cover)
 			: cover && cover.url
 			? cover.url
 			: fallback && fallback.bh
-			? ``
+			? getPhotoSrc(fallback)
 			: fallback.url
 
 	return {
@@ -72,6 +94,8 @@ export default function Story() {
 			const containerWidth =
 				document.body.clientWidth > 2000 && photosSize.length < 4
 					? 1800
+					: document.body.clientWidth > 3000
+					? 2400
 					: document.body.clientWidth
 			const layout = fixed_partition(photosSize, {
 				containerWidth,
@@ -99,8 +123,8 @@ export default function Story() {
 			{status === 'ok' && (
 				<>
 					<div className="">
-						<div className="moul-cover w-full h-[380px] md:h-[500px] lg:h-[600px] xl:h-[750px] relative mb-16">
-							{cover && (
+						{cover && (
+							<div className="moul-cover w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[650px] relative mb-16">
 								<>
 									{cover?.bh ? (
 										<Link
@@ -135,8 +159,8 @@ export default function Story() {
 										</Link>
 									)}
 								</>
-							)}
-						</div>
+							</div>
+						)}
 						<Profile profile={story.profile} />
 						{title && (
 							<div className="moul-content-title mx-auto font-bold max-w-3xl mb-6 text-neutral-900 dark:text-neutral-50 px-6 xs:px-0">
@@ -146,7 +170,10 @@ export default function Story() {
 					</div>
 					<div className="mx-auto">
 						{story.blocks.map((b: any, i: number) => (
-							<div className={`leading-relaxed moul-content-${b.type}`} key={i}>
+							<div
+								className={`mx-auto leading-relaxed moul-content-${b.type}`}
+								key={i}
+							>
 								{b.type === 'quote' && (
 									<blockquote className="px-6 xs:px-0 text-xl text-g max-w-3xl mx-auto my-12 text-neutral-800 border-neutral-800 dark:text-neutral-400 dark:border-neutral-400 border-l-4 pl-4">
 										{b.text}

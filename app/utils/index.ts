@@ -35,6 +35,10 @@ export let getPhotoSrcSet = (photo: any) => {
 	${prefix}/${photo?.hash}/lg/${photo?.name} 1024w,
 	${prefix}/${photo?.hash}/xl/${photo?.name} 1440w`
 }
+export let getPhotoSrc = (photo: any) => {
+	const prefix = '/__moul/photos'
+	return `${prefix}/${photo?.hash}/xl/${photo?.name}`
+}
 
 export default {
 	isBrowser,

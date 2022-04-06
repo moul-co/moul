@@ -22,6 +22,7 @@
 		"express": "4.17.1",
 		"framer-motion": "6.2.8",
 		"image-layout": "0.4.1",
+		"lazysizes": "5.3.2",
 		"morgan": "1.10.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",

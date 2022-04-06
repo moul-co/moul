@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { createRef, useEffect, useRef, useState } from 'react'
 import {
+	HeadersFunction,
+	json,
 	Link,
 	LoaderFunction,
 	MetaFunction,
@@ -15,11 +17,25 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 	const { slug, hash } = params
 	const story = stories.find((story) => story.slug === slug)
 	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
+	const title = story?.blocks.find((b) => b.type === 'title')?.text
+
+	return json(
+		{
+			currentPhoto,
+			photos: story?.photos,
+			slug,
+			story,
+			title,
+		},
+		{
+			headers: { Link: request.url },
+		}
+	)
+}
+
+export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	return {
-		currentPhoto,
-		photos: story?.photos,
-		slug,
-		story,
+		Link: `${loaderHeaders.get('Link')}; rel="canonical"`,
 	}
 }
 
@@ -87,10 +103,12 @@ export default function Photo() {
 
 		window.addEventListener('resize', paintPhotos)
 		window.addEventListener('popstate', handlePopstate)
+		window.addEventListener('keyup', handleKeyup)
 
 		return () => {
 			window.removeEventListener('popstate', handlePopstate)
 			window.removeEventListener('resize', paintPhotos)
+			window.removeEventListener('keyup', handleKeyup)
 		}
 	}, [
 		photo,
@@ -151,7 +169,20 @@ export default function Photo() {
 		})
 	}
 
+	let handleKeyup = (event: any) => {
+		if (event.key === 'ArrowRight') {
+			handleNext()
+		}
+		if (event.key === 'ArrowLeft') {
+			handlePrev()
+		}
+		if (event.key === 'Escape') {
+			navigation('/' + slug)
+		}
+	}
+
 	let handleNext = () => {
+		if (!next) return
 		setTransition('all var(--transition-photos)')
 		let photoIndex = currentIndex + 1
 		setPhoto(photos[photoIndex].hash)
@@ -160,6 +191,7 @@ export default function Photo() {
 		navigation(`/${slug}/photo/${next}`)
 	}
 	let handlePrev = () => {
+		if (!prev) return
 		setTransition('all var(--transition-photos)')
 		let photoIndex = currentIndex - 1
 		setPhoto(photos[photoIndex].hash)

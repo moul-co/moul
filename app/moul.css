@@ -527,6 +527,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 	z-index: 30;
 }
 
+.my-16 {
+	margin-top: 4rem;
+	margin-bottom: 4rem;
+}
+
 .mx-auto {
 	margin-left: auto;
 	margin-right: auto;
@@ -542,17 +547,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 	margin-bottom: 3rem;
 }
 
-.my-16 {
-	margin-top: 4rem;
-	margin-bottom: 4rem;
+.mb-2 {
+	margin-bottom: 0.5rem;
 }
 
 .mb-16 {
 	margin-bottom: 4rem;
-}
-
-.mb-2 {
-	margin-bottom: 0.5rem;
 }
 
 .mb-6 {
@@ -1048,10 +1048,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 	.lg\:h-\[600px\] {
 		height: 600px;
 	}
-
-	.lg\:h-\[550px\] {
-		height: 550px;
-	}
 }
 
 @media (min-width: 1280px) {
@@ -1059,11 +1055,15 @@ Ensure the default browser behavior of the `hidden` attribute.
 		height: 750px;
 	}
 
-	.xl\:h-\[650px\] {
-		height: 650px;
-	}
-
 	.xl\:h-\[800px\] {
 		height: 800px;
+	}
+
+	.xl\:h-\[700px\] {
+		height: 700px;
+	}
+
+	.xl\:h-\[650px\] {
+		height: 650px;
 	}
 }
