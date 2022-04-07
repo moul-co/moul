@@ -34,8 +34,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
+	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:3000')
+		? 'public, max-age=0, must-revalidate'
+		: 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31540000000'
+	// 1 day, 30 days, 1 year
 	return {
 		Link: `${loaderHeaders.get('Link')}; rel="canonical"`,
+		'Cache-Control': cacheControl,
 	}
 }
 
