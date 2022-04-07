@@ -595,10 +595,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 	height: 100vh;
 }
 
-.h-\[380px\] {
-	height: 380px;
-}
-
 .h-\[350px\] {
 	height: 350px;
 }
@@ -1035,10 +1031,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 
 @media (min-width: 768px) {
-	.md\:h-\[500px\] {
-		height: 500px;
-	}
-
 	.md\:h-\[450px\] {
 		height: 450px;
 	}
@@ -1051,18 +1043,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 
 @media (min-width: 1280px) {
-	.xl\:h-\[750px\] {
-		height: 750px;
-	}
-
-	.xl\:h-\[800px\] {
-		height: 800px;
-	}
-
-	.xl\:h-\[700px\] {
-		height: 700px;
-	}
-
 	.xl\:h-\[650px\] {
 		height: 650px;
 	}

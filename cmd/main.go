@@ -23,9 +23,9 @@ import (
 )
 
 var (
-	sizes  = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
-	cache  *viper.Viper
-	config *viper.Viper
+	sizes      = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
+	cache      *viper.Viper
+	moulConfig *viper.Viper
 
 	photoURL = "http://localhost:1234/"
 )
@@ -66,21 +66,23 @@ type Story struct {
 }
 
 func init() {
-	if err := os.MkdirAll(filepath.Join(".", "photos", "__moul"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(".", ".moul"), 0755); err != nil {
 		log.Fatal(err)
 	}
 	if cache == nil {
 		cache = viper.New()
-		cache.AddConfigPath(filepath.Join(".", "photos", "__moul"))
+		cache.AddConfigPath(filepath.Join(".", ".moul"))
 		cache.SetConfigType("toml")
 		cache.SetConfigName("cache")
 		cache.ReadInConfig()
 	}
 
-	if config == nil {
-		config = viper.New()
-		config.AddConfigPath(filepath.Join(".", "app", "photos"))
-		config.SetConfigType("json")
+	if moulConfig == nil {
+		moulConfig = viper.New()
+		moulConfig.AddConfigPath(filepath.Join("."))
+		moulConfig.SetConfigType("toml")
+		moulConfig.SetConfigName("moul")
+		moulConfig.ReadInConfig()
 	}
 }
 
@@ -126,7 +128,7 @@ func resize(photoPath, photographer string) (string, string) {
 	cache.Set(cleanFn+".hash", hash)
 	cache.Set(cleanFn+".name", cleanFnWithName+".jpeg")
 	cache.Set(cleanFn+".bh", base64.StdEncoding.EncodeToString(buf.Bytes()))
-	cache.WriteConfigAs(filepath.Join(".", "photos", "__moul", "cache.toml"))
+	cache.WriteConfigAs(filepath.Join(".", ".moul", "cache.toml"))
 	return cleanFnWithName + ".jpeg", base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
@@ -144,7 +146,7 @@ func processPhoto(photoPath string) Photo {
 		photo.Height = pcH
 		cache.Set(cleanPhotoPath+".width", pcW)
 		cache.Set(cleanPhotoPath+".height", pcH)
-		cache.WriteConfigAs(filepath.Join(".", "photos", "__moul", "cache.toml"))
+		cache.WriteConfigAs(filepath.Join(".", ".moul", "cache.toml"))
 	}
 
 	if envy.Get("MOUL_ENV", "") == "prod" {
@@ -263,7 +265,7 @@ func parseMd() []Story {
 }
 
 func parseProfile() *Profile {
-	photographer := envy.Get("MOUL_PROFILE_NAME", "")
+	photographer := moulConfig.GetString("profile.name")
 	profilePath := filepath.Join(".", "photos", "profile")
 	profileCover := internal.GetPhotos(filepath.Join(profilePath, "cover"))[0]
 	profilePicture := internal.GetPhotos(filepath.Join(profilePath, "picture"))[0]
@@ -273,13 +275,13 @@ func parseProfile() *Profile {
 
 	return &Profile{
 		Name: photographer,
-		Bio:  envy.Get("MOUL_PROFILE_BIO", ""),
+		Bio:  moulConfig.GetString("profile.bio"),
 		Social: Social{
-			Twitter:   envy.Get("MOUL_PROFILE_SOCIAL_TWITTER", ""),
-			GitHub:    envy.Get("MOUL_PROFILE_SOCIAL_GITHUB", ""),
-			YouTube:   envy.Get("MOUL_PROFILE_SOCIAL_YOUTUBE", ""),
-			Facebook:  envy.Get("MOUL_PROFILE_SOCIAL_FACEBOOK", ""),
-			Instagram: envy.Get("MOUL_PROFILE_SOCIAL_INSTAGRAM", ""),
+			Twitter:   moulConfig.GetString("social.twitter"),
+			GitHub:    moulConfig.GetString("social.github"),
+			YouTube:   moulConfig.GetString("social.youtube"),
+			Facebook:  moulConfig.GetString("social.facebook"),
+			Instagram: moulConfig.GetString("social.instagram"),
 		},
 		Cover:   cover,
 		Picture: picture,
