@@ -1,45 +1,16 @@
-import {
-	HeadersFunction,
-	json,
-	LoaderFunction,
-	MetaFunction,
-	useLoaderData,
-} from 'remix'
+import { HeadersFunction, MetaFunction, useLoaderData } from 'remix'
 import Stories from '~/components/stories'
-
 import { Profile } from '~/components/profile'
 import Cover from '~/components/cover'
-
-import profile from '~/data/profile.json'
-import storiesJSON from '~/data/stories.json'
 import { getPhotoSrc } from '~/utils'
 
-export const loader: LoaderFunction = ({ request }) => {
-	const stories = storiesJSON.map((s) => {
-		const cover = s.photos.find((p) => p.type === 'cover')
-		const title = s.blocks.find((b) => b.type === 'title')
-
-		return {
-			slug: s.slug,
-			cover,
-			title: title?.text,
-		}
-	})
-
-	return json(
-		{
-			profile,
-			stories,
-			canonical: request.url,
-		},
-		{ headers: { Link: request.url } }
-	)
-}
+// export { loader } from '~/loaders/index/prod'
+export { loader } from '~/loaders/index/local'
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	// 30 mins, 1 week, 1 year
 	// max-age=1800, s-maxage=604800, stale-while-revalidate=31540000000
-	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:3000')
+	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
 		? 'public, max-age=0, must-revalidate'
 		: 'public, max-age=1800, s-maxage=604800, stale-while-revalidate=31540000000'
 

@@ -1,9 +1,7 @@
-import { createRef, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
 	HeadersFunction,
-	json,
 	Link,
-	LoaderFunction,
 	MetaFunction,
 	useLoaderData,
 	useNavigate,
@@ -11,30 +9,10 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { getDimension, isBrowser, getPhotoSrcSet, Photo } from '~/utils'
 
-import stories from '~/data/stories.json'
-
-export const loader: LoaderFunction = async ({ request, params }) => {
-	const { slug, hash } = params
-	const story = stories.find((story) => story.slug === slug)
-	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
-	const title = story?.blocks.find((b) => b.type === 'title')?.text
-
-	return json(
-		{
-			currentPhoto,
-			photos: story?.photos,
-			slug,
-			story,
-			title,
-		},
-		{
-			headers: { Link: request.url },
-		}
-	)
-}
+export { loader } from '~/loaders/photo/local'
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
-	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:3000')
+	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
 		? 'public, max-age=0, must-revalidate'
 		: 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31540000000'
 	// 1 day, 30 days, 1 year

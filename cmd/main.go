@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"image/jpeg"
 	"log"
 	"math"
@@ -13,8 +14,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bbrks/go-blurhash"
+	"github.com/briandowns/spinner"
 	"github.com/disintegration/imaging"
 	"github.com/gobuffalo/envy"
 	"github.com/gosimple/slug"
@@ -26,6 +29,7 @@ var (
 	sizes      = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
 	cache      *viper.Viper
 	moulConfig *viper.Viper
+	indicator  *spinner.Spinner
 
 	photoURL = "http://localhost:1234/"
 )
@@ -83,6 +87,10 @@ func init() {
 		moulConfig.SetConfigType("toml")
 		moulConfig.SetConfigName("moul")
 		moulConfig.ReadInConfig()
+	}
+
+	if indicator == nil {
+		indicator = spinner.New(spinner.CharSets[6], 100*time.Millisecond)
 	}
 }
 
@@ -363,7 +371,7 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
+					profileFile, err := os.Create(filepath.Join(".", "public", "__moul", "profile.json"))
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -375,7 +383,7 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					storiesFile, err := os.Create(filepath.Join(".", "app", "data", "stories.json"))
+					storiesFile, err := os.Create(filepath.Join(".", "public", "__moul", "stories.json"))
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -384,6 +392,7 @@ func main() {
 
 					fs := http.FileServer(http.Dir("photos/"))
 					http.Handle("/photos/", http.StripPrefix("/photos/", fs))
+					fmt.Println("Preview: http://localhost:3000/")
 					http.ListenAndServe(":1234", nil)
 
 					return nil

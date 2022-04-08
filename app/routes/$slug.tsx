@@ -1,12 +1,5 @@
 import { useEffect } from 'react'
-import {
-	json,
-	LoaderFunction,
-	useLoaderData,
-	Link,
-	MetaFunction,
-	HeadersFunction,
-} from 'remix'
+import { useLoaderData, Link, MetaFunction, HeadersFunction } from 'remix'
 import { fixed_partition } from 'image-layout'
 
 import { Profile } from '~/components/profile'
@@ -18,23 +11,10 @@ import {
 	Photo,
 } from '~/utils'
 
-import stories from '~/data/stories.json'
-
-export const loader: LoaderFunction = async ({ request }) => {
-	if (new URL(request.url).pathname === '/favicon.ico') return null
-	const slug = new URL(request.url).pathname.split('/').pop() || ''
-	const story = stories.find((s) => s.slug == slug)
-	const cover = story?.photos.find((p) => p.type === 'cover')
-	const title = story?.blocks.find((b) => b.type === 'title')?.text
-
-	return json(
-		{ status: 'ok', story, cover, title, canonical: request.url },
-		{ headers: { Link: request.url } }
-	)
-}
+export { loader } from '~/loaders/slug/local'
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
-	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:3000')
+	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
 		? 'public, max-age=0, must-revalidate'
 		: 'public, max-age=1800, s-maxage=604800, stale-while-revalidate=31540000000'
 

@@ -9,7 +9,7 @@
 		"dev": "remix build && run-p dev:*",
 		"dev:node": "cross-env NODE_ENV=development nodemon ./build/index.js --watch ./build/index.js",
 		"dev:remix": "remix watch",
-		"dev:css": "npx tailwindcss -i ./app/assets/moul.css -o ./app/moul.css --watch",
+		"dev:css": "npx tailwindcss -i ./assets/moul.css -o ./app/moul.css --watch",
 		"postinstall": "remix setup node",
 		"start": "cross-env NODE_ENV=production node ./build/index.js",
 		"prepare": "husky install"
@@ -45,6 +45,6 @@
 		"node": ">=14"
 	},
 	"lint-staged": {
-		"*.{ts,tsx,mdx,js,css,md}": "prettier --write"
+		"*.{ts,tsx,mdx,js,md}": "prettier --write"
 	}
 }
