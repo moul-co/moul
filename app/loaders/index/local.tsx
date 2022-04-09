@@ -1,4 +1,4 @@
-import { json, LoaderFunction } from 'remix'
+import { json, LoaderFunction } from '@remix-run/node'
 
 export const loader: LoaderFunction = async ({ request }) => {
 	const profileReq = await fetch(`http://localhost:3000/__moul/profile.json`)

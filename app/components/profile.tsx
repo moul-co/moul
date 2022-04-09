@@ -1,9 +1,8 @@
-import { Link } from 'remix'
+import { Link } from '@remix-run/react'
 import { getPhotoSrcSet } from '~/utils'
 
-export let Profile = ({ profile }: any) => {
-	let { name, bio, social, picture } = profile
-
+export const Profile = ({ profile }: any) => {
+	const { name, bio, social, picture } = profile
 	return (
 		<section className="my-16">
 			<div className="flex justify-center">

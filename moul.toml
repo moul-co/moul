@@ -10,3 +10,9 @@ github = "thasophearak"
 instagram = ""
 youtube = "thasophearak"
 facebook = ""
+
+[moul]
+build = "local" # remote
+
+[deployment]
+target = "cloudflare-pages" # vercel | netlify | fly.io | railway

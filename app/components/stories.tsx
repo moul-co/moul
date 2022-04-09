@@ -1,7 +1,7 @@
-import { Link } from 'remix'
+import { Link } from '@remix-run/react'
 import { getPhotoSrcSet } from '~/utils'
 
-export default function Stories({ stories }: any) {
+export const Stories = ({ stories }: any) => {
 	return (
 		<section className="px-6 max-w-3xl mx-auto">
 			{stories &&

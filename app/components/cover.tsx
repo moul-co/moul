@@ -1,6 +1,6 @@
 import { getPhotoSrcSet, Photo } from '~/utils'
 
-export default function Cover({ photo }: { photo: Photo }) {
+export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
 		<picture className="absolute top-0 left-0 w-full h-full">
 			{photo.bh ? (

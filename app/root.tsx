@@ -1,13 +1,12 @@
+import { LinksFunction, MetaFunction } from '@remix-run/node'
 import {
 	Links,
-	LinksFunction,
 	LiveReload,
 	Meta,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
-} from 'remix'
-import type { MetaFunction } from 'remix'
+} from '@remix-run/react'
 import moulStyle from '~/moul.css'
 
 export const meta: MetaFunction = () => ({

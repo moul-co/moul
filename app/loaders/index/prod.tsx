@@ -1,5 +1,4 @@
-import { json, LoaderFunction } from 'remix'
-
+import { json, LoaderFunction } from '@remix-run/node'
 import profile from '~/data/profile.json'
 import storiesJSON from '~/data/stories.json'
 

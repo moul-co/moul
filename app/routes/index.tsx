@@ -1,7 +1,9 @@
-import { HeadersFunction, MetaFunction, useLoaderData } from 'remix'
-import Stories from '~/components/stories'
+import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
+
+import { Stories } from '~/components/stories'
+import { Cover } from '~/components/cover'
 import { Profile } from '~/components/profile'
-import Cover from '~/components/cover'
 import { getPhotoSrc } from '~/utils'
 
 // export { loader } from '~/loaders/index/prod'
@@ -40,7 +42,7 @@ export const meta: MetaFunction = ({ data }) => {
 export default function Index() {
 	const { profile, stories } = useLoaderData()
 	return (
-		<div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
+		<>
 			{profile?.cover && (
 				<section className="w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[650px] relative mb-16">
 					<Cover photo={profile.cover} />
@@ -53,6 +55,6 @@ export default function Index() {
 					<p>Copyright © {profile.name}. All Rights Reserved.</p>
 				</footer>
 			)}
-		</div>
+		</>
 	)
 }

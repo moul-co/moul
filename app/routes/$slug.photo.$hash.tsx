@@ -1,11 +1,6 @@
+import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import {
-	HeadersFunction,
-	Link,
-	MetaFunction,
-	useLoaderData,
-	useNavigate,
-} from 'remix'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getDimension, isBrowser, getPhotoSrcSet, Photo } from '~/utils'
 

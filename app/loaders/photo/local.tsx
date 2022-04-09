@@ -1,4 +1,4 @@
-import { json, LoaderFunction } from 'remix'
+import { json, LoaderFunction } from '@remix-run/node'
 import { Photo } from '~/utils'
 
 export const loader: LoaderFunction = async ({ request, params }) => {

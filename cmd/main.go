@@ -14,10 +14,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/bbrks/go-blurhash"
-	"github.com/briandowns/spinner"
 	"github.com/disintegration/imaging"
 	"github.com/gobuffalo/envy"
 	"github.com/gosimple/slug"
@@ -29,7 +27,6 @@ var (
 	sizes      = map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32}
 	cache      *viper.Viper
 	moulConfig *viper.Viper
-	indicator  *spinner.Spinner
 
 	photoURL = "http://localhost:1234/"
 )
@@ -87,10 +84,6 @@ func init() {
 		moulConfig.SetConfigType("toml")
 		moulConfig.SetConfigName("moul")
 		moulConfig.ReadInConfig()
-	}
-
-	if indicator == nil {
-		indicator = spinner.New(spinner.CharSets[6], 100*time.Millisecond)
 	}
 }
 

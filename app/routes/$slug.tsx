@@ -1,5 +1,6 @@
+import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import { Link, useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
-import { useLoaderData, Link, MetaFunction, HeadersFunction } from 'remix'
 import { fixed_partition } from 'image-layout'
 
 import { Profile } from '~/components/profile'
