@@ -150,7 +150,7 @@ export default function Story() {
 						<Profile profile={story.profile} />
 						{title && (
 							<div className="moul-content-title mx-auto font-bold max-w-3xl mb-6 text-neutral-900 dark:text-neutral-50 px-6 xs:px-0">
-								<h1 className="text-4xl sm:text-5xl">{title}</h1>
+								<h1 className="text-3xl md:text-5xl">{title}</h1>
 							</div>
 						)}
 					</div>
@@ -161,22 +161,22 @@ export default function Story() {
 								key={i}
 							>
 								{b.type === 'quote' && (
-									<blockquote className="px-6 xs:px-0 text-xl text-g max-w-3xl mx-auto my-12 text-neutral-800 border-neutral-800 dark:text-neutral-400 dark:border-neutral-400 border-l-4 pl-4">
+									<blockquote className="px-6 xs:px-0 text-lg md:text-xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-800 border-neutral-800 dark:text-neutral-400 dark:border-neutral-400 border-l-4 pl-4">
 										{b.text}
 									</blockquote>
 								)}
 								{b.type === 'paragraph' && (
-									<p className="px-6 xs:px-0 text-xl max-w-3xl mx-auto my-12 text-neutral-700 dark:text-neutral-200">
+									<p className="px-6 xs:px-0 text-lg md:text-xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-700 dark:text-neutral-200">
 										{b.text}
 									</p>
 								)}
 								{b.type === 'heading' && (
-									<h2 className="px-6 xs:px-0 text-3xl font-bold sm:text-4xl max-w-3xl mx-auto my-12 text-neutral-800 dark:text-neutral-100">
+									<h2 className="px-6 xs:px-0 text-2xl md:text-3xl font-bold sm:text-4xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-800 dark:text-neutral-100">
 										{b.text}
 									</h2>
 								)}
 								{b.type === 'subheading' && (
-									<h3 className="px-6 xs:px-0 text-2xl font-bold sm:text-3xl max-w-3xl mx-auto my-12 text-neutral-800 dark:text-neutral-100">
+									<h3 className="px-6 xs:px-0 text-xl md:text-2xl font-bold sm:text-3xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-800 dark:text-neutral-100">
 										{b.text}
 									</h3>
 								)}

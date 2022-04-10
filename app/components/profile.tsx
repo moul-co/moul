@@ -8,20 +8,20 @@ export const Profile = ({ profile }: any) => {
 			<div className="flex justify-center">
 				{picture && (
 					<Link to="/">
-						<picture className="w-36 h-36 rounded-full">
+						<picture className="w-28 h-28 md:w-36 md:h-36 rounded-full">
 							{picture.bh ? (
 								<img
 									src={`data:image/jpeg;charset=utf-8;base64,${picture.bh}`}
 									data-srcset={getPhotoSrcSet(picture)}
 									data-sizes="auto"
-									className="lazy w-36 h-36 rounded-full"
+									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full"
 									alt="Profile picture"
 								/>
 							) : (
 								<img
 									src={picture.url}
 									data-sizes="auto"
-									className="lazy w-36 h-36 rounded-full mx-auto"
+									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full mx-auto"
 									alt="Profile picture"
 								/>
 							)}
@@ -31,7 +31,7 @@ export const Profile = ({ profile }: any) => {
 			</div>
 			<div className="text-center pb-2 px-6">
 				<Link to="/" className="inline-flex">
-					<h2 className="text-3xl font-bold leading-normal text-neutral-900 dark:text-neutral-100">
+					<h2 className="text-2xl md:text-3xl font-bold leading-normal text-neutral-900 dark:text-neutral-100">
 						{name}
 					</h2>
 				</Link>

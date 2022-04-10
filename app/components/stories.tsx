@@ -28,14 +28,14 @@ export const Stories = ({ stories }: any) => {
 									)}
 								</picture>
 								<div className="absolute bottom-0 w-full transition ease-out duration-1000 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-gradient-to-t after:from-[#000] z-10 group-hover:translate-y-full">
-									<h1 className="relative z-20 text-3xl font-bold leading-normal p-4 text-neutral-100 transition translate-x-0">
+									<h1 className="relative z-20 text-2xl md:text-3xl font-bold leading-normal p-4 text-neutral-100 transition translate-x-0">
 										{story.title}
 									</h1>
 								</div>
 							</div>
 						) : (
 							<div className="w-full mb-16">
-								<h1 className="font-bold leading-normal text-3xl">
+								<h1 className="font-bold leading-normal text-2xl md:text-3xl">
 									{story.title}
 								</h1>
 							</div>

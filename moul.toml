@@ -12,7 +12,7 @@ youtube = "thasophearak"
 facebook = ""
 
 [moul]
-build = "local" # remote
+build = "local" # Possible value are "local" | "remote"
 
 [deployment]
-target = "cloudflare-pages" # vercel | netlify | fly.io | railway
+target = "cloudflare-pages" # Possible value are "vercel" | "netlify"
