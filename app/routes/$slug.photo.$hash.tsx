@@ -1,10 +1,66 @@
-import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import {
+	json,
+	LoaderFunction,
+	HeadersFunction,
+	MetaFunction,
+} from '@remix-run/node'
 import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getDimension, isBrowser, getPhotoSrcSet, Photo } from '~/utils'
 
-export { loader } from '~/loaders/photo/local'
+import {
+	getDimension,
+	isBrowser,
+	getPhotoSrcSet,
+	Photo,
+	getPhotoSrc,
+} from '~/utils'
+// import stories from '~/data/stories.json'
+
+// export const loader: LoaderFunction = async ({ request, params }) => {
+// 	const { slug, hash } = params
+// 	const story = stories.find((story) => story.slug === slug)
+// 	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
+// 	const title = story?.blocks.find((b) => b.type === 'title')?.text
+
+// 	return json(
+// 		{
+// 			currentPhoto,
+// 			photos: story?.photos,
+// 			slug,
+// 			story,
+// 			title,
+// 			canonical: request.url
+// 		},
+// 		{
+// 			headers: { Link: request.url },
+// 		}
+// 	)
+// }
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
+	const stories = await storiesReq.json()
+
+	const { slug, hash } = params
+	const story = stories.find((story: any) => story.slug === slug)
+	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
+	const title = story?.blocks.find((b: any) => b.type === 'title')?.text
+
+	return json(
+		{
+			currentPhoto,
+			photos: story?.photos,
+			slug,
+			story,
+			title,
+			canonical: request.url,
+		},
+		{
+			headers: { Link: request.url },
+		}
+	)
+}
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
@@ -21,7 +77,11 @@ export const meta: MetaFunction = ({ data }) => {
 	const { name, bio, social } = data.story.profile
 	const { title: t, currentPhoto } = data
 	const title = t ? `${t} | ${name}` : name
-	const imgURL = currentPhoto && currentPhoto.bh ? `` : currentPhoto.url
+	const url = new URL(data.canonical)
+	const imgURL =
+		currentPhoto && currentPhoto?.bh
+			? `${url.protocol}//${url.host}${getPhotoSrc(currentPhoto)}`
+			: currentPhoto.url
 
 	return {
 		title,

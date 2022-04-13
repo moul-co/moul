@@ -1,13 +1,62 @@
-import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import {
+	json,
+	LoaderFunction,
+	HeadersFunction,
+	MetaFunction,
+} from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import { Stories } from '~/components/stories'
-import { Cover } from '~/components/cover'
-import { Profile } from '~/components/profile'
+import { Stories, Cover, Profile } from '~/components'
 import { getPhotoSrc } from '~/utils'
+// import profile from '~/data/profile.json'
+// import storiesJSON from '~/data/stories.json'
 
-// export { loader } from '~/loaders/index/prod'
-export { loader } from '~/loaders/index/local'
+// export const loader: LoaderFunction = ({ request }) => {
+// 	const stories = storiesJSON.map((s) => {
+// 		const cover = s.photos.find((p) => p.type === 'cover')
+// 		const title = s.blocks.find((b) => b.type === 'title')
+// 		return {
+// 			slug: s.slug,
+// 			cover,
+// 			title: title?.text,
+// 		}
+// 	})
+
+// 	return json(
+// 		{
+// 			profile,
+// 			stories,
+// 			canonical: request.url,
+// 		},
+// 		{ headers: { Link: request.url } }
+// 	)
+// }
+export const loader: LoaderFunction = async ({ request }) => {
+	const profileReq = await fetch(`http://localhost:3000/__moul/profile.json`)
+	const profile = await profileReq.json()
+
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
+	const storiesJson = await storiesReq.json()
+
+	const stories = storiesJson.map((s: any) => {
+		const cover = s.photos.find((p: any) => p.type === 'cover')
+		const title = s.blocks.find((b: any) => b.type === 'title')
+		return {
+			slug: s.slug,
+			cover,
+			title: title?.text,
+		}
+	})
+
+	return json(
+		{
+			profile,
+			stories,
+			canonical: request.url,
+		},
+		{ headers: { Link: request.url } }
+	)
+}
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	// 30 mins, 1 week, 1 year
@@ -24,8 +73,13 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 
 export const meta: MetaFunction = ({ data }) => {
 	const { name, bio, social, cover } = data.profile
+	const url = new URL(data.canonical)
 	const imgURL =
-		cover && cover.bh ? getPhotoSrc(cover) : cover && cover.url ? cover.url : ''
+		cover && cover.bh
+			? `${url.protocol}//${url.host}${getPhotoSrc(cover)}`
+			: cover && cover.url
+			? cover.url
+			: ''
 
 	return {
 		title: name,
@@ -51,7 +105,7 @@ export default function Index() {
 			<Profile profile={profile} />
 			<Stories stories={stories} />
 			{profile.name && (
-				<footer className="flex flex-col w-full text-center my-16 text-neutral-500 dark:text-neutral-400">
+				<footer className="flex flex-col w-full text-center px-6 my-16 text-neutral-500 dark:text-neutral-400">
 					<p>Copyright © {profile.name}. All Rights Reserved.</p>
 				</footer>
 			)}

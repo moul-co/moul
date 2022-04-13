@@ -1,5 +1,28 @@
 import { Link } from '@remix-run/react'
-import { getPhotoSrcSet } from '~/utils'
+import { getPhotoSrcSet, Photo } from '~/utils'
+
+export const Cover = ({ photo }: { photo: Photo }) => {
+	return (
+		<picture className="absolute top-0 left-0 w-full h-full">
+			{photo.bh ? (
+				<img
+					src={`data:image/jpeg;charset=utf-8;base64,${photo.bh}`}
+					data-srcset={getPhotoSrcSet(photo)}
+					data-sizes="auto"
+					className="lazy w-full h-full object-cover"
+					alt={photo.name}
+				/>
+			) : (
+				<img
+					src={photo.url}
+					data-sizes="auto"
+					className="lazy w-full h-full object-cover"
+					alt={photo.name}
+				/>
+			)}
+		</picture>
+	)
+}
 
 export const Profile = ({ profile }: any) => {
 	const { name, bio, social, picture } = profile
@@ -15,14 +38,14 @@ export const Profile = ({ profile }: any) => {
 									data-srcset={getPhotoSrcSet(picture)}
 									data-sizes="auto"
 									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full"
-									alt="Profile picture"
+									alt={picture.name}
 								/>
 							) : (
 								<img
 									src={picture.url}
 									data-sizes="auto"
 									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full mx-auto"
-									alt="Profile picture"
+									alt={picture.name}
 								/>
 							)}
 						</picture>
@@ -111,6 +134,51 @@ export const Profile = ({ profile }: any) => {
 					</a>
 				)}
 			</div>
+		</section>
+	)
+}
+
+export const Stories = ({ stories }: any) => {
+	return (
+		<section className="px-6 max-w-3xl mx-auto">
+			{stories &&
+				stories.map((story: any, index: number) => (
+					<Link to={story.slug} key={index}>
+						{story?.cover ? (
+							<div className="relative h-96 w-full rounded-2xl overflow-hidden group mb-16">
+								<picture className="absolute top-0 left-0 w-full h-full rounded-2xl transition duration-[4s] ease-in group-hover:scale-150">
+									{story?.cover?.bh ? (
+										<img
+											src={`data:image/jpeg;charset=utf-8;base64,${story?.cover?.bh}`}
+											data-srcset={getPhotoSrcSet(story?.cover)}
+											data-sizes="auto"
+											className="lazy w-full h-full object-cover rounded-2xl"
+											alt={story?.cover.name}
+										/>
+									) : (
+										<img
+											src={story?.cover?.url}
+											data-sizes="auto"
+											className="lazy w-full h-full object-cover rounded-2xl"
+											alt={story?.cover.name}
+										/>
+									)}
+								</picture>
+								<div className="absolute bottom-0 w-full transition ease-out duration-1000 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-gradient-to-t after:from-[#000] z-10 group-hover:translate-y-full">
+									<h1 className="relative z-20 text-2xl md:text-3xl font-bold leading-normal p-4 text-neutral-100 transition translate-x-0">
+										{story.title}
+									</h1>
+								</div>
+							</div>
+						) : (
+							<div className="w-full mb-16">
+								<h1 className="font-bold leading-normal text-2xl md:text-3xl">
+									{story.title}
+								</h1>
+							</div>
+						)}
+					</Link>
+				))}
 		</section>
 	)
 }

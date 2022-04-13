@@ -19,6 +19,7 @@ export let getDimension = (
 }
 
 export interface Photo {
+	name: string
 	order: number
 	hash: string
 	bh: string
@@ -28,14 +29,14 @@ export interface Photo {
 	url: string
 }
 
-export let getPhotoSrcSet = (photo: any) => {
+export let getPhotoSrcSet = (photo: Photo) => {
 	const prefix = '/__moul/photos'
 	return `${prefix}/${photo?.hash}/sm/${photo?.name} 320w,
 	${prefix}/${photo?.hash}/md/${photo?.name} 768w,
 	${prefix}/${photo?.hash}/lg/${photo?.name} 1024w,
 	${prefix}/${photo?.hash}/xl/${photo?.name} 1440w`
 }
-export let getPhotoSrc = (photo: any) => {
+export let getPhotoSrc = (photo: Photo) => {
 	const prefix = '/__moul/photos'
 	return `${prefix}/${photo?.hash}/xl/${photo?.name}`
 }

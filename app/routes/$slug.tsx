@@ -1,9 +1,14 @@
-import { HeadersFunction, MetaFunction } from '@remix-run/node'
+import {
+	json,
+	LoaderFunction,
+	HeadersFunction,
+	MetaFunction,
+} from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
 import { fixed_partition } from 'image-layout'
 
-import { Profile } from '~/components/profile'
+import { Profile } from '~/components'
 import {
 	getDimension,
 	getPhotoSrc,
@@ -11,8 +16,36 @@ import {
 	isBrowser,
 	Photo,
 } from '~/utils'
+// import stories from '~/data/stories.json'
 
-export { loader } from '~/loaders/slug/local'
+// export const loader: LoaderFunction = async ({ request }) => {
+// 	if (new URL(request.url).pathname === '/favicon.ico') return null
+// 	const slug = new URL(request.url).pathname.split('/').pop() || ''
+// 	const story = stories.find((s) => s.slug == slug)
+// 	const cover = story?.photos.find((p) => p.type === 'cover')
+// 	const title = story?.blocks.find((b) => b.type === 'title')?.text
+
+// 	return json(
+// 		{ status: 'ok', story, cover, title, canonical: request.url },
+// 		{ headers: { Link: request.url } }
+// 	)
+// }
+
+export const loader: LoaderFunction = async ({ request }) => {
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
+	const stories = await storiesReq.json()
+
+	if (new URL(request.url).pathname === '/favicon.ico') return null
+	const slug = new URL(request.url).pathname.split('/').pop() || ''
+	const story = stories.find((s: any) => s.slug == slug)
+	const cover = story?.photos.find((p: any) => p.type === 'cover')
+	const title = story?.blocks.find((b: any) => b.type === 'title')?.text
+
+	return json(
+		{ status: 'ok', story, cover, title, canonical: request.url },
+		{ headers: { Link: request.url } }
+	)
+}
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
@@ -30,13 +63,15 @@ export const meta: MetaFunction = ({ data }) => {
 	const { title: t, cover } = data
 	const title = t ? `${t} | ${name}` : name
 	const fallback = data.story.photos.find((p: Photo) => p.order == 1)
+	const url = new URL(data.canonical)
+
 	const imgURL =
 		cover && cover.bh
-			? getPhotoSrc(cover)
+			? `${url.protocol}//${url.host}${getPhotoSrc(cover)}`
 			: cover && cover.url
 			? cover.url
 			: fallback && fallback.bh
-			? getPhotoSrc(fallback)
+			? `${url.protocol}//${url.host}${getPhotoSrc(fallback)}`
 			: fallback.url
 
 	return {
@@ -213,7 +248,7 @@ export default function Story() {
 						))}
 					</div>
 
-					<footer className="flex flex-col w-full text-center my-16 text-neutral-500 dark:text-neutral-400">
+					<footer className="flex flex-col w-full text-center px-6 my-16 text-neutral-500 dark:text-neutral-400">
 						{story?.profile.name && (
 							<p>Copyright © {story.profile.name}. All Rights Reserved.</p>
 						)}
