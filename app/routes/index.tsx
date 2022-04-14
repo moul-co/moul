@@ -97,7 +97,7 @@ export default function Index() {
 	const { profile, stories } = useLoaderData()
 	return (
 		<>
-			{profile?.cover && (
+			{profile?.cover?.name && (
 				<section className="w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[650px] relative mb-16">
 					<Cover photo={profile.cover} />
 				</section>

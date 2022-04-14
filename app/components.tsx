@@ -29,7 +29,7 @@ export const Profile = ({ profile }: any) => {
 	return (
 		<section className="my-16">
 			<div className="flex justify-center">
-				{picture && (
+				{picture?.name && (
 					<Link to="/">
 						<picture className="w-28 h-28 md:w-36 md:h-36 rounded-full">
 							{picture.bh ? (

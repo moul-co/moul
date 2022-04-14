@@ -106,8 +106,12 @@ func main() {
 							subDir, _ := boilerplate.ReadDir("boilerplate/dev/build/" + f.Name())
 							for _, s := range subDir {
 								if !s.IsDir() {
+									outSubDie := f.Name()
+									if outSubDie != "routes" {
+										outSubDie = "_" + outSubDie
+									}
 									data, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/dev/build/%v/%v", f.Name(), s.Name()))
-									os.WriteFile(filepath.Join(".", cwd, "public", "build", "_"+f.Name(), s.Name()), data, 0644)
+									os.WriteFile(filepath.Join(".", cwd, "public", "build", outSubDie, s.Name()), data, 0644)
 								}
 							}
 						}
