@@ -142,7 +142,7 @@ export const Stories = ({ stories }: any) => {
 	return (
 		<section className="px-6 max-w-3xl mx-auto">
 			{stories &&
-				stories.map((story: any, index: number) => (
+				stories?.map((story: any, index: number) => (
 					<Link to={story.slug} key={index}>
 						{story?.cover ? (
 							<div className="relative h-96 w-full rounded-2xl overflow-hidden group mb-16">

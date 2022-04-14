@@ -234,11 +234,16 @@ func ParseMd(cache, moulConfig *viper.Viper) []Story {
 func ParseProfile(cache, moulConfig *viper.Viper) *Profile {
 	photographer := moulConfig.GetString("profile.name")
 	profilePath := filepath.Join(".", "photos", "profile")
-	profileCover := GetPhotos(filepath.Join(profilePath, "cover"))[0]
-	profilePicture := GetPhotos(filepath.Join(profilePath, "picture"))[0]
-
-	cover := ProcessPhoto(profileCover, cache, moulConfig)
-	picture := ProcessPhoto(profilePicture, cache, moulConfig)
+	coverDir := GetPhotos(filepath.Join(profilePath, "cover"))
+	profileDir := GetPhotos(filepath.Join(profilePath, "picture"))
+	cover := Photo{}
+	picture := Photo{}
+	if len(coverDir) > 0 {
+		cover = ProcessPhoto(coverDir[0], cache, moulConfig)
+	}
+	if len(profileDir) > 0 {
+		picture = ProcessPhoto(profileDir[0], cache, moulConfig)
+	}
 
 	return &Profile{
 		Name: photographer,

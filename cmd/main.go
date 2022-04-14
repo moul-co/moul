@@ -50,6 +50,8 @@ func init() {
 var boilerplate embed.FS
 
 func main() {
+	logger := color.New(color.FgCyan, color.Bold)
+
 	app := &cli.App{
 		Name:  "moul",
 		Usage: "",
@@ -71,6 +73,7 @@ func main() {
 					}
 					project := c.Args().First()
 					cwd := slug.Make(project)
+					logger.Printf("● creating `%v`\n", cwd)
 					target := c.Args().Get(1)
 					for _, p := range []string{".moul", "photos", "public", "stories"} {
 						toCreateDir := filepath.Join(".", cwd, p)
@@ -78,27 +81,90 @@ func main() {
 							log.Fatal(err)
 						}
 					}
-					pkg, _ := boilerplate.ReadFile("boilerplate/package.json")
-					os.WriteFile(filepath.Join(".", cwd, ".moul", "package.json"), pkg, 0644)
-					tsc, _ := boilerplate.ReadFile("boilerplate/tsconfig.json")
-					os.WriteFile(filepath.Join(".", cwd, ".moul", "tsconfig.json"), tsc, 0644)
 
+					if err := os.MkdirAll(filepath.Join(".", cwd, "public", "__moul"), 0755); err != nil {
+						log.Fatal(err)
+					}
+					for _, p := range []string{"cover", "picture"} {
+						toCreateDir := filepath.Join(".", cwd, "photos", "profile", p)
+						if err := os.MkdirAll(toCreateDir, 0755); err != nil {
+							log.Fatal(err)
+						}
+					}
+					for _, p := range []string{"_assets", "_shared", "routes"} {
+						if err := os.MkdirAll(filepath.Join(".", cwd, "public", "build", p), 0755); err != nil {
+							log.Fatal(err)
+						}
+					}
+
+					buildDir, _ := boilerplate.ReadDir("boilerplate/dev/build")
+					for _, f := range buildDir {
+						if !f.IsDir() {
+							data, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/dev/build/%v", f.Name()))
+							os.WriteFile(filepath.Join(".", cwd, "public", "build", f.Name()), data, 0644)
+						} else {
+							subDir, _ := boilerplate.ReadDir("boilerplate/dev/build/" + f.Name())
+							for _, s := range subDir {
+								if !s.IsDir() {
+									data, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/dev/build/%v/%v", f.Name(), s.Name()))
+									os.WriteFile(filepath.Join(".", cwd, "public", "build", "_"+f.Name(), s.Name()), data, 0644)
+								}
+							}
+						}
+					}
+					serverJs, _ := boilerplate.ReadFile("boilerplate/dev/index.js")
+					os.WriteFile(filepath.Join(".", cwd, ".moul", "server.js"), serverJs, 0644)
+
+					switch target {
+					case "vercel":
+						target = "vercel"
+					case "netlify":
+						target = "netlify"
+					// case "fly":
+					// 	target = "fly"
+					// 	writeTargetPlatformFiles(target, cwd)
+					// 	break
+					// case "railway":
+					// 	target = "railway"
+					// 	writeTargetPlatformFiles(target, cwd)
+					// 	break
+					default:
+						target = "cloudflare-pages"
+					}
+
+					indexMd, _ := boilerplate.ReadFile("boilerplate/moul.toml")
+					os.WriteFile(filepath.Join(".", cwd, "moul.toml"), indexMd, 0644)
+					defaultMoulConfig := viper.New()
+					defaultMoulConfig.AddConfigPath(filepath.Join(".", cwd))
+					defaultMoulConfig.SetConfigType("toml")
+					defaultMoulConfig.SetConfigName("moul")
+					defaultMoulConfig.ReadInConfig()
+					defaultMoulConfig.Set("deployment.target", target)
+					defaultMoulConfig.WriteConfigAs(filepath.Join(".", cwd, "moul.toml"))
+					logger.Printf("● done\n")
+					return nil
+				},
+			},
+			{
+				Name:    "build",
+				Aliases: []string{"b"},
+				Usage:   "",
+				Action: func(c *cli.Context) error {
+					envy.Set("MOUL_ENV", "prod")
 					appDir, err := boilerplate.ReadDir("boilerplate/app")
 					if err != nil {
 						log.Fatal(err)
 					}
-					baseAppDir := filepath.Join(".", cwd, ".moul", "app")
+					baseAppDir := filepath.Join(".", ".moul", "app")
 					if err := os.MkdirAll(baseAppDir, 0755); err != nil {
 						log.Fatal(err)
 					}
-
 					for _, f := range appDir {
 						if !f.IsDir() {
 							file, _ := boilerplate.ReadFile("boilerplate/" + f.Name())
 							os.WriteFile(filepath.Join(baseAppDir, f.Name()), file, 0644)
 						}
 					}
-
 					routesDir, err := boilerplate.ReadDir("boilerplate/app/routes")
 					if err != nil {
 						log.Fatal(err)
@@ -112,79 +178,59 @@ func main() {
 							os.WriteFile(filepath.Join(baseAppDir, "routes", rs.Name()), file, 0644)
 						}
 					}
+					pkg, _ := boilerplate.ReadFile("boilerplate/package.json")
+					os.WriteFile(filepath.Join(".", ".moul", "package.json"), pkg, 0644)
+					tsc, _ := boilerplate.ReadFile("boilerplate/tsconfig.json")
+					os.WriteFile(filepath.Join(".", ".moul", "tsconfig.json"), tsc, 0644)
 
-					switch target {
-					case "vercel":
-						target = "vercel"
-						writeTargetPlatformFiles(target, cwd)
-						break
-					case "netlify":
-						target = "netlify"
-						writeTargetPlatformFiles(target, cwd)
-						break
-					// case "fly":
-					// 	target = "fly"
-					// 	writeTargetPlatformFiles(target, cwd)
-					// 	break
-					// case "railway":
-					// 	target = "railway"
-					// 	writeTargetPlatformFiles(target, cwd)
-					// 	break
+					writeTargetPlatformFiles(moulConfig.GetString("deployment.target"))
+					switch moulConfig.GetString("deployment.target") {
+					case "vercel", "netlify":
+						file, _ := boilerplate.ReadFile("boilerplate/node.sh")
+						os.WriteFile(filepath.Join(".", ".moul", "node.sh"), file, 0755)
+						cmd := exec.Command("./.moul/node.sh")
+						stdout, err := cmd.Output()
+						if err != nil {
+							log.Fatal(err)
+						}
+						fmt.Println(string(stdout))
 					default:
-						target = "cloudflare-pages"
-						writeTargetPlatformFiles(target, cwd)
+						file, _ := boilerplate.ReadFile("boilerplate/cloudflare.sh")
+						os.WriteFile(filepath.Join(".", ".moul", "cloudflare.sh"), file, 0755)
+						cmd := exec.Command("./.moul/cloudflare.sh")
+						stdout, err := cmd.Output()
+						if err != nil {
+							log.Fatal(err)
+						}
+						fmt.Println(string(stdout))
 					}
 
-					indexMd, _ := boilerplate.ReadFile("boilerplate/moul.toml")
-					os.WriteFile(filepath.Join(".", cwd, "moul.toml"), indexMd, 0644)
-					defaultMoulConfig := viper.New()
-					defaultMoulConfig.AddConfigPath(filepath.Join(".", cwd))
-					defaultMoulConfig.SetConfigType("toml")
-					defaultMoulConfig.SetConfigName("moul")
-					defaultMoulConfig.ReadInConfig()
-					defaultMoulConfig.Set("deployment.target", target)
-					defaultMoulConfig.WriteConfigAs(filepath.Join(".", cwd, "moul.toml"))
-					cmd := exec.Command("npm", "--prefix", cwd+"/.moul", "install", "--only=prod")
-					stdout, err := cmd.Output()
-					if err != nil {
-						log.Fatal(err)
-					}
-					fmt.Println(string(stdout))
-					return nil
-				},
-			},
-			{
-				Name:    "build",
-				Aliases: []string{"b"},
-				Usage:   "",
-				Action: func(c *cli.Context) error {
-					envy.Set("MOUL_ENV", "prod")
-					profile := internal.ParseProfile(cache, moulConfig)
-					p, err := json.Marshal(profile)
-					if err != nil {
-						log.Fatal(err)
-					}
-					if err := os.MkdirAll(filepath.Join(".", ".moul", "app"), 0755); err != nil {
-						log.Fatal(err)
-					}
-					profileFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "profile.json"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer profileFile.Close()
-					profileFile.WriteString(string(p))
+					// profile := internal.ParseProfile(cache, moulConfig)
+					// p, err := json.Marshal(profile)
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// if err := os.MkdirAll(filepath.Join(".", ".moul", "app"), 0755); err != nil {
+					// 	log.Fatal(err)
+					// }
+					// profileFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "profile.json"))
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// defer profileFile.Close()
+					// profileFile.WriteString(string(p))
 
-					stories := internal.ParseMd(cache, moulConfig)
-					s, err := json.Marshal(stories)
-					if err != nil {
-						log.Fatal(err)
-					}
-					storiesFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "stories.json"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer storiesFile.Close()
-					storiesFile.WriteString(string(s))
+					// stories := internal.ParseMd(cache, moulConfig)
+					// s, err := json.Marshal(stories)
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// storiesFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "stories.json"))
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// defer storiesFile.Close()
+					// storiesFile.WriteString(string(s))
 					return nil
 				},
 			},
@@ -214,35 +260,34 @@ func main() {
 				Usage:   "",
 				Action: func(c *cli.Context) error {
 					envy.Set("MOUL_ENV", "dev")
-					d := color.New(color.FgCyan, color.Bold)
-					d.Println("Generating profile...")
+					logger.Println("Generating profile...")
 
 					profile := internal.ParseProfile(cache, moulConfig)
 					p, err := json.Marshal(profile)
 					if err != nil {
 						log.Fatal(err)
 					}
-					profileFile, err := os.Create(filepath.Join(".", "app", "data", "profile.json"))
+					profileFile, err := os.Create(filepath.Join(".", "public", "__moul", "profile.json"))
 					if err != nil {
 						log.Fatal(err)
 					}
 					defer profileFile.Close()
 					profileFile.WriteString(string(p))
-					d.Println("Generated profile.")
+					logger.Println("Generated profile.")
 
-					d.Println("Generating stories...")
+					logger.Println("Generating stories...")
 					stories := internal.ParseMd(cache, moulConfig)
 					s, err := json.Marshal(stories)
 					if err != nil {
 						log.Fatal(err)
 					}
-					storiesFile, err := os.Create(filepath.Join(".", "app", "data", "stories.json"))
+					storiesFile, err := os.Create(filepath.Join(".", "public", "__moul", "stories.json"))
 					if err != nil {
 						log.Fatal(err)
 					}
 					defer storiesFile.Close()
 					storiesFile.WriteString(string(s))
-					d.Println("Generated stories.")
+					logger.Println("Generated stories.")
 
 					var wg sync.WaitGroup
 					wg.Add(2)
@@ -263,9 +308,7 @@ func main() {
 
 func startNode(wg *sync.WaitGroup) {
 	defer wg.Done()
-
-	fmt.Println("Server running:", filepath.Join(".", ".moul", "index.js"))
-	cmd := exec.Command("node", filepath.Join(".", ".moul", "index.js"))
+	cmd := exec.Command("node", filepath.Join(".", ".moul", "server.js"))
 	stdout, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)
@@ -281,12 +324,12 @@ func startFs(wg *sync.WaitGroup) {
 	http.ListenAndServe(":1234", nil)
 }
 
-func writeTargetPlatformFiles(target, cwd string) {
+func writeTargetPlatformFiles(target string) {
 	files, _ := boilerplate.ReadDir("boilerplate/" + target)
 	for _, f := range files {
 		if !f.IsDir() {
 			content, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/%v/%v", target, f.Name()))
-			os.WriteFile(filepath.Join(".", cwd, ".moul", f.Name()), content, 0644)
+			os.WriteFile(filepath.Join(".", ".moul", f.Name()), content, 0644)
 		}
 	}
 }

@@ -65,7 +65,7 @@ func GetPhotos(path string) []string {
 	})
 
 	if err != nil {
-		log.Println(err)
+		log.Println("GetPhotos: ", err)
 	}
 
 	return photos
