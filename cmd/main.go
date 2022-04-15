@@ -50,7 +50,8 @@ func init() {
 var boilerplate embed.FS
 
 func main() {
-	logger := color.New(color.FgCyan, color.Bold)
+	logBlue := color.New(color.FgBlue, color.Bold)
+	logBlack := color.New(color.FgBlack, color.Bold)
 
 	app := &cli.App{
 		Name:  "moul",
@@ -73,7 +74,7 @@ func main() {
 					}
 					project := c.Args().First()
 					cwd := slug.Make(project)
-					logger.Printf("● creating `%v`\n", cwd)
+					logBlue.Printf("\n● Creating `%v`\n", cwd)
 					target := c.Args().Get(1)
 					for _, p := range []string{".moul", "photos", "public", "stories"} {
 						toCreateDir := filepath.Join(".", cwd, p)
@@ -145,7 +146,10 @@ func main() {
 					defaultMoulConfig.ReadInConfig()
 					defaultMoulConfig.Set("deployment.target", target)
 					defaultMoulConfig.WriteConfigAs(filepath.Join(".", cwd, "moul.toml"))
-					logger.Printf("● done\n")
+					logBlue.Printf("● Created `%v`\n\n", cwd)
+					logBlack.Printf("  ● To get start `cd %v`\n", cwd)
+					logBlack.Println("  ● To create a story `moul new \"My Awesome Story\"`")
+					logBlack.Printf("  ● To preview locally `moul preview`\n\n")
 					return nil
 				},
 			},
@@ -154,6 +158,9 @@ func main() {
 				Aliases: []string{"b"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
+					if err := validMoulProject(); err != nil {
+						log.Fatalf("Not a valid moul project!")
+					}
 					envy.Set("MOUL_ENV", "prod")
 					appDir, err := boilerplate.ReadDir("boilerplate/app")
 					if err != nil {
@@ -165,7 +172,7 @@ func main() {
 					}
 					for _, f := range appDir {
 						if !f.IsDir() {
-							file, _ := boilerplate.ReadFile("boilerplate/" + f.Name())
+							file, _ := boilerplate.ReadFile("boilerplate/app/" + f.Name())
 							os.WriteFile(filepath.Join(baseAppDir, f.Name()), file, 0644)
 						}
 					}
@@ -182,10 +189,10 @@ func main() {
 							os.WriteFile(filepath.Join(baseAppDir, "routes", rs.Name()), file, 0644)
 						}
 					}
-					pkg, _ := boilerplate.ReadFile("boilerplate/package.json")
-					os.WriteFile(filepath.Join(".", ".moul", "package.json"), pkg, 0644)
-					tsc, _ := boilerplate.ReadFile("boilerplate/tsconfig.json")
-					os.WriteFile(filepath.Join(".", ".moul", "tsconfig.json"), tsc, 0644)
+					for _, f := range []string{"package.json", "tsconfig.json"} {
+						pkg, _ := boilerplate.ReadFile("boilerplate/" + f)
+						os.WriteFile(filepath.Join(".", ".moul", f), pkg, 0644)
+					}
 
 					writeTargetPlatformFiles(moulConfig.GetString("deployment.target"))
 					switch moulConfig.GetString("deployment.target") {
@@ -193,48 +200,53 @@ func main() {
 						file, _ := boilerplate.ReadFile("boilerplate/node.sh")
 						os.WriteFile(filepath.Join(".", ".moul", "node.sh"), file, 0755)
 						cmd := exec.Command("./.moul/node.sh")
-						stdout, err := cmd.Output()
+						_, err := cmd.Output()
 						if err != nil {
-							log.Fatal(err)
+							log.Fatal("exec node.sh", err)
 						}
-						fmt.Println(string(stdout))
 					default:
 						file, _ := boilerplate.ReadFile("boilerplate/cloudflare.sh")
 						os.WriteFile(filepath.Join(".", ".moul", "cloudflare.sh"), file, 0755)
 						cmd := exec.Command("./.moul/cloudflare.sh")
-						stdout, err := cmd.Output()
+						_, err := cmd.Output()
 						if err != nil {
-							log.Fatal(err)
+							log.Fatal("exec cloudflare.sh", err)
 						}
-						fmt.Println(string(stdout))
 					}
 
-					// profile := internal.ParseProfile(cache, moulConfig)
-					// p, err := json.Marshal(profile)
+					// cmd := exec.Command("npm", "--prefix", "./.moul", "install")
+					// stdout, err := cmd.Output()
 					// if err != nil {
 					// 	log.Fatal(err)
 					// }
-					// if err := os.MkdirAll(filepath.Join(".", ".moul", "app"), 0755); err != nil {
-					// 	log.Fatal(err)
-					// }
-					// profileFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "profile.json"))
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// defer profileFile.Close()
-					// profileFile.WriteString(string(p))
+					// fmt.Println(string(stdout))
 
-					// stories := internal.ParseMd(cache, moulConfig)
-					// s, err := json.Marshal(stories)
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// storiesFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "stories.json"))
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// defer storiesFile.Close()
-					// storiesFile.WriteString(string(s))
+					profile := internal.ParseProfile(cache, moulConfig)
+					p, err := json.Marshal(profile)
+					if err != nil {
+						log.Fatal(err)
+					}
+					if err := os.MkdirAll(filepath.Join(".", ".moul", "app", "data"), 0755); err != nil {
+						log.Fatal(err)
+					}
+					profileFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "profile.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer profileFile.Close()
+					profileFile.WriteString(string(p))
+
+					stories := internal.ParseMd(cache, moulConfig)
+					s, err := json.Marshal(stories)
+					if err != nil {
+						log.Fatal(err)
+					}
+					storiesFile, err := os.Create(filepath.Join(".", ".moul", "app", "data", "stories.json"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer storiesFile.Close()
+					storiesFile.WriteString(string(s))
 					return nil
 				},
 			},
@@ -243,18 +255,26 @@ func main() {
 				Aliases: []string{"n"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
+					if err := validMoulProject(); err != nil {
+						log.Fatalf("Not a valid moul project!")
+					}
 					title := c.Args().First()
 					fn := slug.Make(title)
-					md, err := os.Create(filepath.Join(".", "stories", fn+".md"))
+					story := filepath.Join(".", "stories", fn+".md")
+					if _, err := os.Stat(story); err == nil {
+						log.Fatal(filepath.Base(story) + " already exists")
+					}
+					md, err := os.Create(story)
 					if err != nil {
 						log.Fatal(err)
 					}
 					defer md.Close()
 					md.WriteString("# " + title)
-
+					logBlack.Printf("\n● Created story: `%v` \n", story)
 					if err := os.MkdirAll(filepath.Join(".", "photos", fn, "cover"), 0755); err != nil {
 						log.Fatal(err)
 					}
+					logBlack.Printf("● Created folder: `%v` \n\n", filepath.Join(".", "photos", fn))
 					return nil
 				},
 			},
@@ -263,8 +283,11 @@ func main() {
 				Aliases: []string{"d"},
 				Usage:   "",
 				Action: func(c *cli.Context) error {
+					if err := validMoulProject(); err != nil {
+						log.Fatalf("Not a valid moul project!")
+					}
 					envy.Set("MOUL_ENV", "dev")
-					logger.Println("Generating profile...")
+					logBlue.Println("Generating profile...")
 
 					profile := internal.ParseProfile(cache, moulConfig)
 					p, err := json.Marshal(profile)
@@ -277,9 +300,9 @@ func main() {
 					}
 					defer profileFile.Close()
 					profileFile.WriteString(string(p))
-					logger.Println("Generated profile.")
+					logBlue.Println("Generated profile.")
 
-					logger.Println("Generating stories...")
+					logBlue.Println("Generating stories...")
 					stories := internal.ParseMd(cache, moulConfig)
 					s, err := json.Marshal(stories)
 					if err != nil {
@@ -291,7 +314,7 @@ func main() {
 					}
 					defer storiesFile.Close()
 					storiesFile.WriteString(string(s))
-					logger.Println("Generated stories.")
+					logBlue.Println("Generated stories.")
 
 					var wg sync.WaitGroup
 					wg.Add(2)
@@ -308,6 +331,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func validMoulProject() error {
+	if _, err := os.Stat(filepath.Join(".", "moul.toml")); errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	return nil
 }
 
 func startNode(wg *sync.WaitGroup) {
