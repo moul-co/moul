@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -191,9 +192,13 @@ func main() {
 							os.WriteFile(filepath.Join(baseAppDir, "routes", rs.Name()), file, 0644)
 						}
 					}
-					for _, f := range []string{"package.json", "tsconfig.json"} {
+					for _, f := range []string{"package.json", "tsconfig.json", "postinstall.sh"} {
 						pkg, _ := boilerplate.ReadFile("boilerplate/" + f)
-						os.WriteFile(filepath.Join(".", ".moul", f), pkg, 0644)
+						perm := fs.FileMode(0644)
+						if f == "postinstall.sh" {
+							perm = 0755
+						}
+						os.WriteFile(filepath.Join(".", ".moul", f), pkg, perm)
 					}
 
 					writeTargetPlatformFiles(moulConfig.GetString("deployment.target"))

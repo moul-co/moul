@@ -3,7 +3,7 @@
 before:
   hooks:
     # You may remove this if you don't use go modules.
-    # - go mod tidy
+    - go mod tidy
 builds:
   - env:
       - CGO_ENABLED=0
@@ -12,6 +12,7 @@ builds:
       - windows
       - darwin
     main: ./cmd/main.go
+    gobinary: go1.18.1
 archives:
   - replacements:
       darwin: Darwin
