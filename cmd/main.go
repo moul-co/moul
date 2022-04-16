@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gobuffalo/envy"
 	"github.com/gosimple/slug"
 	"github.com/spf13/viper"
@@ -287,40 +288,49 @@ func main() {
 						log.Fatalf("Not a valid moul project!")
 					}
 					envy.Set("MOUL_ENV", "dev")
-					logBlue.Println("Generating profile...")
-
-					profile := internal.ParseProfile(cache, moulConfig)
-					p, err := json.Marshal(profile)
-					if err != nil {
-						log.Fatal(err)
-					}
-					profileFile, err := os.Create(filepath.Join(".", "public", "__moul", "profile.json"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer profileFile.Close()
-					profileFile.WriteString(string(p))
-					logBlue.Println("Generated profile.")
-
-					logBlue.Println("Generating stories...")
-					stories := internal.ParseMd(cache, moulConfig)
-					s, err := json.Marshal(stories)
-					if err != nil {
-						log.Fatal(err)
-					}
-					storiesFile, err := os.Create(filepath.Join(".", "public", "__moul", "stories.json"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer storiesFile.Close()
-					storiesFile.WriteString(string(s))
-					logBlue.Println("Generated stories.")
+					devBuildProfile()
+					devBuildStories()
+					logBlack.Println("\nBuilt\n")
 
 					var wg sync.WaitGroup
 					wg.Add(2)
 					go startNode(&wg)
 					go startFs(&wg)
+					watcher, err := fsnotify.NewWatcher()
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer watcher.Close()
+
+					done := make(chan bool)
+					go func() {
+						for {
+							select {
+							case event, ok := <-watcher.Events:
+								if !ok {
+									return
+								}
+								if event.Op&fsnotify.Write == fsnotify.Write {
+									devBuildProfile()
+									devBuildStories()
+									logBlack.Println("Rebuilt.")
+								}
+							case err, ok := <-watcher.Errors:
+								if !ok {
+									return
+								}
+								log.Fatalln(err)
+							}
+						}
+					}()
+
+					err = watcher.Add(filepath.Join(".", "stories"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					_ = watcher.Add(filepath.Join(".", "moul.toml"))
 					wg.Wait()
+					<-done
 					return nil
 				},
 			},
@@ -338,6 +348,34 @@ func validMoulProject() error {
 		return err
 	}
 	return nil
+}
+
+func devBuildProfile() {
+	profile := internal.ParseProfile(cache, moulConfig)
+	p, err := json.Marshal(profile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	profileFile, err := os.Create(filepath.Join(".", "public", "__moul", "profile.json"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer profileFile.Close()
+	profileFile.WriteString(string(p))
+}
+
+func devBuildStories() {
+	stories := internal.ParseMd(cache, moulConfig)
+	s, err := json.Marshal(stories)
+	if err != nil {
+		log.Fatal(err)
+	}
+	storiesFile, err := os.Create(filepath.Join(".", "public", "__moul", "stories.json"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer storiesFile.Close()
+	storiesFile.WriteString(string(s))
 }
 
 func startNode(wg *sync.WaitGroup) {

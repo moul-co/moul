@@ -134,6 +134,8 @@ func ProcessPhoto(photoPath string, cache, moulConfig *viper.Viper) Photo {
 }
 
 func ParseMd(cache, moulConfig *viper.Viper) []Story {
+	moulConfig.ReadInConfig()
+	cache.ReadInConfig()
 	profile := ParseProfile(cache, moulConfig)
 	var stories []Story
 	var storiesMd []string
@@ -166,8 +168,11 @@ func ParseMd(cache, moulConfig *viper.Viper) []Story {
 			log.Fatal(err)
 		}
 		if exist {
+			cover := Photo{}
 			coverDir := GetPhotos(coverPath)
-			cover := ProcessPhoto(coverDir[0], cache, moulConfig)
+			if len(coverDir) > 0 {
+				cover = ProcessPhoto(coverDir[0], cache, moulConfig)
+			}
 			cover.Type = "cover"
 			cover.Order = 1
 			photos = append(photos, cover)
@@ -232,6 +237,8 @@ func ParseMd(cache, moulConfig *viper.Viper) []Story {
 }
 
 func ParseProfile(cache, moulConfig *viper.Viper) *Profile {
+	moulConfig.ReadInConfig()
+	cache.ReadInConfig()
 	photographer := moulConfig.GetString("profile.name")
 	profilePath := filepath.Join(".", "photos", "profile")
 	coverDir := GetPhotos(filepath.Join(profilePath, "cover"))

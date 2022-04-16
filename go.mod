@@ -7,6 +7,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/edwvee/exiffix v0.0.0-20210922235313-0f6cbda5e58f
 	github.com/fatih/color v1.13.0
+	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gosimple/slug v1.12.0
 	github.com/spf13/viper v1.10.1
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
