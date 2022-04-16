@@ -6,12 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"moul/internal"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sync"
+
+	"moul/internal"
 
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
@@ -47,7 +48,7 @@ func init() {
 	}
 }
 
-//go:embed ./boilerplate/*
+//go:embed boilerplate/*
 var boilerplate embed.FS
 
 func main() {
