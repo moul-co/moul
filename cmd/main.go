@@ -47,7 +47,7 @@ func init() {
 	}
 }
 
-//go:embed boilerplate/*
+//go:embed ./boilerplate/*
 var boilerplate embed.FS
 
 func main() {
