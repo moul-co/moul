@@ -228,13 +228,6 @@ func main() {
 						}
 					}
 
-					// cmd := exec.Command("npm", "--prefix", "./.moul", "install")
-					// stdout, err := cmd.Output()
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// fmt.Println(string(stdout))
-
 					profile := internal.ParseProfile(cache, moulConfig)
 					p, err := json.Marshal(profile)
 					if err != nil {
