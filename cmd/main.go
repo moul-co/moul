@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -122,6 +121,16 @@ func main() {
 					}
 					serverJs, _ := boilerplate.ReadFile("boilerplate/dev/index.js")
 					os.WriteFile(filepath.Join(".", cwd, ".moul", "server.js"), serverJs, 0644)
+					build, _ := boilerplate.ReadFile("boilerplate/build.sh")
+					os.WriteFile(filepath.Join(".", cwd, ".moul", "build.sh"), build, 0755)
+					gitkeep, _ := boilerplate.ReadFile("boilerplate/.gitkeep")
+					for _, p := range []string{
+						filepath.Join(".", cwd, "stories"),
+						filepath.Join(".", cwd, "photos", "profile", "cover"),
+						filepath.Join(".", cwd, "photos", "profile", "picture"),
+					} {
+						os.WriteFile(filepath.Join(p, ".gitkeep"), gitkeep, 0644)
+					}
 
 					switch target {
 					case "vercel":
@@ -142,6 +151,8 @@ func main() {
 
 					indexMd, _ := boilerplate.ReadFile("boilerplate/moul.toml")
 					os.WriteFile(filepath.Join(".", cwd, "moul.toml"), indexMd, 0644)
+					gitignore, _ := boilerplate.ReadFile("boilerplate/.gitignore")
+					os.WriteFile(filepath.Join(".", cwd, ".gitignore"), gitignore, 0644)
 					defaultMoulConfig := viper.New()
 					defaultMoulConfig.AddConfigPath(filepath.Join(".", cwd))
 					defaultMoulConfig.SetConfigType("toml")
@@ -192,13 +203,9 @@ func main() {
 							os.WriteFile(filepath.Join(baseAppDir, "routes", rs.Name()), file, 0644)
 						}
 					}
-					for _, f := range []string{"package.json", "tsconfig.json", "postinstall.sh"} {
+					for _, f := range []string{"package.json", "tsconfig.json"} {
 						pkg, _ := boilerplate.ReadFile("boilerplate/" + f)
-						perm := fs.FileMode(0644)
-						if f == "postinstall.sh" {
-							perm = 0755
-						}
-						os.WriteFile(filepath.Join(".", ".moul", f), pkg, perm)
+						os.WriteFile(filepath.Join(".", ".moul", f), pkg, 0644)
 					}
 
 					writeTargetPlatformFiles(moulConfig.GetString("deployment.target"))
