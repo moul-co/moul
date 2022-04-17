@@ -121,8 +121,8 @@ func main() {
 					}
 					serverJs, _ := boilerplate.ReadFile("boilerplate/dev/index.js")
 					os.WriteFile(filepath.Join(".", cwd, ".moul", "server.js"), serverJs, 0644)
-					build, _ := boilerplate.ReadFile("boilerplate/build.sh")
-					os.WriteFile(filepath.Join(".", cwd, ".moul", "build.sh"), build, 0755)
+					build, _ := boilerplate.ReadFile("boilerplate/deploy.sh")
+					os.WriteFile(filepath.Join(".", cwd, ".moul", "deploy.sh"), build, 0755)
 					gitkeep, _ := boilerplate.ReadFile("boilerplate/.gitkeep")
 					for _, p := range []string{
 						filepath.Join(".", cwd, "stories"),
