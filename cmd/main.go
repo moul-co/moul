@@ -296,9 +296,11 @@ func main() {
 						log.Fatalf("Not a valid moul project!")
 					}
 					envy.Set("MOUL_ENV", "dev")
+					logBlack.Println("\nBuild profile...")
 					devBuildProfile()
+					logBlack.Println("Build stories...")
 					devBuildStories()
-					logBlack.Println("\nBuilt\n")
+					logBlack.Println("\nBuilt successful.\n")
 
 					var wg sync.WaitGroup
 					wg.Add(2)

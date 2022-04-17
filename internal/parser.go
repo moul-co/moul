@@ -127,6 +127,7 @@ func ProcessPhoto(photoPath string, cache, moulConfig *viper.Viper) Photo {
 			photo.URL = ""
 		}
 	} else {
+		photo.Name = filepath.Base(photoPath)
 		photo.URL = "http://localhost:1234/" + photoPath
 	}
 
