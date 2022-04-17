@@ -225,6 +225,13 @@ func main() {
 							log.Fatal("exec cloudflare.sh", err)
 						}
 					}
+					if moulConfig.GetString("deployment.target") == "netlify" {
+						cmd := exec.Command("mv", ".moul/netlify.toml", "netlify.toml")
+						_, err = cmd.Output()
+						if err != nil {
+							log.Fatal("exec mv", err)
+						}
+					}
 
 					return nil
 				},
