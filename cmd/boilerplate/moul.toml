@@ -1,9 +1,6 @@
 [deployment]
 target = "cloudflare-pages" # Other possible value are "vercel" | "netlify"
 
-[moul]
-build = "local" # Other possible value are "remote"
-
 [profile]
   bio = ""
   name = ""
