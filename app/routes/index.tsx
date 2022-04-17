@@ -12,7 +12,7 @@ import { getPhotoSrc } from '~/utils'
 // import storiesJSON from '~/data/stories.json'
 
 // export const loader: LoaderFunction = ({ request }) => {
-// 	const stories = storiesJSON.map((s) => {
+// 	const stories = storiesJSON?.map((s) => {
 // 		const cover = s.photos.find((p) => p.type === 'cover')
 // 		const title = s.blocks.find((b) => b.type === 'title')
 // 		return {
