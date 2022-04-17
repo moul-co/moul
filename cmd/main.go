@@ -282,7 +282,7 @@ func main() {
 						log.Fatal(err)
 					}
 					gitkeep, _ := boilerplate.ReadFile("boilerplate/.gitkeep")
-					os.WriteFile(filepath.Join(".", "photos", fn, "cover"), gitkeep, 0644)
+					os.WriteFile(filepath.Join(".", "photos", fn, "cover", ".gitkeep"), gitkeep, 0644)
 					logBlack.Printf("● Created folder: `%v` \n\n", filepath.Join(".", "photos", fn))
 					return nil
 				},
