@@ -12,7 +12,6 @@ builds:
       - windows
       - darwin
     main: ./cmd/main.go
-    gobinary: go1.18.1
 archives:
   - replacements:
       darwin: Darwin
