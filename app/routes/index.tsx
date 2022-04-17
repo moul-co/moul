@@ -72,7 +72,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 }
 
 export const meta: MetaFunction = ({ data }) => {
-	const { name, bio, social, cover } = data.profile
+	const { name, bio, social, cover } = data?.profile
 	const url = new URL(data.canonical)
 	const imgURL =
 		cover && cover?.bh

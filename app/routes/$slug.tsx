@@ -144,7 +144,7 @@ export default function Story() {
 			{status === 'ok' && (
 				<>
 					<div className="">
-						{cover && (
+						{cover && cover?.name && (
 							<div className="moul-cover w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[650px] relative mb-16">
 								<>
 									{cover?.bh ? (
@@ -159,7 +159,7 @@ export default function Story() {
 													data-srcset={getPhotoSrcSet(cover)}
 													data-sizes="auto"
 													className="lazy w-full h-full object-cover"
-													alt="Story cover"
+													alt={cover.name}
 												/>
 											</picture>
 										</Link>
@@ -174,7 +174,7 @@ export default function Story() {
 													src={cover.url}
 													data-sizes="auto"
 													className="lazy w-full h-full object-cover"
-													alt="Story cover"
+													alt={cover.name}
 												/>
 											</picture>
 										</Link>
