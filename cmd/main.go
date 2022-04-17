@@ -168,14 +168,12 @@ func main() {
 				},
 			},
 			{
-				Name:    "build",
-				Aliases: []string{"b"},
-				Usage:   "",
+				Name:  "deploy",
+				Usage: "",
 				Action: func(c *cli.Context) error {
 					if err := validMoulProject(); err != nil {
 						log.Fatalf("Not a valid moul project!")
 					}
-					envy.Set("MOUL_ENV", "prod")
 					appDir, err := boilerplate.ReadDir("boilerplate/app")
 					if err != nil {
 						log.Fatal(err)
@@ -228,6 +226,20 @@ func main() {
 						}
 					}
 
+					return nil
+				},
+			},
+			{
+				Name:    "build",
+				Aliases: []string{"b"},
+				Usage:   "",
+				Action: func(c *cli.Context) error {
+					if err := validMoulProject(); err != nil {
+						log.Fatalf("Not a valid moul project!")
+					}
+					envy.Set("MOUL_ENV", "prod")
+
+					logBlack.Println("\nBuilding profile...")
 					profile := internal.ParseProfile(cache, moulConfig)
 					p, err := json.Marshal(profile)
 					if err != nil {
@@ -242,7 +254,7 @@ func main() {
 					}
 					defer profileFile.Close()
 					profileFile.WriteString(string(p))
-
+					logBlack.Println("Building stories...")
 					stories := internal.ParseMd(cache, moulConfig)
 					s, err := json.Marshal(stories)
 					if err != nil {
@@ -254,6 +266,7 @@ func main() {
 					}
 					defer storiesFile.Close()
 					storiesFile.WriteString(string(s))
+					logBlack.Println("\nBuilt successful.\n")
 					return nil
 				},
 			},
@@ -296,9 +309,9 @@ func main() {
 						log.Fatalf("Not a valid moul project!")
 					}
 					envy.Set("MOUL_ENV", "dev")
-					logBlack.Println("\nBuild profile...")
+					logBlack.Println("\nBuilding profile...")
 					devBuildProfile()
-					logBlack.Println("Build stories...")
+					logBlack.Println("Building stories...")
 					devBuildStories()
 					logBlack.Println("\nBuilt successful.\n")
 
