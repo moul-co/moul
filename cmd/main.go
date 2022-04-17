@@ -281,6 +281,8 @@ func main() {
 					if err := os.MkdirAll(filepath.Join(".", "photos", fn, "cover"), 0755); err != nil {
 						log.Fatal(err)
 					}
+					gitkeep, _ := boilerplate.ReadFile("boilerplate/.gitkeep")
+					os.WriteFile(filepath.Join(".", "photos", fn, "cover"), gitkeep, 0644)
 					logBlack.Printf("● Created folder: `%v` \n\n", filepath.Join(".", "photos", fn))
 					return nil
 				},
