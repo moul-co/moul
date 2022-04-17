@@ -75,10 +75,10 @@ export const meta: MetaFunction = ({ data }) => {
 	const { name, bio, social, cover } = data.profile
 	const url = new URL(data.canonical)
 	const imgURL =
-		cover && cover.bh
+		cover && cover?.bh
 			? `${url.protocol}//${url.host}${getPhotoSrc(cover)}`
-			: cover && cover.url
-			? cover.url
+			: cover && cover?.url
+			? cover?.url
 			: ''
 
 	return {

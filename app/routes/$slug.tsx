@@ -66,13 +66,13 @@ export const meta: MetaFunction = ({ data }) => {
 	const url = new URL(data.canonical)
 
 	const imgURL =
-		cover && cover.bh
+		cover && cover?.bh
 			? `${url.protocol}//${url.host}${getPhotoSrc(cover)}`
-			: cover && cover.url
-			? cover.url
-			: fallback && fallback.bh
+			: cover && cover?.bh
+			? cover?.url
+			: fallback && fallback?.bh
 			? `${url.protocol}//${url.host}${getPhotoSrc(fallback)}`
-			: fallback.url
+			: fallback?.url
 
 	return {
 		title,
