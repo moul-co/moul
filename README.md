@@ -36,5 +36,10 @@ $ moul new "This is my awesome story"
 
 ```bash
 $ moul dev
-``
+```
+
+#### Build
+
+```bash
+$ moul build
 ```
