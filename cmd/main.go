@@ -28,9 +28,6 @@ var (
 )
 
 func init() {
-	if err := os.MkdirAll(filepath.Join(".", ".moul"), 0755); err != nil {
-		log.Fatal(err)
-	}
 	if cache == nil {
 		cache = viper.New()
 		cache.AddConfigPath(filepath.Join(".", ".moul"))
@@ -203,7 +200,7 @@ func main() {
 					}
 					for _, f := range []string{"package.json", "tsconfig.json"} {
 						pkg, _ := boilerplate.ReadFile("boilerplate/" + f)
-						os.WriteFile(filepath.Join(".", ".moul", f), pkg, 0644)
+						os.WriteFile(filepath.Join(".", f), pkg, 0644)
 					}
 
 					writeTargetPlatformFiles(moulConfig.GetString("deployment.target"))
@@ -223,13 +220,6 @@ func main() {
 						_, err := cmd.Output()
 						if err != nil {
 							log.Fatal("exec cloudflare.sh", err)
-						}
-					}
-					if moulConfig.GetString("deployment.target") == "netlify" {
-						cmd := exec.Command("mv", ".moul/netlify.toml", "netlify.toml")
-						_, err = cmd.Output()
-						if err != nil {
-							log.Fatal("exec mv", err)
 						}
 					}
 
@@ -431,7 +421,7 @@ func writeTargetPlatformFiles(target string) {
 	for _, f := range files {
 		if !f.IsDir() {
 			content, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/%v/%v", target, f.Name()))
-			os.WriteFile(filepath.Join(".", ".moul", f.Name()), content, 0644)
+			os.WriteFile(filepath.Join(".", f.Name()), content, 0644)
 		}
 	}
 }
