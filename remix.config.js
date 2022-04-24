@@ -6,7 +6,7 @@ module.exports = {
 	ignoredRouteFiles: ['.*'],
 	devServerBroadcastDelay: 1000,
 	// appDirectory: "app",
-	// assetsBuildDirectory: "public/build",
+	assetsBuildDirectory: '.moul/public/build',
 	// serverBuildPath: "build/index.js",
-	// publicPath: "/build/",
+	publicPath: '/build/',
 }

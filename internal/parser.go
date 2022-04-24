@@ -63,7 +63,7 @@ func Resize(photoPath, photographer string, cache *viper.Viper) (string, string)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for k, v := range map[string]int{"xl": 4096, "lg": 2560, "md": 1024, "sm": 512, "xs": 32} {
+	for k, v := range map[string]int{"xl": 3840, "lg": 2560, "md": 1280, "sm": 640, "xs": 32} {
 		outPath := filepath.Join(baseDir, k, cleanFnWithName+".jpeg")
 		if err := os.MkdirAll(filepath.Join(baseDir, k), 0755); err != nil {
 			log.Fatal(err)

@@ -82,9 +82,6 @@ func main() {
 						}
 					}
 
-					if err := os.MkdirAll(filepath.Join(".", cwd, "public", "__moul"), 0755); err != nil {
-						log.Fatal(err)
-					}
 					for _, p := range []string{"cover", "picture"} {
 						toCreateDir := filepath.Join(".", cwd, "photos", "profile", p)
 						if err := os.MkdirAll(toCreateDir, 0755); err != nil {
@@ -92,7 +89,7 @@ func main() {
 						}
 					}
 					for _, p := range []string{"_assets", "_shared", "routes"} {
-						if err := os.MkdirAll(filepath.Join(".", cwd, "public", "build", p), 0755); err != nil {
+						if err := os.MkdirAll(filepath.Join(".", cwd, ".moul", "public", "build", p), 0755); err != nil {
 							log.Fatal(err)
 						}
 					}
@@ -101,7 +98,7 @@ func main() {
 					for _, f := range buildDir {
 						if !f.IsDir() {
 							data, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/dev/build/%v", f.Name()))
-							os.WriteFile(filepath.Join(".", cwd, "public", "build", f.Name()), data, 0644)
+							os.WriteFile(filepath.Join(".", cwd, ".moul", "public", "build", f.Name()), data, 0644)
 						} else {
 							subDir, _ := boilerplate.ReadDir("boilerplate/dev/build/" + f.Name())
 							for _, s := range subDir {
@@ -111,7 +108,7 @@ func main() {
 										outSubDie = "_" + outSubDie
 									}
 									data, _ := boilerplate.ReadFile(fmt.Sprintf("boilerplate/dev/build/%v/%v", f.Name(), s.Name()))
-									os.WriteFile(filepath.Join(".", cwd, "public", "build", outSubDie, s.Name()), data, 0644)
+									os.WriteFile(filepath.Join(".", cwd, ".moul", "public", "build", outSubDie, s.Name()), data, 0644)
 								}
 							}
 						}
@@ -306,6 +303,9 @@ func main() {
 						log.Fatalf("Not a valid moul project!")
 					}
 					envy.Set("MOUL_ENV", "dev")
+					if err := os.MkdirAll(filepath.Join(".", ".moul", "public", "__moul"), 0755); err != nil {
+						log.Fatal(err)
+					}
 					logBlack.Println("\nBuilding profile...")
 					devBuildProfile()
 					logBlack.Println("Building stories...")
@@ -339,7 +339,7 @@ func main() {
 								if !ok {
 									return
 								}
-								log.Fatalln(err)
+								log.Fatal(err)
 							}
 						}
 					}()
@@ -376,7 +376,7 @@ func devBuildProfile() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	profileFile, err := os.Create(filepath.Join(".", "public", "__moul", "profile.json"))
+	profileFile, err := os.Create(filepath.Join(".", ".moul", "public", "__moul", "profile.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -390,7 +390,7 @@ func devBuildStories() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	storiesFile, err := os.Create(filepath.Join(".", "public", "__moul", "stories.json"))
+	storiesFile, err := os.Create(filepath.Join(".", ".moul", "public", "__moul", "stories.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
