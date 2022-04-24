@@ -25,7 +25,7 @@ export default function App() {
 			<head>
 				<Meta />
 				<Links />
-				<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+				<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
 			</head>
 			<body className="dark:bg-black dark:text-white bg-white text-black overflow-x-hidden">
 				<Outlet />
