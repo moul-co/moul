@@ -1,4 +1,3 @@
-export const isBrowser = () => typeof window !== 'undefined'
 /**
  * Maintain aspect ratio on scale size
  *
@@ -36,11 +35,8 @@ export let getPhotoSrcSet = (photo: Photo) => {
 	${prefix}/${photo?.hash}/lg/${photo?.name} 1024w,
 	${prefix}/${photo?.hash}/xl/${photo?.name} 1440w`
 }
+
 export let getPhotoSrc = (photo: Photo) => {
 	const prefix = '/__moul/photos'
 	return `${prefix}/${photo?.hash}/xl/${photo?.name}`
-}
-
-export default {
-	isBrowser,
 }

@@ -1,17 +1,8 @@
 node_modules
 
 /.cache
-/server/build
+/functions/\[\[path\]\].js
+/functions/\[\[path\]\].js.map
 /public/build
 .env
 package-lock.json
-public/__moul
-public/photos
-app/photos
-photos
-build
-.moul
-app/data
-boilerplate
-
-dist/

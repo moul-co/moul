@@ -1,4 +1,4 @@
-import { LinksFunction, MetaFunction } from '@remix-run/node'
+import type { MetaFunction, LinksFunction } from '@remix-run/cloudflare'
 import {
 	Links,
 	LiveReload,
@@ -7,16 +7,21 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from '@remix-run/react'
-import moulStyle from '~/moul.css'
+
+import styles from '~/moul.css'
+import favicon from '~/images/favicon/favicon.svg'
 
 export const meta: MetaFunction = () => ({
 	charset: 'utf-8',
-	title: 'Moul',
+	title: 'Moul — The minimalist publishing tool for photographers',
 	viewport: 'width=device-width,initial-scale=1',
 })
 
 export const links: LinksFunction = () => {
-	return [{ rel: 'stylesheet', href: moulStyle }]
+	return [
+		{ rel: 'stylesheet', href: styles },
+		{ rel: 'icon', type: 'image/svg+xml', href: favicon },
+	]
 }
 
 export default function App() {
@@ -25,9 +30,8 @@ export default function App() {
 			<head>
 				<Meta />
 				<Links />
-				<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
 			</head>
-			<body className="dark:bg-black dark:text-white bg-white text-black overflow-x-hidden">
+			<body className="dark:bg-neutral-900 dark:text-neutral-50 bg-white text-neutral-900 overflow-x-hidden">
 				<Outlet />
 				<ScrollRestoration />
 				<Scripts />

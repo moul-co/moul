@@ -3,7 +3,7 @@ import {
 	LoaderFunction,
 	HeadersFunction,
 	MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/cloudflare'
 import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -12,35 +12,13 @@ import {
 	getDimension,
 	isBrowser,
 	getPhotoSrcSet,
-	Photo,
 	getPhotoSrc,
-} from '~/utils'
-// import stories from '~/data/stories.json'
-
-// export const loader: LoaderFunction = async ({ request, params }) => {
-// 	const { slug, hash } = params
-// 	const story = stories?.find((story) => story.slug === slug)
-// 	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
-// 	const title = story?.blocks.find((b) => b.type === 'title')?.text
-
-// 	return json(
-// 		{
-// 			currentPhoto,
-// 			photos: story?.photos,
-// 			slug,
-// 			story,
-// 			title,
-// 			canonical: request.url
-// 		},
-// 		{
-// 			headers: { Link: request.url },
-// 		}
-// 	)
-// }
+} from '~/utilities'
+import { Photo } from '~/utilities/photo'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
-	const stories = await storiesReq.json()
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`) //! update this
+	const stories = (await storiesReq.json()) as any
 
 	const { slug, hash } = params
 	const story = stories.find((story: any) => story.slug === slug)
@@ -63,7 +41,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
-	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
+	const cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
 		? 'public, max-age=0, must-revalidate'
 		: 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31540000000'
 	// 1 day, 30 days, 1 year
@@ -95,32 +73,32 @@ export const meta: MetaFunction = ({ data }) => {
 	}
 }
 // https://codesandbox.io/s/framer-motion-image-gallery-pqvx3?from-embed=&file=/src/Example.tsx
-let swipeConfidenceThreshold = 10000
-let swipePower = (offset: number, velocity: number) => {
+const swipeConfidenceThreshold = 10000
+const swipePower = (offset: number, velocity: number) => {
 	return Math.abs(offset) * velocity
 }
 
 export default function Photo() {
-	let { currentPhoto, photos, slug } = useLoaderData()
-	let navigation = useNavigate()
+	const { currentPhoto, photos, slug } = useLoaderData()
+	const navigation = useNavigate()
 
-	let [photo, setPhoto] = useState(currentPhoto.hash)
+	const [photo, setPhoto] = useState(currentPhoto.hash)
 
-	let [hash, setHash] = useState(currentPhoto.bh)
-	let [width, setWidth] = useState(0)
-	let [height, setHeight] = useState(0)
+	const [hash, setHash] = useState(currentPhoto.bh)
+	const [width, setWidth] = useState(0)
+	const [height, setHeight] = useState(0)
 
-	let [currentIndex, setCurrentIndex] = useState(0)
-	let [next, setNext] = useState('')
-	let [prev, setPrev] = useState('')
+	const [currentIndex, setCurrentIndex] = useState(0)
+	const [next, setNext] = useState('')
+	const [prev, setPrev] = useState('')
 
-	let [wrapper, setWrapper] = useState(0)
-	let [currentWidth, setCurrentWidth] = useState(0)
-	let [open, setOpen] = useState(false)
-	let [index, setIndex] = useState(0)
-	let [ui, setUi] = useState(true)
-	let [active, setActive] = useState('translateX(0)')
-	let [transition, setTransition] = useState('none')
+	const [wrapper, setWrapper] = useState(0)
+	const [currentWidth, setCurrentWidth] = useState(0)
+	const [open, setOpen] = useState(false)
+	const [index, setIndex] = useState(0)
+	const [ui, setUi] = useState(true)
+	const [active, setActive] = useState('translateX(0)')
+	const [transition, setTransition] = useState('none')
 
 	useEffect(() => {
 		if (isBrowser()) {
@@ -162,19 +140,19 @@ export default function Photo() {
 		transition,
 	])
 
-	let handlePopstate = () => {
-		let pn = location.pathname.split('/')
+	const handlePopstate = () => {
+		const pn = location.pathname.split('/')
 		if (pn.length) {
-			let isPhoto = pn[pn.length - 2] == 'photo'
+			const isPhoto = pn[pn.length - 2] == 'photo'
 			if (isPhoto) {
-				let pIdx = photos.findIndex((p: any) => p.hash === pn[pn.length - 1])
+				const pIdx = photos.findIndex((p: any) => p.hash === pn[pn.length - 1])
 				setPhoto(photos[pIdx].hash)
 				setHash(photos[pIdx].bh)
 			}
 		}
 	}
 
-	let paintPhotos = () => {
+	const paintPhotos = () => {
 		const { width, height } = getDimension(
 			currentPhoto.width,
 			currentPhoto.height,
@@ -191,12 +169,12 @@ export default function Photo() {
 		// @ts-ignore
 		setActive(`translateX(-${currentWidth * activeIndex}px)`)
 
-		let photosList = document.querySelectorAll(
+		const photosList = document.querySelectorAll(
 			'.moul-darkbox-list picture img'
 		) as any
 		photosList.forEach((img: any) => {
-			let [w, h] = img.getAttribute('data-size').split(':')
-			let { width, height } = getDimension(
+			const [w, h] = img.getAttribute('data-size').split(':')
+			const { width, height } = getDimension(
 				w,
 				h,
 				window.innerWidth,
@@ -207,7 +185,7 @@ export default function Photo() {
 		})
 	}
 
-	let handleKeyup = (event: any) => {
+	const handleKeyup = (event: any) => {
 		if (event.key === 'ArrowRight') {
 			handleNext()
 		}
@@ -219,28 +197,31 @@ export default function Photo() {
 		}
 	}
 
-	let handleNext = () => {
+	const handleNext = () => {
 		if (!next) return
 		setTransition('all var(--transition-photos)')
-		let photoIndex = currentIndex + 1
+		const photoIndex = currentIndex + 1
 		setPhoto(photos[photoIndex].hash)
 		setHash(photos[photoIndex].bh)
 
 		navigation(`/${slug}/photo/${next}`)
 	}
-	let handlePrev = () => {
+
+	const handlePrev = () => {
 		if (!prev) return
 		setTransition('all var(--transition-photos)')
-		let photoIndex = currentIndex - 1
+		const photoIndex = currentIndex - 1
 		setPhoto(photos[photoIndex].hash)
 		setHash(photos[photoIndex].bh)
 
 		navigation(`/${slug}/photo/${prev}`)
 	}
-	let toggleUI = () => {
+
+	const toggleUI = () => {
 		setUi(!ui)
 	}
-	let handleUiClick = (event: any) => {
+
+	const handleUiClick = (event: any) => {
 		if (event.target.className === 'moul-darkbox-list') {
 			navigation('/' + slug)
 		}

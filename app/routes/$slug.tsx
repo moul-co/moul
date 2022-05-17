@@ -3,37 +3,23 @@ import {
 	LoaderFunction,
 	HeadersFunction,
 	MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/cloudflare'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
 import { fixed_partition } from 'image-layout'
 
-import { Profile } from '~/components'
+import { Profile } from '~/components/story'
 import {
 	getDimension,
 	getPhotoSrc,
 	getPhotoSrcSet,
 	isBrowser,
-	Photo,
-} from '~/utils'
-// import stories from '~/data/stories.json'
-
-// export const loader: LoaderFunction = async ({ request }) => {
-// 	if (new URL(request.url).pathname === '/favicon.ico') return null
-// 	const slug = new URL(request.url).pathname.split('/').pop() || ''
-// 	const story = stories?.find((s) => s.slug == slug)
-// 	const cover = story?.photos.find((p) => p.type === 'cover')
-// 	const title = story?.blocks.find((b) => b.type === 'title')?.text
-
-// 	return json(
-// 		{ status: 'ok', story, cover, title, canonical: request.url },
-// 		{ headers: { Link: request.url } }
-// 	)
-// }
+} from '~/utilities'
+import { Photo } from '~/utilities/photo'
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
-	const stories = await storiesReq.json()
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`) //! update this
+	const stories = (await storiesReq.json()) as any
 
 	if (new URL(request.url).pathname === '/favicon.ico') return null
 	const slug = new URL(request.url).pathname.split('/').pop() || ''

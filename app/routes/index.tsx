@@ -3,40 +3,18 @@ import {
 	LoaderFunction,
 	HeadersFunction,
 	MetaFunction,
-} from '@remix-run/node'
+} from '@remix-run/cloudflare'
 import { useLoaderData } from '@remix-run/react'
 
-import { Stories, Cover, Profile } from '~/components'
-import { getPhotoSrc } from '~/utils'
-// import profile from '~/data/profile.json'
-// import storiesJSON from '~/data/stories.json'
+import { Stories, Cover, Profile } from '~/components/story'
+import { getPhotoSrc } from '~/utilities'
 
-// export const loader: LoaderFunction = ({ request }) => {
-// 	const stories = storiesJSON?.map((s) => {
-// 		const cover = s.photos.find((p) => p.type === 'cover')
-// 		const title = s.blocks.find((b) => b.type === 'title')
-// 		return {
-// 			slug: s.slug,
-// 			cover,
-// 			title: title?.text,
-// 		}
-// 	})
-
-// 	return json(
-// 		{
-// 			profile,
-// 			stories,
-// 			canonical: request.url,
-// 		},
-// 		{ headers: { Link: request.url } }
-// 	)
-// }
 export const loader: LoaderFunction = async ({ request }) => {
-	const profileReq = await fetch(`http://localhost:3000/__moul/profile.json`)
+	const profileReq = await fetch(`http://localhost:3000/__moul/profile.json`) //! update this
 	const profile = await profileReq.json()
 
-	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`)
-	const storiesJson = await storiesReq.json()
+	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`) //! update this
+	const storiesJson = (await storiesReq.json()) as any
 
 	const stories = storiesJson?.map((s: any) => {
 		const cover = s.photos.find((p: any) => p.type === 'cover')
@@ -63,7 +41,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	// max-age=1800, s-maxage=604800, stale-while-revalidate=31540000000
 	let cacheControl = loaderHeaders.get('Link')?.includes('localhost:')
 		? 'public, max-age=0, must-revalidate'
-		: 'public, max-age=1800, s-maxage=604800, stale-while-revalidate=31540000000'
+		: 'public, max-age=1, s-maxage=604800, stale-while-revalidate=31540000000'
 
 	return {
 		Link: `${loaderHeaders.get('Link')}; rel="canonical"`,

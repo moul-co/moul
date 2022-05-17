@@ -1,5 +1,6 @@
 import { Link } from '@remix-run/react'
-import { getPhotoSrcSet, Photo } from '~/utils'
+import { getPhotoSrcSet } from '~/utilities'
+import { Photo } from '~/utilities/photo'
 
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
