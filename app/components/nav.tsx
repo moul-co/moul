@@ -1,6 +1,8 @@
 import { Link } from '@remix-run/react'
 import logo from '~/images/logo.svg'
-import NavPhotos from './nav-photos'
+import NavPhotos from '~/components/nav-photos'
+import NavStories from '~/components/nav-stories'
+import NavProfile from '~/components/nav-profile'
 
 export default function Nav() {
 	return (
@@ -8,10 +10,10 @@ export default function Nav() {
 			<Link to="/" className="w-8 h-8">
 				<img src={logo} alt="Moul's logo" className="w-8 h-8" />
 			</Link>
-			<nav>
-				<nav className="flex">
-					<NavPhotos />
-				</nav>
+			<nav className="flex ">
+				<NavProfile />
+				<NavStories />
+				<NavPhotos />
 			</nav>
 			<nav>
 				<Link to="/">Home</Link>

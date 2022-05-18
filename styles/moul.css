@@ -5,7 +5,7 @@
 
 @layer components {
 	.input {
-		@apply text-lg w-full h-16 px-4 pt-6 pb-1 dark:bg-neutral-800 bg-neutral-100 transition outline-none border-0 border-b-8 rounded-lg dark:border-b-neutral-700 border-b-neutral-500 hover:dark:border-b-neutral-600 focus:dark:border-b-blue-600 focus:ring-0;
+		@apply text-lg w-full h-16 px-4 pt-6 pb-1 dark:bg-neutral-900 bg-neutral-100 transition outline-none border-0 border-b-8 rounded-lg dark:border-b-neutral-700 border-b-neutral-500 hover:dark:border-b-neutral-600 focus:dark:border-b-blue-600 focus:ring-0;
 	}
 	.label {
 		@apply absolute text-sm top-1 left-4 text-neutral-400;

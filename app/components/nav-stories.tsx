@@ -2,8 +2,8 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
 
-export default function NavPhotos() {
-	let [isOpen, setIsOpen] = useState(false)
+export default function NavStories() {
+	const [isOpen, setIsOpen] = useState(false)
 	const photoRef = useRef() as any
 
 	function handleAdd() {
@@ -15,7 +15,7 @@ export default function NavPhotos() {
 	}
 
 	async function openModal() {
-		let photos = await get('photos')
+		const photos = await get('photos')
 		if (photos) {
 			photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
 		}
@@ -26,7 +26,7 @@ export default function NavPhotos() {
 		for (const file of event.target.files) {
 			const reader = new FileReader()
 			reader.onload = async (e: any) => {
-				let photos = (await get('photos')) || []
+				const photos = (await get('photos')) || []
 				const result = await fetch(`${e.target.result}`)
 				const blob = await result.blob()
 				await set('photos', [...photos, blob])
@@ -40,7 +40,7 @@ export default function NavPhotos() {
 			<button
 				type="button"
 				onClick={openModal}
-				className="flex items-center hover:bg-neutral-800 py-1 px-2 rounded transition dark:text-neutral-500 dark:hover:text-neutral-200"
+				className="flex items-center hover:bg-neutral-800 py-1 px-2 rounded transition dark:text-neutral-500 dark:hover:text-neutral-200 mr-2"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -50,10 +50,12 @@ export default function NavPhotos() {
 					viewBox="0 0 16 16"
 					className="mr-2"
 				>
-					<path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-					<path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z" />
+					<path
+						fillRule="evenodd"
+						d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5Zm0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Zm9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5Zm5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5Zm-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5Zm8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Zm-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Z"
+					/>
 				</svg>
-				Photos
+				Stories
 			</button>
 			<Transition appear show={isOpen} as={Fragment}>
 				<Dialog as="div" className="relative z-50" onClose={closeModal}>
@@ -86,33 +88,14 @@ export default function NavPhotos() {
 										className="sticky top-0 px-6 py-2.5 flex items-center justify-between"
 									>
 										<h3 className="text-xl font-bold leading-6 text-neutral-200">
-											Photos
+											Stories
 										</h3>
-										<button className="button w-auto py-2.5 font-normal">
-											Insert
-										</button>
 									</Dialog.Title>
 									<Dialog.Description
 										as="main"
 										className="h-[600px] max-h-[80vh] overflow-y-auto"
 									>
-										<div className="mb-2 px-6">
-											<div
-												onClick={handleAdd}
-												className="my-4 w-full h-28 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-xl hover:cursor-pointer flex items-center justify-center"
-											>
-												<span className="text-xl font-bold">Add</span>
-												<input
-													type="file"
-													onChange={handleChange}
-													name="photos"
-													className="hidden"
-													ref={photoRef}
-													multiple
-													accept=".jpeg,.jpg"
-												/>
-											</div>
-										</div>
+										<div className="mt-2"></div>
 									</Dialog.Description>
 								</Dialog.Panel>
 							</Transition.Child>
