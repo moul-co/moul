@@ -1,3 +1,5 @@
+import { Photo } from '~/types'
+
 /**
  * Maintain aspect ratio on scale size
  *
@@ -15,17 +17,6 @@ export let getDimension = (
 ) => {
 	const ratio = Math.min(maxWidth / width, maxHeight / height)
 	return { width: width * ratio, height: height * ratio }
-}
-
-export interface Photo {
-	name: string
-	order: number
-	hash: string
-	bh: string
-	width: number
-	height: number
-	type: string
-	url: string
 }
 
 export let getPhotoSrcSet = (photo: Photo) => {

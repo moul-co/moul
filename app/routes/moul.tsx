@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ActionFunction, json, LoaderFunction } from '@remix-run/cloudflare'
 import Split from 'split-grid'
 import { get, set } from 'idb-keyval'
 import Markdoc from '@markdoc/markdoc'
@@ -8,11 +9,30 @@ import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
 import { markdocConfig } from '~/utilities/markdoc'
+import { Form, useLoaderData } from '@remix-run/react'
 
-export default function Write() {
+export const action: ActionFunction = async ({ request, context }) => {
+	const formData = await request.formData()
+	const moulKV = context.MOUL as KVNamespace
+	await moulKV.put('profile', JSON.stringify(Object.fromEntries(formData)))
+	const stories = await moulKV.get('stories')
+	const profile = await moulKV.get('profile')
+
+	return json({ profile, stories })
+}
+
+export const loader: LoaderFunction = async ({ request, context }) => {
+	const moulKV = context.MOUL as KVNamespace
+	const profile = await moulKV.get('profile')
+
+	return json({ profile })
+}
+
+export default function Moul() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null as any)
+	const { profile } = useLoaderData()
 
 	useEffect(() => {
 		const getStory = async () => {
@@ -47,7 +67,7 @@ export default function Write() {
 
 	return (
 		<>
-			<Nav />
+			<Nav profile={JSON.parse(profile)} />
 			<section className="grid relative">
 				<aside className="editor-wrap overflow-auto sticky top-14">
 					<Editor ref={editorRef} initialValue={text} onChange={handleChange} />

@@ -1,10 +1,22 @@
-import { Fragment, useRef, useState } from 'react'
+import { createRef, Fragment, useEffect, useRef, useState } from 'react'
+import { Form, useActionData } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Disclosure } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
 import Icon from '~/components/icon'
+import { Profile } from '~/types'
 
-export default function NavProfile() {
+export default function NavProfile({ profile }: { profile: Profile }) {
+	const [name, setName] = useState(profile.name)
+	const [bio, setBio] = useState(profile.bio)
+	const [github, setGithub] = useState(profile.github)
+	const [twitter, setTwitter] = useState(profile.twitter)
+	const [youtube, setYoutube] = useState(profile.youtube)
+	const [instagram, setInstagram] = useState(profile.instagram)
+	const [facebook, setFacebook] = useState(profile.facebook)
+	const [picture, setPicture] = useState(profile.picture)
+	const [cover, setCover] = useState(profile.cover)
+
 	const [isOpen, setIsOpen] = useState(false)
 	const photoRef = useRef() as any
 
@@ -95,7 +107,12 @@ export default function NavProfile() {
 										<h3 className="text-2xl font-bold leading-normal text-neutral-200 mr-auto">
 											Profile
 										</h3>
-										<button className="button w-auto py-2.5 font-normal mr-4">
+										<button
+											className="button w-auto py-2.5 font-normal mr-4"
+											type="submit"
+											form="profileForm"
+											onClick={closeModal}
+										>
 											Save
 										</button>
 									</Dialog.Title>
@@ -135,114 +152,123 @@ export default function NavProfile() {
 												/>
 											</div>
 											<section className="px-4">
-												<div className="relative mb-5">
-													<label htmlFor="name" className="label">
-														Name
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="name"
-														name="name"
-													/>
-												</div>
-												<div className="relative mb-5">
-													<label htmlFor="bio" className="label">
-														Bio
-													</label>
-													<textarea
-														name="bio"
-														id="bio"
-														rows={6}
-														className="input h-24"
-													></textarea>
-												</div>
+												<Form method="post" id="profileForm">
+													<div className="relative mb-5">
+														<label htmlFor="name" className="label">
+															Name
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="name"
+															name="name"
+															defaultValue={name}
+														/>
+													</div>
+													<div className="relative mb-5">
+														<label htmlFor="bio" className="label">
+															Bio
+														</label>
+														<textarea
+															name="bio"
+															id="bio"
+															rows={6}
+															className="input h-24"
+															defaultValue={[bio]}
+														></textarea>
+													</div>
 
-												<div className="relative mb-5">
-													<label
-														htmlFor="github"
-														className="label flex items-center"
-													>
-														<span className="mr-2">
-															<Icon name="github" />
-														</span>
-														GitHub
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="github"
-														name="github"
-													/>
-												</div>
-												<div className="relative mb-5">
-													<label
-														htmlFor="twitter"
-														className="label flex items-center"
-													>
-														<span className="mr-2">
-															<Icon name="twitter" />
-														</span>
-														Twitter
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="twitter"
-														name="twitter"
-													/>
-												</div>
-												<div className="relative mb-5">
-													<label
-														htmlFor="youtube"
-														className="label flex items-center"
-													>
-														<span className="mr-2">
-															<Icon name="youtube" />
-														</span>
-														YouTube
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="youtube"
-														name="youtube"
-													/>
-												</div>
-												<div className="relative mb-5">
-													<label
-														htmlFor="instagram"
-														className="label flex items-center"
-													>
-														<span className="mr-2">
-															<Icon name="instagram" />
-														</span>
-														Instagram
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="instagram"
-														name="instagram"
-													/>
-												</div>
-												<div className="relative mb-5">
-													<label
-														htmlFor="facebook"
-														className="label flex items-center"
-													>
-														<span className="mr-2">
-															<Icon name="facebook" />
-														</span>
-														Facebook
-													</label>
-													<input
-														type="text"
-														className="input"
-														id="facebook"
-														name="facebook"
-													/>
-												</div>
+													<div className="relative mb-5">
+														<label
+															htmlFor="github"
+															className="label flex items-center"
+														>
+															<span className="mr-2">
+																<Icon name="github" />
+															</span>
+															GitHub
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="github"
+															name="github"
+															defaultValue={github}
+														/>
+													</div>
+													<div className="relative mb-5">
+														<label
+															htmlFor="twitter"
+															className="label flex items-center"
+														>
+															<span className="mr-2">
+																<Icon name="twitter" />
+															</span>
+															Twitter
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="twitter"
+															name="twitter"
+															defaultValue={twitter}
+														/>
+													</div>
+													<div className="relative mb-5">
+														<label
+															htmlFor="youtube"
+															className="label flex items-center"
+														>
+															<span className="mr-2">
+																<Icon name="youtube" />
+															</span>
+															YouTube
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="youtube"
+															name="youtube"
+															defaultValue={youtube}
+														/>
+													</div>
+													<div className="relative mb-5">
+														<label
+															htmlFor="instagram"
+															className="label flex items-center"
+														>
+															<span className="mr-2">
+																<Icon name="instagram" />
+															</span>
+															Instagram
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="instagram"
+															name="instagram"
+															defaultValue={instagram}
+														/>
+													</div>
+													<div className="relative mb-5">
+														<label
+															htmlFor="facebook"
+															className="label flex items-center"
+														>
+															<span className="mr-2">
+																<Icon name="facebook" />
+															</span>
+															Facebook
+														</label>
+														<input
+															type="text"
+															className="input"
+															id="facebook"
+															name="facebook"
+															defaultValue={facebook}
+														/>
+													</div>
+												</Form>
 											</section>
 										</div>
 									</Dialog.Description>
