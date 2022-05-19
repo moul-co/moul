@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { ActionFunction, json, LoaderFunction } from '@remix-run/cloudflare'
+import {
+	ActionFunction,
+	json,
+	LoaderFunction,
+	redirect,
+} from '@remix-run/cloudflare'
 import Split from 'split-grid'
 import { get, set } from 'idb-keyval'
 import Markdoc from '@markdoc/markdoc'
@@ -10,20 +15,40 @@ import Preview from '~/components/preview'
 
 import { markdocConfig } from '~/utilities/markdoc'
 import { Form, useLoaderData } from '@remix-run/react'
+import { getSession, commitSession } from '~/session'
 
-export const action: ActionFunction = async ({ request, context }) => {
+export const action: ActionFunction = async ({ request }) => {
+	const session = await getSession(request.headers.get('Cookie'))
 	const formData = await request.formData()
-	const moulKV = context.MOUL as KVNamespace
-	await moulKV.put('profile', JSON.stringify(Object.fromEntries(formData)))
-	const stories = await moulKV.get('stories')
-	const profile = await moulKV.get('profile')
 
-	return json({ profile, stories })
+	if (formData.has('key')) {
+		const key = formData.get('key')
+		if (key === MOUL_SECRET_ACCESS_KEY) {
+			session.set('auth', true)
+
+			return redirect('/moul', {
+				headers: {
+					'Set-Cookie': await commitSession(session),
+				},
+			})
+		}
+	}
+	const data = JSON.stringify(Object.fromEntries(formData))
+	await MOUL_KV.put('profile', data)
+	const profile = await MOUL_KV.get('profile')
+
+	console.log({ profile })
+
+	return redirect('/moul')
 }
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-	const moulKV = context.MOUL as KVNamespace
-	const profile = await moulKV.get('profile')
+	const session = await getSession(request.headers.get('Cookie'))
+	if (!session.has('auth')) {
+		return json({ status: 'Unauthorized' })
+	}
+
+	const profile = await MOUL_KV.get('profile')
 
 	return json({ profile })
 }
@@ -32,13 +57,13 @@ export default function Moul() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null as any)
-	const { profile } = useLoaderData()
+	const { profile, status } = useLoaderData()
 
 	useEffect(() => {
 		const getStory = async () => {
 			const story = await get('story')
 			setText(story)
-			editorRef.current.setValue(story)
+			editorRef?.current?.setValue(story)
 		}
 		getStory().catch(console.error)
 
@@ -54,7 +79,7 @@ export default function Moul() {
 	}, [])
 
 	const handleChange = async () => {
-		const updated = editorRef.current.getValue()
+		const updated = editorRef?.current.getValue()
 		setText(updated)
 		await set('story', updated)
 
@@ -67,16 +92,48 @@ export default function Moul() {
 
 	return (
 		<>
-			<Nav profile={JSON.parse(profile)} />
-			<section className="grid relative">
-				<aside className="editor-wrap overflow-auto sticky top-14">
-					<Editor ref={editorRef} initialValue={text} onChange={handleChange} />
-				</aside>
-				<div className="gutter-col gutter-col-1"></div>
-				<main>
-					<Preview content={content} />
-				</main>
-			</section>
+			{status === 'Unauthorized' ? (
+				<>
+					<div className="max-w-md w-full h-screen mx-auto flex justify-center flex-col">
+						<h1 className="text-3xl font-bold mb-4">Log in</h1>
+						<Form method="post" id="profileForm">
+							<div className="relative mb-5">
+								<label htmlFor="name" className="label">
+									Access Key
+								</label>
+								<input
+									type="password"
+									className="input bg-black"
+									id="key"
+									name="key"
+									autoComplete="false"
+									autoCapitalize="false"
+								/>
+							</div>
+							<button className="button" type="submit">
+								Log in
+							</button>
+						</Form>
+					</div>
+				</>
+			) : (
+				<>
+					<Nav profile={JSON.parse(profile)} />
+					<section className="grid relative">
+						<aside className="editor-wrap overflow-auto sticky top-14">
+							<Editor
+								ref={editorRef}
+								initialValue={text}
+								onChange={handleChange}
+							/>
+						</aside>
+						<div className="gutter-col gutter-col-1"></div>
+						<main>
+							<Preview content={content} />
+						</main>
+					</section>
+				</>
+			)}
 		</>
 	)
 }

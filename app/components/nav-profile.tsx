@@ -7,18 +7,19 @@ import Icon from '~/components/icon'
 import { Profile } from '~/types'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
-	const [name, setName] = useState(profile.name)
-	const [bio, setBio] = useState(profile.bio)
-	const [github, setGithub] = useState(profile.github)
-	const [twitter, setTwitter] = useState(profile.twitter)
-	const [youtube, setYoutube] = useState(profile.youtube)
-	const [instagram, setInstagram] = useState(profile.instagram)
-	const [facebook, setFacebook] = useState(profile.facebook)
-	const [picture, setPicture] = useState(profile.picture)
-	const [cover, setCover] = useState(profile.cover)
+	const [name, setName] = useState(profile?.name)
+	const [bio, setBio] = useState(profile?.bio)
+	const [github, setGithub] = useState(profile?.github)
+	const [twitter, setTwitter] = useState(profile?.twitter)
+	const [youtube, setYoutube] = useState(profile?.youtube)
+	const [instagram, setInstagram] = useState(profile?.instagram)
+	const [facebook, setFacebook] = useState(profile?.facebook)
+	const [picture, setPicture] = useState(profile?.picture)
+	const [cover, setCover] = useState(profile?.cover)
 
 	const [isOpen, setIsOpen] = useState(false)
 	const photoRef = useRef() as any
+	const formRef = useRef() as any
 
 	function handleAdd() {
 		photoRef.current.click()
@@ -47,6 +48,12 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			}
 			reader.readAsDataURL(file)
 		}
+	}
+
+	function handleSubmit() {
+		formRef.current.submit()
+		closeModal()
+		formRef.current.reset()
 	}
 
 	return (
@@ -111,7 +118,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 											className="button w-auto py-2.5 font-normal mr-4"
 											type="submit"
 											form="profileForm"
-											onClick={closeModal}
+											onClick={handleSubmit}
 										>
 											Save
 										</button>
@@ -123,7 +130,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 										<div className="mb-2">
 											<div
 												onClick={handleAdd}
-												className="mx-auto my-4 w-full h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
+												className="mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
 												<span className="text-xl font-bold">Cover</span>
 												<input
@@ -152,7 +159,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												/>
 											</div>
 											<section className="px-4">
-												<Form method="post" id="profileForm">
+												<Form method="post" id="profileForm" ref={formRef}>
 													<div className="relative mb-5">
 														<label htmlFor="name" className="label">
 															Name

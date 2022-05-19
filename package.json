@@ -7,11 +7,13 @@
 	"scripts": {
 		"build": "remix build",
 		"dev:remix": "remix watch",
-		"dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public --kv MOUL",
+		"dev:miniflare": "cross-env NODE_ENV=development miniflare ./build/index.js --watch --kv MOUL_KV --kv-persist",
 		"dev": "remix build && run-p dev:*",
 		"dev:css": "npx tailwindcss -i ./styles/moul.css -o ./app/moul.css --watch",
+		"deploy": "npm run clean && npm run build && wrangler publish build/index.js",
 		"build:css": "npx tailwindcss -i ./styles/moul.css -o ./app/moul.css --minify",
-		"start": "cross-env NODE_ENV=production npm run dev:wrangler",
+		"clean": "rm -rf public/build/* && rm -rf build/*",
+		"start": "cross-env NODE_ENV=production miniflare ./build/index.js",
 		"prepare": "husky install"
 	},
 	"dependencies": {
@@ -32,7 +34,7 @@
 		"@headlessui/react": "1.6.1",
 		"@markdoc/markdoc": "0.1.2",
 		"@remix-run/cloudflare": "1.4.3",
-		"@remix-run/cloudflare-pages": "1.4.3",
+		"@remix-run/cloudflare-workers": "1.4.3",
 		"@remix-run/react": "1.4.3",
 		"cross-env": "7.0.3",
 		"framer-motion": "6.2.8",
@@ -54,7 +56,8 @@
 		"lint-staged": "12.3.7",
 		"npm-run-all": "4.1.5",
 		"typescript": "4.6.4",
-		"wrangler": "2.0.5"
+		"wrangler": "2.0.5",
+		"miniflare": "2.4.0"
 	},
 	"engines": {
 		"node": ">=16"

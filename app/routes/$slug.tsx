@@ -15,15 +15,17 @@ import {
 	getPhotoSrcSet,
 	isBrowser,
 } from '~/utilities'
-import { Photo } from '~/utilities/photo'
+import { Photo } from '~/types'
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`) //! update this
-	const stories = (await storiesReq.json()) as any
+	const storiesStr = (await MOUL_KV.get('stories')) as any
+	if (!storiesStr) {
+		return new Response('not_found', { status: 404 })
+	}
+	const stories = JSON.parse(storiesStr) as any
 
-	if (new URL(request.url).pathname === '/favicon.ico') return null
 	const slug = new URL(request.url).pathname.split('/').pop() || ''
-	const story = stories.find((s: any) => s.slug == slug)
+	const story = stories?.find((s: any) => s.slug == slug)
 	const cover = story?.photos.find((p: any) => p.type === 'cover')
 	const title = story?.blocks.find((b: any) => b.type === 'title')?.text
 
@@ -45,7 +47,8 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 }
 
 export const meta: MetaFunction = ({ data }) => {
-	const { name, bio, social } = data.story.profile
+	if (data == 'not_found') return {}
+	const { name, bio, twitter } = data.story?.profile
 	const { title: t, cover } = data
 	const title = t ? `${t} | ${name}` : name
 	const fallback = data.story.photos.find((p: Photo) => p.order == 1)
@@ -68,7 +71,7 @@ export const meta: MetaFunction = ({ data }) => {
 		'og:description': bio,
 		'og:image': imgURL,
 		'twitter:card': 'summary_large_image',
-		'twitter:creator': social.twitter ? social.twitter : '',
+		'twitter:creator': twitter ? twitter : '',
 	}
 }
 

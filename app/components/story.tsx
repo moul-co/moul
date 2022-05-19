@@ -1,6 +1,6 @@
 import { Link } from '@remix-run/react'
 import { getPhotoSrcSet } from '~/utilities'
-import { Photo } from '~/utilities/photo'
+import { Photo } from '~/types'
 
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
@@ -26,7 +26,8 @@ export const Cover = ({ photo }: { photo: Photo }) => {
 }
 
 export const Profile = ({ profile }: any) => {
-	const { name, bio, social, picture } = profile
+	const { name, bio, twitter, github, youtube, instagram, facebook, picture } =
+		profile
 	return (
 		<section className="my-16">
 			<div className="flex justify-center">
@@ -65,8 +66,8 @@ export const Profile = ({ profile }: any) => {
 			</div>
 
 			<div className="flex justify-center">
-				{social.twitter && (
-					<a href={`https://twitter.com/` + social.twitter} className="mx-2">
+				{twitter && (
+					<a href={`https://twitter.com/` + twitter} className="mx-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"
@@ -77,8 +78,8 @@ export const Profile = ({ profile }: any) => {
 						</svg>
 					</a>
 				)}
-				{social.github && (
-					<a href={`https://github.com/` + social.github} className="mx-2">
+				{github && (
+					<a href={`https://github.com/` + github} className="mx-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"
@@ -89,11 +90,8 @@ export const Profile = ({ profile }: any) => {
 						</svg>
 					</a>
 				)}
-				{social.instagram && (
-					<a
-						href={`https://www.instagram.com/` + social.instagram}
-						className="mx-2"
-					>
+				{instagram && (
+					<a href={`https://www.instagram.com/` + instagram} className="mx-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"
@@ -104,11 +102,8 @@ export const Profile = ({ profile }: any) => {
 						</svg>
 					</a>
 				)}
-				{social.facebook && (
-					<a
-						href={`https://www.facebook.com/` + social.facebook}
-						className="mx-2"
-					>
+				{facebook && (
+					<a href={`https://www.facebook.com/` + facebook} className="mx-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"
@@ -119,11 +114,8 @@ export const Profile = ({ profile }: any) => {
 						</svg>
 					</a>
 				)}
-				{social.youtube && (
-					<a
-						href={`https://www.youtube.com/` + social.youtube}
-						className="mx-2"
-					>
+				{youtube && (
+					<a href={`https://www.youtube.com/` + youtube} className="mx-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"

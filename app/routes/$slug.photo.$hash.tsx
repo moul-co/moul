@@ -14,11 +14,14 @@ import {
 	getPhotoSrcSet,
 	getPhotoSrc,
 } from '~/utilities'
-import { Photo } from '~/utilities/photo'
+import { Photo } from '~/types'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-	const storiesReq = await fetch(`http://localhost:3000/__moul/stories.json`) //! update this
-	const stories = (await storiesReq.json()) as any
+	const storiesStr = (await MOUL_KV.get('stories')) as any
+	if (!storiesStr) {
+		return json({ data: 'not_found' }, { status: 404 })
+	}
+	const stories = JSON.parse(storiesStr) as any
 
 	const { slug, hash } = params
 	const story = stories.find((story: any) => story.slug === slug)
@@ -52,7 +55,8 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 }
 
 export const meta: MetaFunction = ({ data }) => {
-	const { name, bio, social } = data.story.profile
+	if (data.data == 'not_found') return {}
+	const { name, bio, twitter } = data.story?.profile
 	const { title: t, currentPhoto } = data
 	const title = t ? `${t} | ${name}` : name
 	const url = new URL(data.canonical)
@@ -69,7 +73,7 @@ export const meta: MetaFunction = ({ data }) => {
 		'og:description': bio,
 		'og:image': imgURL,
 		'twitter:card': 'summary_large_image',
-		'twitter:creator': social.twitter ? social.twitter : '',
+		'twitter:creator': twitter ? twitter : '',
 	}
 }
 // https://codesandbox.io/s/framer-motion-image-gallery-pqvx3?from-embed=&file=/src/Example.tsx
@@ -79,12 +83,12 @@ const swipePower = (offset: number, velocity: number) => {
 }
 
 export default function Photo() {
-	const { currentPhoto, photos, slug } = useLoaderData()
+	const { currentPhoto, photos, slug, data } = useLoaderData()
 	const navigation = useNavigate()
 
-	const [photo, setPhoto] = useState(currentPhoto.hash)
+	const [photo, setPhoto] = useState(currentPhoto?.hash)
 
-	const [hash, setHash] = useState(currentPhoto.bh)
+	const [hash, setHash] = useState(currentPhoto?.bh)
 	const [width, setWidth] = useState(0)
 	const [height, setHeight] = useState(0)
 
@@ -101,6 +105,8 @@ export default function Photo() {
 	const [transition, setTransition] = useState('none')
 
 	useEffect(() => {
+		if (data === 'not_found') return
+
 		if (isBrowser()) {
 			paintPhotos()
 		}
@@ -228,143 +234,159 @@ export default function Photo() {
 	}
 
 	return (
-		<div className="moul-darkbox-photo">
-			{ui && (
-				<>
-					{prev && (
-						<button
-							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-prev left-4 rounded-full"
-							onClick={handlePrev}
-						>
-							<svg
-								fill="currentColor"
-								viewBox="0 0 16 16"
-								className="w-9 h-9 rounded-full p-1"
+		<>
+			{data == 'not_found' ? (
+				<>not found</>
+			) : (
+				<div className="moul-darkbox-photo">
+					{ui && (
+						<>
+							{prev && (
+								<button
+									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-prev left-4 rounded-full"
+									onClick={handlePrev}
+								>
+									<svg
+										fill="currentColor"
+										viewBox="0 0 16 16"
+										className="w-9 h-9 rounded-full p-1"
+									>
+										<path
+											fillRule="evenodd"
+											d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z"
+										/>
+									</svg>
+								</button>
+							)}
+							{next && (
+								<button
+									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-next right-4 rounded-full"
+									onClick={handleNext}
+								>
+									<svg
+										fill="currentColor"
+										viewBox="0 0 16 16"
+										className="w-9 h-9 rounded-full p-1"
+									>
+										<path
+											fillRule="evenodd"
+											d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
+										/>
+									</svg>
+								</button>
+							)}
+							<Link
+								to={'/' + slug}
+								className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors top-4 left-4 is-close rounded-full"
 							>
-								<path
-									fillRule="evenodd"
-									d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z"
-								/>
-							</svg>
-						</button>
+								<svg
+									fill="currentColor"
+									viewBox="0 0 16 16"
+									className="w-9 h-9 rounded-full p-1"
+								>
+									<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+								</svg>
+							</Link>
+						</>
 					)}
-					{next && (
-						<button
-							className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-next right-4 rounded-full"
-							onClick={handleNext}
-						>
-							<svg
-								fill="currentColor"
-								viewBox="0 0 16 16"
-								className="w-9 h-9 rounded-full p-1"
+					<div className="moul-darkbox fixed top-0 bottom-0 left-0 right-0 z-10 transition opacity-100">
+						<div className="moul-darkbox-wrap overflow-hidden h-screen">
+							<div
+								className="moul-darkbox-view relative mx-auto z-20 overflow-hidden"
+								onClick={handleUiClick}
 							>
-								<path
-									fillRule="evenodd"
-									d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"
-								/>
-							</svg>
-						</button>
-					)}
-					<Link
-						to={'/' + slug}
-						className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors top-4 left-4 is-close rounded-full"
-					>
-						<svg
-							fill="currentColor"
-							viewBox="0 0 16 16"
-							className="w-9 h-9 rounded-full p-1"
-						>
-							<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-						</svg>
-					</Link>
-				</>
-			)}
-			<div className="moul-darkbox fixed top-0 bottom-0 left-0 right-0 z-10 transition opacity-100">
-				<div className="moul-darkbox-wrap overflow-hidden h-screen">
-					<div
-						className="moul-darkbox-view relative mx-auto z-20 overflow-hidden"
-						onClick={handleUiClick}
-					>
-						{/* this element is the full width of photos combine!  */}
-						<div
-							style={{
-								transition: `${transition}`,
-								transform: `${active}`,
-								width: `${wrapper}px`,
-							}}
-						>
-							{/* this element is the current active photo! */}
-							<div style={{ width: `${currentWidth}px` }}>
-								<div className="moul-darkbox-inner flex h-screen">
-									{/* from here is the actual photo wrap with `min-width` */}
-									<AnimatePresence initial={false}>
-										{photos.map((p: Photo) => (
-											<div
-												key={p.hash}
-												className="moul-darkbox-list flex justify-center items-center"
-												style={{
-													minWidth: `${currentWidth}px`,
-												}}
-											>
-												<picture>
-													{p.bh ? (
-														<motion.img
-															src={`data:image/jpeg;charset=utf-8;base64,${p.bh}`}
-															className="lazy"
-															data-sizes="auto"
-															data-srcset={getPhotoSrcSet(p)}
-															onClick={toggleUI}
-															data-size={`${p.width}:${p.height}`}
-															drag="x"
-															dragConstraints={{
-																left: 0,
-																right: 0,
-															}}
-															dragElastic={0}
-															onDragEnd={(e, { offset, velocity }) => {
-																const swipe = swipePower(offset.x, velocity.x)
-																if (swipe < -swipeConfidenceThreshold) {
-																	handleNext()
-																} else if (swipe > swipeConfidenceThreshold) {
-																	handlePrev()
-																}
-															}}
-															alt="photo"
-														/>
-													) : (
-														<motion.img
-															src={p.url}
-															className="lazy"
-															data-sizes="auto"
-															onClick={toggleUI}
-															data-size={`${p.width}:${p.height}`}
-															drag="x"
-															dragConstraints={{
-																left: 0,
-																right: 0,
-															}}
-															dragElastic={0}
-															onDragEnd={(e, { offset, velocity }) => {
-																const swipe = swipePower(offset.x, velocity.x)
-																if (swipe < -swipeConfidenceThreshold) {
-																	handleNext()
-																} else if (swipe > swipeConfidenceThreshold) {
-																	handlePrev()
-																}
-															}}
-															alt="photo"
-														/>
-													)}
-												</picture>
-											</div>
-										))}
-									</AnimatePresence>
+								{/* this element is the full width of photos combine!  */}
+								<div
+									style={{
+										transition: `${transition}`,
+										transform: `${active}`,
+										width: `${wrapper}px`,
+									}}
+								>
+									{/* this element is the current active photo! */}
+									<div style={{ width: `${currentWidth}px` }}>
+										<div className="moul-darkbox-inner flex h-screen">
+											{/* from here is the actual photo wrap with `min-width` */}
+											<AnimatePresence initial={false}>
+												{photos?.map((p: Photo) => (
+													<div
+														key={p.hash}
+														className="moul-darkbox-list flex justify-center items-center"
+														style={{
+															minWidth: `${currentWidth}px`,
+														}}
+													>
+														<picture>
+															{p.bh ? (
+																<motion.img
+																	src={`data:image/jpeg;charset=utf-8;base64,${p.bh}`}
+																	className="lazy"
+																	data-sizes="auto"
+																	data-srcset={getPhotoSrcSet(p)}
+																	onClick={toggleUI}
+																	data-size={`${p.width}:${p.height}`}
+																	drag="x"
+																	dragConstraints={{
+																		left: 0,
+																		right: 0,
+																	}}
+																	dragElastic={0}
+																	onDragEnd={(e, { offset, velocity }) => {
+																		const swipe = swipePower(
+																			offset.x,
+																			velocity.x
+																		)
+																		if (swipe < -swipeConfidenceThreshold) {
+																			handleNext()
+																		} else if (
+																			swipe > swipeConfidenceThreshold
+																		) {
+																			handlePrev()
+																		}
+																	}}
+																	alt="photo"
+																/>
+															) : (
+																<motion.img
+																	src={p.url}
+																	className="lazy"
+																	data-sizes="auto"
+																	onClick={toggleUI}
+																	data-size={`${p.width}:${p.height}`}
+																	drag="x"
+																	dragConstraints={{
+																		left: 0,
+																		right: 0,
+																	}}
+																	dragElastic={0}
+																	onDragEnd={(e, { offset, velocity }) => {
+																		const swipe = swipePower(
+																			offset.x,
+																			velocity.x
+																		)
+																		if (swipe < -swipeConfidenceThreshold) {
+																			handleNext()
+																		} else if (
+																			swipe > swipeConfidenceThreshold
+																		) {
+																			handlePrev()
+																		}
+																	}}
+																	alt="photo"
+																/>
+															)}
+														</picture>
+													</div>
+												))}
+											</AnimatePresence>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			)}
+		</>
 	)
 }
