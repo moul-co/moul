@@ -31,3 +31,7 @@ export let getPhotoSrc = (photo: Photo) => {
 	const prefix = '/__moul/photos'
 	return `${prefix}/${photo?.hash}/xl/${photo?.name}`
 }
+
+export let getPhotoURL = (photo: Photo) => {
+	return `${photo.url}`
+}

@@ -33,6 +33,11 @@ export const action: ActionFunction = async ({ request }) => {
 			})
 		}
 	}
+
+	if (!session.has('auth')) {
+		return json({ status: 'Unauthorized' })
+	}
+
 	const data = JSON.stringify(Object.fromEntries(formData))
 	await MOUL_KV.put('profile', data)
 	const profile = await MOUL_KV.get('profile')
@@ -42,7 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
 	return redirect('/moul')
 }
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader: LoaderFunction = async ({ request }) => {
 	const session = await getSession(request.headers.get('Cookie'))
 	if (!session.has('auth')) {
 		return json({ status: 'Unauthorized' })

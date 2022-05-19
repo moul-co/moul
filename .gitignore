@@ -9,3 +9,4 @@ package-lock.json
 .mf
 build
 app/moul.css
+wrangler.toml

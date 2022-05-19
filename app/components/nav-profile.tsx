@@ -1,10 +1,11 @@
-import { createRef, Fragment, useEffect, useRef, useState } from 'react'
-import { Form, useActionData } from '@remix-run/react'
+import { Fragment, useRef, useState } from 'react'
+import { Form } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
-import { Disclosure } from '@headlessui/react'
+import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
 import Icon from '~/components/icon'
-import { Profile } from '~/types'
+import { Photo, Profile } from '~/types'
+import { getPhotoURL } from '~/utilities'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
 	const [name, setName] = useState(profile?.name)
@@ -18,11 +19,13 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	const [cover, setCover] = useState(profile?.cover)
 
 	const [isOpen, setIsOpen] = useState(false)
+	const coverRef = useRef() as any
 	const photoRef = useRef() as any
 	const formRef = useRef() as any
 
-	function handleAdd() {
-		photoRef.current.click()
+	function handleAdd(type: string) {
+		type === 'cover' && coverRef.current.click()
+		type === 'picture' && photoRef.current.click()
 	}
 
 	async function closeModal() {
@@ -45,6 +48,29 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 				const result = await fetch(`${e.target.result}`)
 				const blob = await result.blob()
 				await set('photos', [...photos, blob])
+			}
+			reader.readAsDataURL(file)
+		}
+	}
+
+	function handleChangeProfile(event: any) {
+		for (const file of event.target.files) {
+			const reader = new FileReader()
+			reader.onload = async (e: any) => {
+				const result = await fetch(`${e.target.result}`)
+				const blob = await result.blob()
+				await set('profile-picture', blob)
+				let photo: Photo = {
+					name: '',
+					order: 0,
+					hash: '',
+					bh: '',
+					width: 0,
+					height: 0,
+					type: 'profile-picture',
+					url: URL.createObjectURL(blob),
+				}
+				setPicture(photo)
 			}
 			reader.readAsDataURL(file)
 		}
@@ -129,7 +155,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 									>
 										<div className="mb-2">
 											<div
-												onClick={handleAdd}
+												onClick={() => handleAdd('cover')}
 												className="mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
 												<span className="text-xl font-bold">Cover</span>
@@ -144,13 +170,24 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												/>
 											</div>
 											<div
-												onClick={handleAdd}
-												className="mx-auto my-5 w-28 h-28 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center"
+												onClick={() => handleAdd('picture')}
+												className={clsx(
+													'mx-auto my-5 w-28 h-28 transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center',
+													!picture && 'border-2 border-dashed'
+												)}
 											>
-												<span className="text-lg font-bold">Picture</span>
+												{picture ? (
+													<img
+														src={getPhotoURL(picture)}
+														alt=""
+														className="rounded-full"
+													/>
+												) : (
+													<span className="text-lg font-bold">Picture</span>
+												)}
 												<input
 													type="file"
-													onChange={handleChange}
+													onChange={handleChangeProfile}
 													name="photo"
 													className="hidden"
 													ref={photoRef}
