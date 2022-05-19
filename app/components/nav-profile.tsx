@@ -2,7 +2,7 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Disclosure } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
-import Icon from '~/components/social-icon'
+import Icon from '~/components/icon'
 
 export default function NavProfile() {
 	const [isOpen, setIsOpen] = useState(false)
@@ -84,12 +84,18 @@ export default function NavProfile() {
 								<Dialog.Panel className="w-full max-w-lg transform rounded-2xl dark:bg-neutral-800 text-left align-middle shadow-xl transition-all">
 									<Dialog.Title
 										as="section"
-										className="sticky top-0 px-6 py-2.5 flex items-center justify-between"
+										className="sticky top-0 py-2.5 flex items-center justify-between"
 									>
-										<h3 className="text-xl font-bold leading-6 text-neutral-200">
+										<button
+											className="button--icon mr-4 ml-2"
+											onClick={closeModal}
+										>
+											<Icon name="x" />
+										</button>
+										<h3 className="text-2xl font-bold leading-normal text-neutral-200 mr-auto">
 											Profile
 										</h3>
-										<button className="button w-auto py-2.5 font-normal">
+										<button className="button w-auto py-2.5 font-normal mr-4">
 											Save
 										</button>
 									</Dialog.Title>
@@ -97,12 +103,12 @@ export default function NavProfile() {
 										as="main"
 										className="h-[600px] max-h-[80vh] overflow-y-auto"
 									>
-										<div className="mb-2 px-6">
+										<div className="mb-2">
 											<div
 												onClick={handleAdd}
-												className="mx-auto my-5 w-full h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-xl hover:cursor-pointer flex items-center justify-center"
+												className="mx-auto my-4 w-full h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
-												<span className="text-sm font-bold">Cover</span>
+												<span className="text-xl font-bold">Cover</span>
 												<input
 													type="file"
 													onChange={handleChange}
@@ -117,7 +123,7 @@ export default function NavProfile() {
 												onClick={handleAdd}
 												className="mx-auto my-5 w-28 h-28 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center"
 											>
-												<span className="text-sm font-bold">Picture</span>
+												<span className="text-lg font-bold">Picture</span>
 												<input
 													type="file"
 													onChange={handleChange}
@@ -128,114 +134,116 @@ export default function NavProfile() {
 													accept=".jpeg,.jpg"
 												/>
 											</div>
-											<div className="relative mb-4">
-												<label htmlFor="name" className="label">
-													Name
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="name"
-													name="name"
-												/>
-											</div>
-											<div className="relative mb-4">
-												<label htmlFor="bio" className="label">
-													Bio
-												</label>
-												<textarea
-													name="bio"
-													id="bio"
-													rows={6}
-													className="input h-24"
-												></textarea>
-											</div>
+											<section className="px-4">
+												<div className="relative mb-5">
+													<label htmlFor="name" className="label">
+														Name
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="name"
+														name="name"
+													/>
+												</div>
+												<div className="relative mb-5">
+													<label htmlFor="bio" className="label">
+														Bio
+													</label>
+													<textarea
+														name="bio"
+														id="bio"
+														rows={6}
+														className="input h-24"
+													></textarea>
+												</div>
 
-											<div className="relative mb-4">
-												<label
-													htmlFor="github"
-													className="label flex items-center"
-												>
-													<span className="mr-2">
-														<Icon name="github" />
-													</span>
-													GitHub
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="github"
-													name="github"
-												/>
-											</div>
-											<div className="relative mb-4">
-												<label
-													htmlFor="twitter"
-													className="label flex items-center"
-												>
-													<span className="mr-2">
-														<Icon name="twitter" />
-													</span>
-													Twitter
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="twitter"
-													name="twitter"
-												/>
-											</div>
-											<div className="relative mb-4">
-												<label
-													htmlFor="youtube"
-													className="label flex items-center"
-												>
-													<span className="mr-2">
-														<Icon name="youtube" />
-													</span>
-													YouTube
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="youtube"
-													name="youtube"
-												/>
-											</div>
-											<div className="relative mb-4">
-												<label
-													htmlFor="instagram"
-													className="label flex items-center"
-												>
-													<span className="mr-2">
-														<Icon name="instagram" />
-													</span>
-													Instagram
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="instagram"
-													name="instagram"
-												/>
-											</div>
-											<div className="relative mb-4">
-												<label
-													htmlFor="facebook"
-													className="label flex items-center"
-												>
-													<span className="mr-2">
-														<Icon name="facebook" />
-													</span>
-													Facebook
-												</label>
-												<input
-													type="text"
-													className="input"
-													id="facebook"
-													name="facebook"
-												/>
-											</div>
+												<div className="relative mb-5">
+													<label
+														htmlFor="github"
+														className="label flex items-center"
+													>
+														<span className="mr-2">
+															<Icon name="github" />
+														</span>
+														GitHub
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="github"
+														name="github"
+													/>
+												</div>
+												<div className="relative mb-5">
+													<label
+														htmlFor="twitter"
+														className="label flex items-center"
+													>
+														<span className="mr-2">
+															<Icon name="twitter" />
+														</span>
+														Twitter
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="twitter"
+														name="twitter"
+													/>
+												</div>
+												<div className="relative mb-5">
+													<label
+														htmlFor="youtube"
+														className="label flex items-center"
+													>
+														<span className="mr-2">
+															<Icon name="youtube" />
+														</span>
+														YouTube
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="youtube"
+														name="youtube"
+													/>
+												</div>
+												<div className="relative mb-5">
+													<label
+														htmlFor="instagram"
+														className="label flex items-center"
+													>
+														<span className="mr-2">
+															<Icon name="instagram" />
+														</span>
+														Instagram
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="instagram"
+														name="instagram"
+													/>
+												</div>
+												<div className="relative mb-5">
+													<label
+														htmlFor="facebook"
+														className="label flex items-center"
+													>
+														<span className="mr-2">
+															<Icon name="facebook" />
+														</span>
+														Facebook
+													</label>
+													<input
+														type="text"
+														className="input"
+														id="facebook"
+														name="facebook"
+													/>
+												</div>
+											</section>
 										</div>
 									</Dialog.Description>
 								</Dialog.Panel>

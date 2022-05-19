@@ -13,6 +13,9 @@
 	.button {
 		@apply py-4 px-6 bg-blue-600 text-white rounded-full font-bold leading-none w-full hover:ring-4 focus:ring-0 focus:outline-0 transition;
 	}
+	.button--icon {
+		@apply p-2.5 hover:bg-neutral-900 text-neutral-50 rounded-full leading-none transition;
+	}
 }
 
 :root {

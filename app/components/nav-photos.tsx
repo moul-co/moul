@@ -1,6 +1,7 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
+import Icon from './icon'
 
 export default function NavPhotos() {
 	let [isOpen, setIsOpen] = useState(false)
@@ -83,12 +84,18 @@ export default function NavPhotos() {
 								<Dialog.Panel className="w-full max-w-5xl transform rounded-2xl dark:bg-neutral-800 text-left align-middle shadow-xl transition-all">
 									<Dialog.Title
 										as="section"
-										className="sticky top-0 px-6 py-2.5 flex items-center justify-between"
+										className="sticky top-0 py-2.5 flex items-center justify-between"
 									>
-										<h3 className="text-xl font-bold leading-6 text-neutral-200">
+										<button
+											className="button--icon mr-4 ml-2"
+											onClick={closeModal}
+										>
+											<Icon name="x" />
+										</button>
+										<h3 className="text-2xl font-bold leading-normal text-neutral-200 mr-auto">
 											Photos
 										</h3>
-										<button className="button w-auto py-2.5 font-normal">
+										<button className="button w-auto py-2.5 font-normal mr-4">
 											Insert
 										</button>
 									</Dialog.Title>
