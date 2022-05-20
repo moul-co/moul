@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
 	ActionFunction,
 	json,
+	LinksFunction,
 	LoaderFunction,
 	redirect,
 } from '@remix-run/cloudflare'
@@ -13,19 +14,17 @@ import Nav from '~/components/nav'
 import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
-import { markdocConfig } from '~/utilities/markdoc'
-import { Form, useLoaderData } from '@remix-run/react'
+import { emitter, markdocConfig } from '~/utilities'
+import { Form, Scripts, useLoaderData } from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
 
 export const action: ActionFunction = async ({ request }) => {
 	const session = await getSession(request.headers.get('Cookie'))
 	const formData = await request.formData()
-
 	if (formData.has('key')) {
 		const key = formData.get('key')
 		if (key === MOUL_SECRET_ACCESS_KEY) {
 			session.set('auth', true)
-
 			return redirect('/moul', {
 				headers: {
 					'Set-Cookie': await commitSession(session),
@@ -81,6 +80,17 @@ export default function Moul() {
 				},
 			],
 		})
+
+		// initialize wasm
+		const wasm = async () => {
+			const go = new Go()
+			const moulWasm = await WebAssembly.instantiateStreaming(
+				fetch('/build/moul.wasm'),
+				go.importObject
+			)
+			go.run(moulWasm.instance)
+		}
+		wasm().catch(console.error)
 	}, [])
 
 	const handleChange = async () => {
@@ -123,6 +133,8 @@ export default function Moul() {
 				</>
 			) : (
 				<>
+					<script src={'/build/wasm_exec.js'} />
+
 					<Nav profile={JSON.parse(profile)} />
 					<section className="grid relative">
 						<aside className="editor-wrap overflow-auto sticky top-14">

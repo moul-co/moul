@@ -7,3 +7,4 @@ mf
 node_modules
 functions
 app/moul.css
+public/wasm_exec.js

@@ -4,5 +4,7 @@ export {
 	getPhotoSrc,
 	getPhotoSrcSet,
 	getPhotoURL,
+	parseExif,
+	processPhoto,
 } from '~/utilities/photo'
 export const isBrowser = () => typeof window !== 'undefined'

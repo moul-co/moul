@@ -1,12 +1,21 @@
+export interface PhotoMetadata {
+	cameraMake: string
+	cameraModel: string
+	focalLength: string
+	aperture: string
+	shutterSpeed: string
+	iso: string
+	lens: string
+}
 export interface Photo {
-	name: string
+	pid: string
 	order: number
-	hash: string
-	bh: string
+	blurhash: string
 	width: number
 	height: number
 	type: string
 	url: string
+	metadata: PhotoMetadata
 }
 
 export interface Profile {

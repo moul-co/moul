@@ -5,20 +5,20 @@ import { Photo } from '~/types'
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
 		<picture className="absolute top-0 left-0 w-full h-full">
-			{photo.bh ? (
+			{photo.blurhash ? (
 				<img
-					src={`data:image/jpeg;charset=utf-8;base64,${photo.bh}`}
+					src={`data:image/jpeg;charset=utf-8;base64,${photo.blurhash}`}
 					data-srcset={getPhotoSrcSet(photo)}
 					data-sizes="auto"
 					className="lazy w-full h-full object-cover"
-					alt={photo.name}
+					alt="Cover photo"
 				/>
 			) : (
 				<img
 					src={photo.url}
 					data-sizes="auto"
 					className="lazy w-full h-full object-cover"
-					alt={photo.name}
+					alt="Cover photo"
 				/>
 			)}
 		</picture>

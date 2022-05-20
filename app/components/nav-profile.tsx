@@ -3,9 +3,10 @@ import { Form } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
+
 import Icon from '~/components/icon'
 import { Photo, Profile } from '~/types'
-import { getPhotoURL } from '~/utilities'
+import { getPhotoURL, parseExif } from '~/utilities'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
 	const [name, setName] = useState(profile?.name)
@@ -33,10 +34,10 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	}
 
 	async function openModal() {
-		const photos = await get('photos')
-		if (photos) {
-			photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
-		}
+		// const photos = await get('photos')
+		// if (photos) {
+		// 	photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
+		// }
 		setIsOpen(true)
 	}
 
@@ -60,17 +61,34 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 				const result = await fetch(`${e.target.result}`)
 				const blob = await result.blob()
 				await set('profile-picture', blob)
+				const metadata = parseExif(result.url)
+				const url = URL.createObjectURL(blob)
+				const pid = new URL(url).pathname.split('/').pop() || ''
 				let photo: Photo = {
-					name: '',
+					pid,
 					order: 0,
-					hash: '',
-					bh: '',
+					blurhash: '',
 					width: 0,
 					height: 0,
 					type: 'profile-picture',
-					url: URL.createObjectURL(blob),
+					url,
+					metadata,
 				}
 				setPicture(photo)
+
+				// const { width, height, blurhash } = await processPhoto(result.url) as any
+				// const {} = JSON.parse(moulProcessPhoto(result.url))
+				// photo.width = +width
+				// photo.height = +height
+				// photo.blurhash = blurhash
+				// console.log(width, height)
+				// await fetch(`/moul/r2/${pid}/original`, {
+				// 	method: 'PUT',
+				// 	headers: {
+				// 		'Content-Type': file.type,
+				// 	},
+				// 	body: file
+				// })
 			}
 			reader.readAsDataURL(file)
 		}
@@ -156,7 +174,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 										<div className="mb-2">
 											<div
 												onClick={() => handleAdd('cover')}
-												className="mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
+												className="relative mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
 												<span className="text-xl font-bold">Cover</span>
 												<input
@@ -172,16 +190,18 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 											<div
 												onClick={() => handleAdd('picture')}
 												className={clsx(
-													'mx-auto my-5 w-28 h-28 transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center',
+													'relative mx-auto my-5 w-28 h-28 transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center',
 													!picture && 'border-2 border-dashed'
 												)}
 											>
 												{picture ? (
-													<img
-														src={getPhotoURL(picture)}
-														alt=""
-														className="rounded-full"
-													/>
+													<picture className="absolute top-0 left-0 w-full h-full rounded-full">
+														<img
+															src={getPhotoURL(picture)}
+															alt=""
+															className="rounded-full w-full h-full"
+														/>
+													</picture>
 												) : (
 													<span className="text-lg font-bold">Picture</span>
 												)}
