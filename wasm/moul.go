@@ -17,32 +17,20 @@ import (
 
 func process() js.Func {
 	photo := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		if len(args) != 2 {
+		if len(args) != 1 {
 			return "base64 image"
 		}
 		photoStr := args[0].String()
+		fmt.Println("decoding image...")
 		imgDecode, err := imaging.Decode(base64.NewDecoder(base64.StdEncoding, strings.NewReader(strings.Split(photoStr, "base64,")[1])), imaging.AutoOrientation(true))
 		if err != nil {
 			fmt.Printf("image.Decode: %v", err)
 		}
-
-		size := args[1].String()
-		if size == "xl" {
-			newImage := imaging.Resize(imgDecode, 3840, 0, imaging.Lanczos)
-			b64Buf := new(bytes.Buffer)
-			err = jpeg.Encode(b64Buf, newImage, &jpeg.Options{Quality: 95})
-			if err != nil {
-				fmt.Println(err)
-			}
-			return fmt.Sprintf(`{ "base64": "%v"}`, base64.StdEncoding.EncodeToString(b64Buf.Bytes()))
-		}
-
-		newImage := imaging.Resize(imgDecode, 32, 0, imaging.Lanczos)
-
+		fmt.Println("processing blurhash...")
 		ratioComponent := math.Min(5/float64(imgDecode.Bounds().Dx()), 5/float64(imgDecode.Bounds().Dy()))
 		xCom := float64(imgDecode.Bounds().Dx()) * ratioComponent
 		yCom := float64(imgDecode.Bounds().Dy()) * ratioComponent
-		hash, err := blurhash.Encode(int(xCom), int(yCom), newImage)
+		hash, err := blurhash.Encode(int(xCom), int(yCom), imgDecode)
 		if err != nil {
 			fmt.Printf("blurhash: %v", err)
 		}
@@ -60,7 +48,7 @@ func process() js.Func {
 			log.Println("jpeg.Encode", err)
 		}
 
-		return fmt.Sprintf(`{"blurhash":"%v", "width": "%v", "height": "%v"}`, base64.StdEncoding.EncodeToString(b64Buf.Bytes()), imgDecode.Bounds().Dx(), imgDecode.Bounds().Dy())
+		return base64.StdEncoding.EncodeToString(b64Buf.Bytes())
 	})
 	return photo
 }

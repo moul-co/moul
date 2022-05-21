@@ -3,7 +3,6 @@ import { Form } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
-import wasmWorker from 'wasm-worker'
 
 import Icon from '~/components/icon'
 import { Photo, PhotoMetadata, Profile } from '~/types'
@@ -79,7 +78,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		const result = await fetch(`${image}`)
 		const blob = await result.blob()
 		const url = URL.createObjectURL(blob)
-
+		console.log(url)
 		const metadata = await parseExif(result.url)
 		let photo: Photo = {
 			pid: '',
@@ -93,11 +92,22 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			contentType: result.headers.get('content-type') || 'image/jpeg',
 		}
 		setPicture(photo)
-		const myWorker = new Worker('/build/worker.js')
-		myWorker.postMessage([image])
-		myWorker.onmessage = function (e) {
-			console.log(e.data)
-		}
+		console.log('load from buffer...')
+		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
+		let im = vips.Image.thumbnailBuffer(buffer, 16)
+		// const md = im.thumbnail(2560)
+		const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'))
+		const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
+
+		const hash = (await readFileAsync(newBlob)) as string
+		// console.log(hash)
+		const go = new Go()
+		const moulWasm = await WebAssembly.instantiateStreaming(
+			fetch('/build/moul.wasm'),
+			go.importObject
+		)
+		go.run(moulWasm.instance)
+		const blurhash = moulProcessPhoto(hash)
 	}
 
 	async function handleSubmit(event: any) {

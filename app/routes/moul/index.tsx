@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
 	await MOUL_KV.put('profile', data)
 	// const profile = JSON.parse(await MOUL_KV.get('profile') || '{}')
 
-	return redirect('/moul')
+	return json(Object.fromEntries(formData))
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -54,6 +54,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 	const profile = (await MOUL_KV.get('profile')) as any
 
 	return json({ profileKV: profile })
+}
+
+export const headers: HeadersFunction = () => {
+	return {
+		'Cross-Origin-Embedder-Policy': 'require-corp',
+		'Cross-Origin-Opener-Policy': 'same-origin',
+	}
 }
 
 export default function Moul() {
@@ -90,15 +97,15 @@ export default function Moul() {
 		})
 
 		// initialize wasm
-		const wasm = async () => {
-			const go = new Go()
-			const moulWasm = await WebAssembly.instantiateStreaming(
-				fetch('/build/moul.wasm'),
-				go.importObject
-			)
-			go.run(moulWasm.instance)
-		}
-		wasm().catch(console.error)
+		// const wasm = async () => {
+		// 	const go = new Go()
+		// 	const moulWasm = await WebAssembly.instantiateStreaming(
+		// 		fetch('/build/moul.wasm'),
+		// 		go.importObject
+		// 	)
+		// 	go.run(moulWasm.instance)
+		// }
+		// wasm().catch(console.error)
 	}, [])
 
 	const handleChange = async () => {
@@ -141,7 +148,9 @@ export default function Moul() {
 				</>
 			) : (
 				<>
-					<script src={'/build/wasm_exec.js'} />
+					<script src="/build/moul.worker.js"></script>
+					<script src="/build/vips.js"></script>
+					<script type="module">window.vips = await Vips();</script>
 
 					<Nav profile={JSON.parse(profile)} />
 					<section className="grid relative">

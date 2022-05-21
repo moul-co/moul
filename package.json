@@ -14,7 +14,7 @@
 		"build:css": "npx tailwindcss -i ./styles/moul.css -o ./app/moul.css --minify",
 		"build:wasm": "GOOS=js GOARCH=wasm go build -o app/wasm/moul.wasm wasm/moul.go",
 		"clean": "rm -rf public/build/* && rm -rf build/*",
-		"copy:wasm": "cp app/wasm/moul.wasm public/build/ && cp app/wasm/wasm_exec.js public/build/",
+		"copy:wasm": "cp -R app/wasm/* public/build/",
 		"start": "cross-env NODE_ENV=production miniflare ./build/index.js",
 		"prepare": "husky install"
 	},
@@ -39,6 +39,7 @@
 		"@remix-run/cloudflare": "1.4.3",
 		"@remix-run/cloudflare-workers": "1.4.3",
 		"@remix-run/react": "1.4.3",
+		"blurhash": "1.1.5",
 		"clsx": "1.1.1",
 		"cross-env": "7.0.3",
 		"framer-motion": "6.2.8",
@@ -49,7 +50,8 @@
 		"piexifjs": "1.0.6",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"split-grid": "1.0.11"
+		"split-grid": "1.0.11",
+		"wasm-vips": "0.0.2"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "3.10.0",
