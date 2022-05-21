@@ -16,6 +16,11 @@ export interface Photo {
 	type: string
 	url: string
 	metadata: PhotoMetadata
+	original?: string
+	xl?: string // 3840
+	lg?: string // 1920
+	sm?: string // 960
+	contentType?: string
 }
 
 export interface Profile {

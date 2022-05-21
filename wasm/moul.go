@@ -17,13 +17,24 @@ import (
 
 func process() js.Func {
 	photo := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		if len(args) != 1 {
+		if len(args) != 2 {
 			return "base64 image"
 		}
 		photoStr := args[0].String()
 		imgDecode, err := imaging.Decode(base64.NewDecoder(base64.StdEncoding, strings.NewReader(strings.Split(photoStr, "base64,")[1])), imaging.AutoOrientation(true))
 		if err != nil {
 			fmt.Printf("image.Decode: %v", err)
+		}
+
+		size := args[1].String()
+		if size == "xl" {
+			newImage := imaging.Resize(imgDecode, 3840, 0, imaging.Lanczos)
+			b64Buf := new(bytes.Buffer)
+			err = jpeg.Encode(b64Buf, newImage, &jpeg.Options{Quality: 95})
+			if err != nil {
+				fmt.Println(err)
+			}
+			return fmt.Sprintf(`{ "base64": "%v"}`, base64.StdEncoding.EncodeToString(b64Buf.Bytes()))
 		}
 
 		newImage := imaging.Resize(imgDecode, 32, 0, imaging.Lanczos)

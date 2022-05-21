@@ -33,6 +33,7 @@
 		"@codemirror/search": "0.20.1",
 		"@codemirror/state": "0.20.0",
 		"@codemirror/view": "0.20.4",
+		"@floating-ui/react-dom-interactions": "0.6.1",
 		"@headlessui/react": "1.6.1",
 		"@markdoc/markdoc": "0.1.2",
 		"@remix-run/cloudflare": "1.4.3",
@@ -48,8 +49,7 @@
 		"piexifjs": "1.0.6",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"split-grid": "1.0.11",
-		"tippy.js": "6.3.7"
+		"split-grid": "1.0.11"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "3.10.0",
@@ -63,6 +63,7 @@
 		"miniflare": "2.4.0",
 		"npm-run-all": "4.1.5",
 		"typescript": "4.6.4",
+		"wasm-worker": "0.4.0",
 		"wrangler": "2.0.5"
 	},
 	"engines": {

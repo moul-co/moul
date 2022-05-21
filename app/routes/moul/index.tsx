@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
 	ActionFunction,
+	HeadersFunction,
 	json,
 	LinksFunction,
 	LoaderFunction,
@@ -14,7 +15,7 @@ import Nav from '~/components/nav'
 import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
-import { emitter, markdocConfig } from '~/utilities'
+import { markdocConfig } from '~/utilities'
 import { Form, Scripts, useLoaderData } from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
 
@@ -39,9 +40,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 	const data = JSON.stringify(Object.fromEntries(formData))
 	await MOUL_KV.put('profile', data)
-	const profile = await MOUL_KV.get('profile')
-
-	console.log({ profile })
+	// const profile = JSON.parse(await MOUL_KV.get('profile') || '{}')
 
 	return redirect('/moul')
 }
@@ -52,16 +51,17 @@ export const loader: LoaderFunction = async ({ request }) => {
 		return json({ status: 'Unauthorized' })
 	}
 
-	const profile = await MOUL_KV.get('profile')
+	const profile = (await MOUL_KV.get('profile')) as any
 
-	return json({ profile })
+	return json({ profileKV: profile })
 }
 
 export default function Moul() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null as any)
-	const { profile, status } = useLoaderData()
+	const { profileKV, status } = useLoaderData()
+	const [profile, setProfile] = useState(profileKV)
 
 	useEffect(() => {
 		const getStory = async () => {
@@ -70,6 +70,14 @@ export default function Moul() {
 			editorRef?.current?.setValue(story)
 		}
 		getStory().catch(console.error)
+		console.log(profile)
+		// if (!profile) {
+		// 		const getProfile = async () => {
+		// 			const profile = await get('profile')
+		// 			setProfile(profile)
+		// 		}
+		// 		getProfile().catch(console.error)
+		// }
 
 		// initialize grid
 		Split({
@@ -106,7 +114,7 @@ export default function Moul() {
 	}
 
 	return (
-		<>
+		<div className="bg-neutral-900 text-neutral-50">
 			{status === 'Unauthorized' ? (
 				<>
 					<div className="max-w-md w-full h-screen mx-auto flex justify-center flex-col">
@@ -146,11 +154,11 @@ export default function Moul() {
 						</aside>
 						<div className="gutter-col gutter-col-1"></div>
 						<main>
-							<Preview content={content} />
+							<Preview content={content} profile={profile} />
 						</main>
 					</section>
 				</>
 			)}
-		</>
+		</div>
 	)
 }

@@ -1,8 +1,11 @@
+import { Profile } from '~/types'
+
 type PreviewProps = {
 	content: any
+	profile: Profile
 }
 
-export default function Preview({ content }: PreviewProps) {
+export default function Preview({ content, profile }: PreviewProps) {
 	return (
 		<>
 			{content &&

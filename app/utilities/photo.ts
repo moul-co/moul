@@ -20,58 +20,66 @@ export let getDimension = (
 	return { width: width * ratio, height: height * ratio }
 }
 
-export let parseExif = (photo: string) => {
-	const exifObj = piexif.load(photo)
-	const metadata: PhotoMetadata = {
-		cameraMake: '',
-		cameraModel: '',
-		focalLength: '',
-		lens: '',
-		aperture: '',
-		shutterSpeed: '',
-		iso: '',
-	}
-
-	for (var ifd in exifObj) {
-		if (ifd == 'thumbnail') {
-			continue
+export let parseExif = (photo: string): Promise<PhotoMetadata> => {
+	return new Promise((resolve) => {
+		const exifObj = piexif.load(photo)
+		const metadata: PhotoMetadata = {
+			cameraMake: '',
+			cameraModel: '',
+			focalLength: '',
+			lens: '',
+			aperture: '',
+			shutterSpeed: '',
+			iso: '',
 		}
-		for (var tag in exifObj[ifd]) {
-			switch (piexif.TAGS[ifd][tag]['name']) {
-				case 'Make':
-					metadata.cameraMake = exifObj[ifd][tag]
-					break
-				case 'Model':
-					metadata.cameraModel = exifObj[ifd][tag]
-					break
-				case 'FocalLength':
-					metadata.focalLength = exifObj[ifd][tag]
-					break
-				case 'LensModel':
-					metadata.lens = exifObj[ifd][tag].replace(/\0/g, '')
-					break
-				case 'FNumber':
-					metadata.aperture = exifObj[ifd][tag]
-					break
-				case 'ExposureTime':
-					metadata.shutterSpeed = exifObj[ifd][tag]
-					break
-				case 'ISOSpeedRatings':
-					metadata.iso = exifObj[ifd][tag]
-					break
-				default:
-					break
+
+		for (var ifd in exifObj) {
+			if (ifd == 'thumbnail') {
+				continue
+			}
+			for (var tag in exifObj[ifd]) {
+				switch (piexif.TAGS[ifd][tag]['name']) {
+					case 'Make':
+						metadata.cameraMake = exifObj[ifd][tag]
+						break
+					case 'Model':
+						metadata.cameraModel = exifObj[ifd][tag]
+						break
+					case 'FocalLength':
+						metadata.focalLength = exifObj[ifd][tag]
+						break
+					case 'LensModel':
+						metadata.lens = exifObj[ifd][tag].replace(/\0/g, '')
+						break
+					case 'FNumber':
+						metadata.aperture = exifObj[ifd][tag]
+						break
+					case 'ExposureTime':
+						metadata.shutterSpeed = exifObj[ifd][tag]
+						break
+					case 'ISOSpeedRatings':
+						metadata.iso = exifObj[ifd][tag]
+						break
+					default:
+						break
+				}
 			}
 		}
-	}
-
-	return metadata
+		resolve(metadata)
+	})
 }
 
-export let processPhoto = (photo: string) => {
+export let processPhoto = async (photo: string) => {
 	return new Promise((resolve) => {
-		const { width, height, blurhash } = JSON.parse(moulProcessPhoto(photo))
-		resolve({ width, height })
+		const { width, height, blurhash } = JSON.parse(moulProcessPhoto(photo, ''))
+		resolve({ width, height, blurhash })
+	})
+}
+
+export let processPhotoWithSize = (photo: string, size: string) => {
+	return new Promise((resolve) => {
+		const { base64 } = JSON.parse(moulProcessPhoto(photo, size))
+		resolve({ base64 })
 	})
 }
 

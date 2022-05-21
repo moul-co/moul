@@ -41,19 +41,9 @@ export default function NavPhotos() {
 			<button
 				type="button"
 				onClick={openModal}
-				className="flex items-center hover:bg-neutral-800 py-1 px-2 rounded transition dark:text-neutral-500 dark:hover:text-neutral-200"
+				className="flex items-center py-1 px-2 rounded transition hover:bg-neutral-800 text-neutral-500 hover:text-neutral-200"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="18"
-					height="18"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-					className="mr-2"
-				>
-					<path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-					<path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z" />
-				</svg>
+				<Icon name="images" className="mr-2" />
 				Photos
 			</button>
 			<Transition appear show={isOpen} as={Fragment}>

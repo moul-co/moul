@@ -1,12 +1,19 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Form } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
+import wasmWorker from 'wasm-worker'
 
 import Icon from '~/components/icon'
-import { Photo, Profile } from '~/types'
-import { getPhotoURL, parseExif } from '~/utilities'
+import { Photo, PhotoMetadata, Profile } from '~/types'
+import {
+	getPhotoURL,
+	parseExif,
+	processPhoto,
+	processPhotoWithSize,
+} from '~/utilities'
+import { Tooltip } from './tooltips'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
 	const [name, setName] = useState(profile?.name)
@@ -20,9 +27,12 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	const [cover, setCover] = useState(profile?.cover)
 
 	const [isOpen, setIsOpen] = useState(false)
+	const [isProcessing, setIsProcessing] = useState(false)
 	const coverRef = useRef() as any
 	const photoRef = useRef() as any
-	const formRef = useRef() as any
+	const profileRef = useRef() as any
+
+	useEffect(() => {})
 
 	function handleAdd(type: string) {
 		type === 'cover' && coverRef.current.click()
@@ -54,50 +64,68 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		}
 	}
 
-	function handleChangeProfile(event: any) {
-		for (const file of event.target.files) {
-			const reader = new FileReader()
-			reader.onload = async (e: any) => {
-				const result = await fetch(`${e.target.result}`)
-				const blob = await result.blob()
-				await set('profile-picture', blob)
-				const metadata = parseExif(result.url)
-				const url = URL.createObjectURL(blob)
-				const pid = new URL(url).pathname.split('/').pop() || ''
-				let photo: Photo = {
-					pid,
-					order: 0,
-					blurhash: '',
-					width: 0,
-					height: 0,
-					type: 'profile-picture',
-					url,
-					metadata,
-				}
-				setPicture(photo)
-
-				// const { width, height, blurhash } = await processPhoto(result.url) as any
-				// const {} = JSON.parse(moulProcessPhoto(result.url))
-				// photo.width = +width
-				// photo.height = +height
-				// photo.blurhash = blurhash
-				// console.log(width, height)
-				// await fetch(`/moul/r2/${pid}/original`, {
-				// 	method: 'PUT',
-				// 	headers: {
-				// 		'Content-Type': file.type,
-				// 	},
-				// 	body: file
-				// })
+	function readFileAsync(file: any) {
+		return new Promise((resolve) => {
+			let fileReader = new FileReader()
+			fileReader.onload = () => {
+				resolve(fileReader.result)
 			}
-			reader.readAsDataURL(file)
+			fileReader.readAsDataURL(file)
+		})
+	}
+
+	async function handleChangeProfile(event: any) {
+		const image = await readFileAsync(event.target.files[0])
+		const result = await fetch(`${image}`)
+		const blob = await result.blob()
+		const url = URL.createObjectURL(blob)
+
+		const metadata = await parseExif(result.url)
+		let photo: Photo = {
+			pid: '',
+			order: 0,
+			blurhash: '',
+			width: 0,
+			height: 0,
+			type: 'profile-picture',
+			url,
+			metadata,
+			contentType: result.headers.get('content-type') || 'image/jpeg',
+		}
+		setPicture(photo)
+		const myWorker = new Worker('/build/worker.js')
+		myWorker.postMessage([image])
+		myWorker.onmessage = function (e) {
+			console.log(e.data)
 		}
 	}
 
-	function handleSubmit() {
-		formRef.current.submit()
-		closeModal()
-		formRef.current.reset()
+	async function handleSubmit(event: any) {
+		event.preventDefault()
+		profileRef.current.submit()
+		// new profile picture or cover
+
+		// if (picture?.url  && !picture?.blurhash) {
+		// const profilePicture = await get('profile-picture')
+		// console.log(profilePicture)
+		// const { base64 } = await processPhotoWithSize(profilePicture, 'xl') as any
+		// const { width, height, blurhash } = await processPhoto(profilePicture) as any
+		// console.log(width, height, blurhash, base64)
+		// console.log({profilePicturePhoto})
+		// photo.width = +width
+		// photo.height = +height
+		// photo.blurhash = blurhash
+		// console.log(width, height)
+		// await fetch(`/moul/r2/${pid}/original`, {
+		// 	method: 'PUT',
+		// 	headers: {
+		// 		'Content-Type': file.type,
+		// 	},
+		// 	body: file
+		// })
+		// }
+		profileRef.current.reset()
+		// closeModal()
 	}
 
 	return (
@@ -105,19 +133,17 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			<button
 				type="button"
 				onClick={openModal}
-				className="flex items-center hover:bg-neutral-800 py-1 px-2 rounded transition dark:text-neutral-500 dark:hover:text-neutral-200 mr-2"
+				className="flex items-center mr-2 py-1 px-2 rounded transition hover:bg-neutral-800 text-neutral-500 hover:text-neutral-200"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="18"
-					height="18"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-					className="mr-2"
-				>
-					<path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-				</svg>
-				Profile
+				<Icon name="person-fill" className="mr-2" />
+				<span className="relative">
+					Profile
+					{/* {isProcessing && (
+						<Tooltip label="proccessing..." placement='right'>
+							<span className='w-2.5 h-2.5 rounded-full bg-red-500 top-0 -right-2 absolute after:w-2.5 after:h-2.5 after:rounded-full after:bg-red-500 after:top-0 after:right-0 after:absolute after:animate-ping'></span>
+						</Tooltip>
+					)} */}
+				</span>
 			</button>
 			<Transition appear show={isOpen} as={Fragment}>
 				<Dialog as="div" className="relative z-50" onClose={closeModal}>
@@ -159,7 +185,11 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 											Profile
 										</h3>
 										<button
-											className="button w-auto py-2.5 font-normal mr-4"
+											className={clsx(
+												'button w-auto py-2.5 font-normal mr-4',
+												isProcessing &&
+													'opacity-50 cursor-not-allowed hover:ring-0'
+											)}
 											type="submit"
 											form="profileForm"
 											onClick={handleSubmit}
@@ -188,20 +218,31 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												/>
 											</div>
 											<div
-												onClick={() => handleAdd('picture')}
+												onClick={() => !isProcessing && handleAdd('picture')}
 												className={clsx(
-													'relative mx-auto my-5 w-28 h-28 transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full hover:cursor-pointer flex items-center justify-center',
-													!picture && 'border-2 border-dashed'
+													'relative mx-auto my-5 w-28 h-28 transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full flex items-center justify-center',
+													!picture && 'border-2 border-dashed',
+													!isProcessing && 'hover:cursor-pointer'
 												)}
 											>
 												{picture ? (
-													<picture className="absolute top-0 left-0 w-full h-full rounded-full">
-														<img
-															src={getPhotoURL(picture)}
-															alt=""
-															className="rounded-full w-full h-full"
-														/>
-													</picture>
+													<>
+														<picture className="absolute top-0 left-0 w-full h-full rounded-full">
+															{isProcessing && (
+																<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50 rounded-full">
+																	<Icon
+																		name="cloud-upload-fill"
+																		className="w-10 h-10 text-neutral-900 animate-pulse"
+																	/>
+																</span>
+															)}
+															<img
+																src={getPhotoURL(picture)}
+																alt=""
+																className="rounded-full w-full h-full"
+															/>
+														</picture>
+													</>
 												) : (
 													<span className="text-lg font-bold">Picture</span>
 												)}
@@ -216,7 +257,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												/>
 											</div>
 											<section className="px-4">
-												<Form method="post" id="profileForm" ref={formRef}>
+												<Form method="post" id="profileForm" ref={profileRef}>
 													<div className="relative mb-5">
 														<label htmlFor="name" className="label">
 															Name
