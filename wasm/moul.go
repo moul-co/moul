@@ -7,7 +7,6 @@ import (
 	"image/jpeg"
 	"log"
 	"math"
-	"strings"
 
 	"syscall/js"
 
@@ -20,13 +19,18 @@ func process() js.Func {
 		if len(args) != 1 {
 			return "base64 image"
 		}
-		photoStr := args[0].String()
-		fmt.Println("decoding image...")
-		imgDecode, err := imaging.Decode(base64.NewDecoder(base64.StdEncoding, strings.NewReader(strings.Split(photoStr, "base64,")[1])), imaging.AutoOrientation(true))
+		// photoStr := args[0].String()
+		photoArr := args[0]
+		// fmt.Println("decoding image...")
+		inBuf := make([]uint8, photoArr.Get("byteLength").Int())
+		js.CopyBytesToGo(inBuf, photoArr)
+		r := bytes.NewReader(inBuf)
+		// imgDecode, err := imaging.Decode(base64.NewDecoder(base64.StdEncoding, strings.NewReader(strings.Split(photoStr, "base64,")[1])), imaging.AutoOrientation(true))
+		imgDecode, err := imaging.Decode(r, imaging.AutoOrientation(true))
 		if err != nil {
 			fmt.Printf("image.Decode: %v", err)
 		}
-		fmt.Println("processing blurhash...")
+		// fmt.Println("processing blurhash...")
 		ratioComponent := math.Min(5/float64(imgDecode.Bounds().Dx()), 5/float64(imgDecode.Bounds().Dy()))
 		xCom := float64(imgDecode.Bounds().Dx()) * ratioComponent
 		yCom := float64(imgDecode.Bounds().Dy()) * ratioComponent
@@ -34,7 +38,7 @@ func process() js.Func {
 		if err != nil {
 			fmt.Printf("blurhash: %v", err)
 		}
-
+		// fmt.Println("hashing width, height", imgDecode.Bounds().Dx(), imgDecode.Bounds().Dy())
 		ratio := math.Min(16/float64(imgDecode.Bounds().Dx()), 16/float64(imgDecode.Bounds().Dy()))
 		w := float64(imgDecode.Bounds().Dx()) * ratio
 		h := float64(imgDecode.Bounds().Dy()) * ratio
@@ -54,6 +58,6 @@ func process() js.Func {
 }
 
 func main() {
-	js.Global().Set("moulProcessPhoto", process())
+	js.Global().Set("moulBlurhash", process())
 	<-make(chan bool)
 }

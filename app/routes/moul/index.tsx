@@ -97,15 +97,15 @@ export default function Moul() {
 		})
 
 		// initialize wasm
-		// const wasm = async () => {
-		// 	const go = new Go()
-		// 	const moulWasm = await WebAssembly.instantiateStreaming(
-		// 		fetch('/build/moul.wasm'),
-		// 		go.importObject
-		// 	)
-		// 	go.run(moulWasm.instance)
-		// }
-		// wasm().catch(console.error)
+		const wasm = async () => {
+			const go = new Go()
+			const moulWasm = await WebAssembly.instantiateStreaming(
+				fetch('/build/moul.wasm'),
+				go.importObject
+			)
+			go.run(moulWasm.instance)
+		}
+		wasm().catch(console.error)
 	}, [])
 
 	const handleChange = async () => {
@@ -148,7 +148,7 @@ export default function Moul() {
 				</>
 			) : (
 				<>
-					<script src="/build/moul.worker.js"></script>
+					<script src="/build/wasm_exec.js"></script>
 					<script src="/build/vips.js"></script>
 					<script type="module">window.vips = await Vips();</script>
 

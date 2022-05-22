@@ -13,6 +13,7 @@ import {
 	processPhotoWithSize,
 } from '~/utilities'
 import { Tooltip } from './tooltips'
+import { encode } from 'blurhash'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
 	const [name, setName] = useState(profile?.name)
@@ -93,21 +94,20 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		}
 		setPicture(photo)
 		console.log('load from buffer...')
+		console.time('loadImage')
 		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
+		console.timeEnd('loadImage')
+		console.time('resizeImage')
 		let im = vips.Image.thumbnailBuffer(buffer, 16)
+		console.timeEnd('resizeImage')
 		// const md = im.thumbnail(2560)
+		console.time('encodingImage')
 		const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'))
-		const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
-
-		const hash = (await readFileAsync(newBlob)) as string
-		// console.log(hash)
-		const go = new Go()
-		const moulWasm = await WebAssembly.instantiateStreaming(
-			fetch('/build/moul.wasm'),
-			go.importObject
-		)
-		go.run(moulWasm.instance)
-		const blurhash = moulProcessPhoto(hash)
+		// const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
+		console.time('hashing')
+		const blurhash = moulBlurhash(outBuffer)
+		console.timeEnd('hashing')
+		console.log(blurhash)
 	}
 
 	async function handleSubmit(event: any) {

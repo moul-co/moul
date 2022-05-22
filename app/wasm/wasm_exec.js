@@ -1,16 +1,3 @@
-// export let processPhoto = (photo) => {
-// 	return new Promise((resolve) => {
-// 		const { width, height, blurhash } = JSON.parse(moulProcessPhoto(photo, ''))
-// 		resolve({ width, height, blurhash })
-// 	})
-// }
-
-// export let processPhotoWithSize = (photo, size) => {
-// 	return new Promise((resolve) => {
-// 		const { base64 } = JSON.parse(moulProcessPhoto(photo, size))
-// 		resolve({ base64 })
-// 	})
-// }
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
