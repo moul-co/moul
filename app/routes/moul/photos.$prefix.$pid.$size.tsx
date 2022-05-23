@@ -34,8 +34,8 @@ function parseRange(
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-	const { pid, size } = params
-	const photoPath = `moul/photos/${pid}/${size}`
+	const { prefix, pid, size } = params
+	const photoPath = `moul/photos/${prefix}/${pid}/${size}`
 	const session = await getSession(request.headers.get('Cookie'))
 	if (size == 'original' && !session.has('auth')) {
 		return new Response('Unauthorized', { status: 401 })
@@ -60,6 +60,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		// }
 
 		if (request.method === 'GET') {
+			if (typeof MOUL_BUCKET === 'undefined') {
+				const file = await fetch(
+					`http://localhost:3030/moul/photos/${prefix}/${pid}/${size}`,
+					{
+						method: 'GET',
+					}
+				)
+				return new Response(file.body, {
+					headers: { 'Content-Type': 'image/jpeg' },
+				})
+			}
+
 			const object = await MOUL_BUCKET.get(photoPath, {
 				range: parseRange(request.headers.get('range')),
 				onlyIf: request.headers,

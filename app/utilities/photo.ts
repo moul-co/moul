@@ -69,20 +69,6 @@ export let parseExif = (photo: string): Promise<PhotoMetadata> => {
 	})
 }
 
-export let processPhoto = async (photo: string) => {
-	return new Promise((resolve) => {
-		const { width, height, blurhash } = JSON.parse(moulProcessPhoto(photo, ''))
-		resolve({ width, height, blurhash })
-	})
-}
-
-export let processPhotoWithSize = (photo: string, size: string) => {
-	return new Promise((resolve) => {
-		const { base64 } = JSON.parse(moulProcessPhoto(photo, size))
-		resolve({ base64 })
-	})
-}
-
 export let getPhotoSrcSet = (photo: Photo) => {
 	const prefix = '/moul/photos'
 	return `${prefix}/${photo?.pid}/sm 320w,
@@ -97,5 +83,7 @@ export let getPhotoSrc = (photo: Photo) => {
 }
 
 export let getPhotoURL = (photo: Photo) => {
-	return `${photo.url}`
+	const prefix = '/moul/photos'
+
+	return photo?.url ? `${photo.url}` : `${prefix}/${photo?.pid}/xl`
 }

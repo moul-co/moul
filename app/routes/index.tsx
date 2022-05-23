@@ -10,9 +10,10 @@ import { Stories, Cover, Profile } from '~/components/story'
 import { getPhotoSrc } from '~/utilities'
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const profile = await MOUL_KV.get('profile')
+	const profileStr = (await MOUL_KV.get('profile')) as any
 	const storiesStr = (await MOUL_KV.get('stories')) as any
 
+	const profile = JSON.parse(profileStr)
 	const stories = JSON.parse(storiesStr)?.map((s: any) => {
 		const cover = s.photos.find((p: any) => p.type === 'cover')
 		const title = s.blocks.find((b: any) => b.type === 'title')

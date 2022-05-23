@@ -16,8 +16,23 @@ import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
 import { markdocConfig } from '~/utilities'
-import { Form, Scripts, useLoaderData } from '@remix-run/react'
+import { Form, Scripts, useActionData, useLoaderData } from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
+
+//? KV prefix
+/**
+ * `profile`
+ * `profile-cover`
+ * `profile-picture`
+ * `story-{slug}` slug is dynamic base on real pathname
+ */
+
+//? R2 prefix + path
+/**
+ * `moul/photos/profile-picture/{uuid}/{size}` uuid is the pathname from URL.createObjectURL(), size is `md` or `xl`
+ * `moul/photos/profile-cover/{uuid}/{size}`
+ * `moul/photos/story-{slug}/{uuid}/{size}`
+ */
 
 export const action: ActionFunction = async ({ request }) => {
 	const session = await getSession(request.headers.get('Cookie'))
@@ -40,9 +55,8 @@ export const action: ActionFunction = async ({ request }) => {
 
 	const data = JSON.stringify(Object.fromEntries(formData))
 	await MOUL_KV.put('profile', data)
-	// const profile = JSON.parse(await MOUL_KV.get('profile') || '{}')
 
-	return json(Object.fromEntries(formData))
+	return redirect('/moul')
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -52,6 +66,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 	}
 
 	const profile = (await MOUL_KV.get('profile')) as any
+	console.log(profile)
 
 	return json({ profileKV: profile })
 }
@@ -77,7 +92,6 @@ export default function Moul() {
 			editorRef?.current?.setValue(story)
 		}
 		getStory().catch(console.error)
-		console.log(profile)
 		// if (!profile) {
 		// 		const getProfile = async () => {
 		// 			const profile = await get('profile')

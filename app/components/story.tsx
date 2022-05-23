@@ -26,20 +26,29 @@ export const Cover = ({ photo }: { photo: Photo }) => {
 }
 
 export const Profile = ({ profile }: any) => {
-	const { name, bio, twitter, github, youtube, instagram, facebook, picture } =
-		profile
+	const {
+		name,
+		bio,
+		twitter,
+		github,
+		youtube,
+		instagram,
+		facebook,
+		picture: pictureRaw,
+	} = profile
+	const picture = JSON.parse(pictureRaw)
 	return (
 		<section className="my-16">
 			<div className="flex justify-center">
-				{picture?.name && (
+				{picture && (
 					<Link to="/">
 						<picture className="w-28 h-28 md:w-36 md:h-36 rounded-full">
-							{picture.bh ? (
+							{picture.blurhash ? (
 								<img
-									src={`data:image/jpeg;charset=utf-8;base64,${picture.bh}`}
+									src={`data:image/jpeg;charset=utf-8;base64,${picture.blurhash}`}
 									data-srcset={getPhotoSrcSet(picture)}
 									data-sizes="auto"
-									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full"
+									className="w-28 h-28 md:w-36 md:h-36 rounded-full"
 									alt={picture.name}
 								/>
 							) : (

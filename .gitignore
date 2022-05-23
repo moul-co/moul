@@ -11,3 +11,4 @@ build
 app/moul.css
 wrangler.toml
 app/wasm/moul.wasm
+.moul

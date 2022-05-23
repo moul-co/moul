@@ -15,7 +15,7 @@ export interface Photo {
 	height: number
 	type: string
 	url: string
-	metadata: PhotoMetadata
+	metadata?: PhotoMetadata
 	original?: string
 	xl?: string // 3840
 	lg?: string // 1920
