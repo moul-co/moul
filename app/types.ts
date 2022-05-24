@@ -13,13 +13,9 @@ export interface Photo {
 	blurhash: string
 	width: number
 	height: number
-	type: string
+	prefix: string
 	url: string
 	metadata?: PhotoMetadata
-	original?: string
-	xl?: string // 3840
-	lg?: string // 1920
-	sm?: string // 960
 	contentType?: string
 }
 

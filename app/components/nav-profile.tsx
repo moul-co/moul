@@ -6,7 +6,7 @@ import { get, set } from 'idb-keyval'
 
 import Icon from '~/components/icon'
 import { Photo, PhotoMetadata, Profile } from '~/types'
-import { getPhotoURL, parseExif } from '~/utilities'
+import { getPhotoURL, nanoid, parseExif } from '~/utilities'
 import { Tooltip } from './tooltips'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
@@ -21,10 +21,10 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	const [cover, setCover] = useState(profile?.cover)
 
 	const [isOpen, setIsOpen] = useState(false)
-	const [isProcessing, setIsProcessing] = useState(false)
+	const [isProcessingCover, setIsProcessingCover] = useState(false)
+	const [isProcessingPicture, setIsProcessingPicture] = useState(false)
 	const coverRef = useRef() as any
 	const pictureRef = useRef() as any
-	const pictureFormRef = useRef() as any
 	const profileFormRef = useRef() as any
 
 	const transition = useTransition()
@@ -48,31 +48,6 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		setIsOpen(true)
 	}
 
-	async function handleChangeCover(event: any) {
-		const image = await readFileAsync(event.target.files[0])
-		const result = await fetch(`${image}`)
-		const blob = await result.blob()
-		const url = URL.createObjectURL(blob)
-		const metadata = await parseExif(result.url)
-		const pid = new URL(url).pathname.split('/').pop()!
-		let photo: Photo = {
-			pid,
-			order: 0,
-			blurhash: '',
-			width: 0,
-			height: 0,
-			type: 'profile-cover',
-			url,
-			metadata,
-			contentType: result.headers.get('content-type') || 'image/jpeg',
-		}
-		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
-		let im = vips.Image.thumbnailBuffer(buffer, 16)
-		const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'))
-		photo.blurhash = moulBlurhash(outBuffer)
-		setCover(photo)
-	}
-
 	function readFileAsync(file: any) {
 		return new Promise((resolve) => {
 			let fileReader = new FileReader()
@@ -80,56 +55,6 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 				resolve(fileReader.result)
 			}
 			fileReader.readAsDataURL(file)
-		})
-	}
-
-	async function handleChangeProfile(event: any) {
-		const image = await readFileAsync(event.target.files[0])
-		const result = await fetch(`${image}`)
-		const metadata = await parseExif(result.url)
-		let photo: Photo = {
-			pid: '',
-			order: 0,
-			blurhash: '',
-			width: 1024,
-			height: 1024,
-			type: 'profile-picture',
-			url: '',
-			metadata,
-			contentType: result.headers.get('content-type') || 'image/jpeg',
-		}
-		console.time('loadImage')
-		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
-		console.timeEnd('loadImage')
-		console.time('resizeImage')
-		let im = vips.Image.thumbnailBuffer(buffer, 16)
-		console.timeEnd('resizeImage')
-		// const md = im.thumbnail(2560)
-		console.time('encodingImage')
-		const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'))
-		// const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
-		console.time('hashing')
-		photo.blurhash = moulBlurhash(outBuffer)
-		console.timeEnd('hashing')
-
-		const xl = vips.Image.thumbnailBuffer(buffer, 1024, {
-			height: 1024,
-			no_rotate: true,
-			crop: vips.Interesting.attention, // 'attention'
-		})
-		const outBuff = new Uint8Array(xl.writeToBuffer('.jpg'))
-		const newBlob = new Blob([outBuff], { type: 'image/jpeg' })
-		const url = URL.createObjectURL(newBlob)
-		const pid = new URL(url).pathname.split('/').pop()!
-		photo.url = url
-		photo.pid = pid
-		setPicture(photo)
-		await fetch(`/moul/r2/profile-picture/${pid}/xl`, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': photo.contentType || 'image/jpeg',
-			},
-			body: newBlob,
 		})
 	}
 
@@ -159,6 +84,71 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		// }
 		profileFormRef.current.reset()
 		// closeModal()
+	}
+
+	async function handleChangePhoto(event: any) {
+		const prefix = event.target.name
+		const isProfilePicture = prefix === 'profile-picture'
+		isProfilePicture ? setIsProcessingPicture(true) : setIsProcessingCover(true)
+		const image = await readFileAsync(event.target.files[0])
+		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
+		// this 2 sizes work for now!
+		// later we can even support different type of format,
+		// base on users accept headers, webp? avif?
+		const sizes = { xl: 3840, md: 1920 }
+
+		for (let [k, v] of Object.entries(sizes)) {
+			const img = vips.Image.thumbnailBuffer(buffer, v, {
+				no_rotate: false,
+			})
+			const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
+			const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
+			await fetch(
+				`/moul/r2/${prefix}/${
+					isProfilePicture ? picture?.pid : cover?.pid
+				}/${k}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'image/jpeg',
+					},
+					body: newBlob,
+				}
+			)
+		}
+		isProfilePicture
+			? setIsProcessingPicture(false)
+			: setIsProcessingCover(false)
+	}
+
+	async function handleInputPhoto(event: any) {
+		const prefix = event.target.name
+		const image = await readFileAsync(event.target.files[0])
+		const result = await fetch(`${image}`)
+		const blob = await result.blob()
+		const url = URL.createObjectURL(blob)
+		const metadata = await parseExif(result.url)
+		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
+		const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
+		const { width, height } = original
+		const photo: Photo = {
+			pid: nanoid(),
+			order: 0,
+			blurhash: '',
+			width,
+			height,
+			prefix: prefix,
+			url,
+			metadata,
+			contentType: result.headers.get('content-type') || 'image/jpeg',
+		}
+		const img = vips.Image.thumbnailBuffer(buffer, 16, {
+			no_rotate: false,
+		})
+		const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
+		photo.blurhash = moulBlurhash(outBuffer)
+
+		prefix === 'profile-picture' ? setPicture(photo) : setCover(photo)
 	}
 
 	return (
@@ -220,7 +210,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 										<button
 											className={clsx(
 												'button w-auto py-2.5 font-normal mr-4',
-												isProcessing &&
+												isProcessingPicture &&
 													'opacity-50 cursor-not-allowed hover:ring-0'
 											)}
 											type="submit"
@@ -252,8 +242,9 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												)}
 												<input
 													type="file"
-													onChange={handleChangeCover}
-													name="photo"
+													onChange={handleChangePhoto}
+													onInput={handleInputPhoto}
+													name="profile-cover"
 													className="hidden"
 													ref={coverRef}
 													multiple
@@ -261,17 +252,19 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												/>
 											</div>
 											<div
-												onClick={() => !isProcessing && handleAdd('picture')}
+												onClick={() =>
+													!isProcessingPicture && handleAdd('picture')
+												}
 												className={clsx(
 													'relative mx-auto my-5 w-28 h-28 transition border-2 border-dashed text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full flex items-center justify-center',
 													!picture && 'border-2 border-dashed',
-													!isProcessing && 'hover:cursor-pointer'
+													!isProcessingPicture && 'hover:cursor-pointer'
 												)}
 											>
 												{picture && picture.pid ? (
 													<>
 														<picture className="absolute top-0 left-0 w-full h-full rounded-full">
-															{isProcessing && (
+															{isProcessingPicture && (
 																<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50 rounded-full">
 																	<Icon
 																		name="cloud-upload-fill"
@@ -291,8 +284,9 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												)}
 												<input
 													type="file"
-													onChange={handleChangeProfile}
-													name="photo"
+													onChange={handleChangePhoto}
+													onInput={handleInputPhoto}
+													name="profile-picture"
 													className="hidden"
 													ref={pictureRef}
 													multiple
