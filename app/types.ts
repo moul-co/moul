@@ -8,6 +8,7 @@ export interface PhotoMetadata {
 	lens: string
 }
 export interface Photo {
+	name: string
 	pid: string
 	order: number
 	blurhash: string

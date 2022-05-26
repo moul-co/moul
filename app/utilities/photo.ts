@@ -70,20 +70,18 @@ export let parseExif = (photo: string): Promise<PhotoMetadata> => {
 }
 
 export let getPhotoSrcSet = (photo: Photo) => {
-	const prefix = '/moul/photos'
-	return `${prefix}/${photo?.pid}/sm 320w,
-	${prefix}/${photo?.pid}/md 768w,
-	${prefix}/${photo?.pid}/lg 1024w,
-	${prefix}/${photo?.pid}/xl 1440w`
+	const base = '/_moul/photos'
+	return `${base}/${photo?.prefix}/${photo?.pid}/md 1024w,
+	${base}/${photo?.prefix}/${photo?.pid}/xl 1440w`
 }
 
 export let getPhotoSrc = (photo: Photo) => {
-	const prefix = '/moul/photos'
+	const prefix = '/_moul/photos'
 	return `${prefix}/${photo?.pid}/xl`
 }
 
 export let getPhotoURL = (photo: Photo) => {
-	const prefix = '/moul/photos'
+	const prefix = '/_moul/photos'
 
 	return photo?.url ? `${photo.url}` : `${prefix}/${photo?.pid}/xl`
 }

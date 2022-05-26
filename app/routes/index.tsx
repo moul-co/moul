@@ -78,9 +78,9 @@ export default function Index() {
 					<Cover photo={profile.cover} />
 				</section>
 			)}
-			<Profile profile={profile} />
+			{profile && <Profile profile={profile} />}
 			<Stories stories={stories} />
-			{profile.name && (
+			{profile?.name && (
 				<footer className="flex flex-col w-full text-center px-6 my-16 text-neutral-500 dark:text-neutral-400">
 					<p>Copyright © {profile.name}. All Rights Reserved.</p>
 				</footer>

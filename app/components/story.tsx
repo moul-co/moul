@@ -5,9 +5,9 @@ import { Photo } from '~/types'
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
 		<picture className="absolute top-0 left-0 w-full h-full">
-			{photo.blurhash ? (
+			{photo?.blurhash ? (
 				<img
-					src={`data:image/jpeg;charset=utf-8;base64,${photo.blurhash}`}
+					src={`data:image/jpeg;charset=utf-8;base64,${photo?.blurhash}`}
 					data-srcset={getPhotoSrcSet(photo)}
 					data-sizes="auto"
 					className="lazy w-full h-full object-cover"
@@ -15,7 +15,7 @@ export const Cover = ({ photo }: { photo: Photo }) => {
 				/>
 			) : (
 				<img
-					src={photo.url}
+					src={photo?.url}
 					data-sizes="auto"
 					className="lazy w-full h-full object-cover"
 					alt="Cover photo"
@@ -26,37 +26,29 @@ export const Cover = ({ photo }: { photo: Photo }) => {
 }
 
 export const Profile = ({ profile }: any) => {
-	const {
-		name,
-		bio,
-		twitter,
-		github,
-		youtube,
-		instagram,
-		facebook,
-		picture: pictureRaw,
-	} = profile
-	const picture = JSON.parse(pictureRaw)
+	const { name, bio, twitter, github, youtube, instagram, facebook, picture } =
+		profile
+
 	return (
 		<section className="my-16">
 			<div className="flex justify-center">
 				{picture && (
 					<Link to="/">
 						<picture className="w-28 h-28 md:w-36 md:h-36 rounded-full">
-							{picture.blurhash ? (
+							{picture?.blurhash ? (
 								<img
-									src={`data:image/jpeg;charset=utf-8;base64,${picture.blurhash}`}
+									src={`data:image/jpeg;charset=utf-8;base64,${picture?.blurhash}`}
 									data-srcset={getPhotoSrcSet(picture)}
 									data-sizes="auto"
-									className="w-28 h-28 md:w-36 md:h-36 rounded-full"
-									alt={picture.name}
+									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full"
+									alt={picture?.name}
 								/>
 							) : (
 								<img
-									src={picture.url}
+									src={picture?.url}
 									data-sizes="auto"
 									className="lazy w-28 h-28 md:w-36 md:h-36 rounded-full mx-auto"
-									alt={picture.name}
+									alt={picture?.name}
 								/>
 							)}
 						</picture>
@@ -155,14 +147,14 @@ export const Stories = ({ stories }: any) => {
 											data-srcset={getPhotoSrcSet(story?.cover)}
 											data-sizes="auto"
 											className="lazy w-full h-full object-cover rounded-2xl"
-											alt={story?.cover.name}
+											alt={story?.cover?.name}
 										/>
 									) : (
 										<img
 											src={story?.cover?.url}
 											data-sizes="auto"
 											className="lazy w-full h-full object-cover rounded-2xl"
-											alt={story?.cover.name}
+											alt={story?.cover?.name}
 										/>
 									)}
 								</picture>

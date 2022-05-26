@@ -1,7 +1,7 @@
 import { Link } from '@remix-run/react'
 import logo from '~/images/logo.svg'
 import NavPhotos from '~/components/nav-photos'
-import NavStories from '~/components/nav-stories'
+// import NavStories from '~/components/nav-stories'
 import NavProfile from '~/components/nav-profile'
 import { Profile } from '~/types'
 
@@ -13,7 +13,7 @@ export default function Nav({ profile }: { profile: Profile }) {
 			</Link>
 			<nav className="flex ">
 				<NavProfile profile={profile} />
-				<NavStories />
+				{/* <NavStories /> */}
 				<NavPhotos />
 			</nav>
 			<nav>

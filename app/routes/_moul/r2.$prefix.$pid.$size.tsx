@@ -9,7 +9,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 	console.log(`store photo path: ${request.url}`)
 
 	if (!session.has('auth')) {
-		return redirect('/moul')
+		return redirect('/_moul')
 	}
 	if (request.method === 'PUT' || request.method == 'POST') {
 		if (typeof MOUL_BUCKET === 'undefined') {

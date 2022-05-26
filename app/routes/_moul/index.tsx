@@ -16,14 +16,18 @@ import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
 import { markdocConfig } from '~/utilities'
-import { Form, Scripts, useActionData, useLoaderData } from '@remix-run/react'
+import {
+	Form,
+	Outlet,
+	Scripts,
+	useActionData,
+	useLoaderData,
+} from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
 
 //? KV prefix
 /**
  * `profile`
- * `profile-cover`
- * `profile-picture`
  * `story-{slug}` slug is dynamic base on real pathname
  */
 
@@ -41,34 +45,29 @@ export const action: ActionFunction = async ({ request }) => {
 		const key = formData.get('key')
 		if (key === MOUL_SECRET_ACCESS_KEY) {
 			session.set('auth', true)
-			return redirect('/moul', {
+			return redirect('/_moul', {
 				headers: {
 					'Set-Cookie': await commitSession(session),
 				},
 			})
 		}
 	}
-
-	if (!session.has('auth')) {
-		return json({ status: 'Unauthorized' })
+	if (session.get('auth') !== 'true') {
+		return redirect('/_moul')
 	}
-
-	const data = JSON.stringify(Object.fromEntries(formData))
-	await MOUL_KV.put('profile', data)
-
-	return redirect('/moul')
+	return new Response('Method Not Allowed', { status: 405 })
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
 	const session = await getSession(request.headers.get('Cookie'))
 	if (!session.has('auth')) {
 		return json({ status: 'Unauthorized' })
 	}
-
+	const { slug } = params
 	const profile = (await MOUL_KV.get('profile')) as any
-	console.log(profile)
+	console.log({ slug, profile })
 
-	return json({ profileKV: profile })
+	return json({ profileKV: JSON.parse(profile) })
 }
 
 export const headers: HeadersFunction = () => {
@@ -81,7 +80,7 @@ export const headers: HeadersFunction = () => {
 export default function Moul() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
-	const [content, setContent] = useState(null as any)
+	const [content, setContent] = useState(null) as any
 	const { profileKV, status } = useLoaderData()
 	const [profile, setProfile] = useState(profileKV)
 
@@ -166,7 +165,7 @@ export default function Moul() {
 					<script src="/build/vips.js"></script>
 					<script type="module">window.vips = await Vips();</script>
 
-					<Nav profile={JSON.parse(profile)} />
+					<Nav profile={profileKV} />
 					<section className="grid relative">
 						<aside className="editor-wrap overflow-auto sticky top-14">
 							<Editor
@@ -177,7 +176,7 @@ export default function Moul() {
 						</aside>
 						<div className="gutter-col gutter-col-1"></div>
 						<main>
-							<Preview content={content} profile={profile} />
+							{profileKV && <Preview content={content} profile={profileKV} />}
 						</main>
 					</section>
 				</>

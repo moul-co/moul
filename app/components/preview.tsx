@@ -1,4 +1,4 @@
-import { Profile } from '~/components/story'
+import { Cover, Profile } from '~/components/story'
 
 type PreviewProps = {
 	content: any
@@ -6,10 +6,12 @@ type PreviewProps = {
 }
 
 export default function Preview({ content, profile }: PreviewProps) {
-	const parseProfile = JSON.parse(profile)
 	return (
 		<>
-			<Profile profile={parseProfile} />
+			<div className="relative w-full h-96">
+				<Cover photo={profile.cover} />
+			</div>
+			<Profile profile={profile} />
 			{content &&
 				content.children.map((c: any, i: number) => (
 					<div key={i}>

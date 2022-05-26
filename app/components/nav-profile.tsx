@@ -1,12 +1,12 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { Form, useTransition } from '@remix-run/react'
+import { Form, useNavigate, useTransition } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
 
 import Icon from '~/components/icon'
 import { Photo, PhotoMetadata, Profile } from '~/types'
-import { getPhotoURL, nanoid, parseExif } from '~/utilities'
+import { getPhotoSrcSet, getPhotoURL, nanoid, parseExif } from '~/utilities'
 import { Tooltip } from './tooltips'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
@@ -26,8 +26,9 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	const coverRef = useRef() as any
 	const pictureRef = useRef() as any
 	const profileFormRef = useRef() as any
-
+	const inputProfileCover = useRef() as any
 	const transition = useTransition()
+	const navigation = useNavigate()
 
 	useEffect(() => {})
 
@@ -58,86 +59,46 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		})
 	}
 
-	async function handleSubmit(event: any) {
-		event.preventDefault()
-		profileFormRef.current.submit()
-		// new profile picture or cover
-
-		// if (picture?.url  && !picture?.blurhash) {
-		// const profilePicture = await get('profile-picture')
-		// console.log(profilePicture)
-		// const { base64 } = await processPhotoWithSize(profilePicture, 'xl') as any
-		// const { width, height, blurhash } = await processPhoto(profilePicture) as any
-		// console.log(width, height, blurhash, base64)
-		// console.log({profilePicturePhoto})
-		// photo.width = +width
-		// photo.height = +height
-		// photo.blurhash = blurhash
-		// console.log(width, height)
-		// await fetch(`/moul/r2/${pid}/original`, {
-		// 	method: 'PUT',
-		// 	headers: {
-		// 		'Content-Type': file.type,
-		// 	},
-		// 	body: file
-		// })
-		// }
+	async function handleSubmit(e: any) {
+		e.preventDefault()
+		let body = JSON.stringify(
+			Object.fromEntries(new FormData(profileFormRef.current))
+		)
 		profileFormRef.current.reset()
-		// closeModal()
+		const resp = await fetch(`/_moul/kv?prefix=profile`, {
+			method: 'POST',
+			body,
+		})
+		if (!resp.ok) {
+			console.error('log error')
+		}
+		closeModal()
+		navigation('/_moul', { replace: true })
 	}
 
 	async function handleChangePhoto(event: any) {
 		const prefix = event.target.name
 		const isProfilePicture = prefix === 'profile-picture'
 		isProfilePicture ? setIsProcessingPicture(true) : setIsProcessingCover(true)
-		const image = await readFileAsync(event.target.files[0])
-		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
-		// this 2 sizes work for now!
-		// later we can even support different type of format,
-		// base on users accept headers, webp? avif?
-		const sizes = { xl: 3840, md: 1920 }
-
-		for (let [k, v] of Object.entries(sizes)) {
-			const img = vips.Image.thumbnailBuffer(buffer, v, {
-				no_rotate: false,
-			})
-			const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
-			const newBlob = new Blob([outBuffer], { type: 'image/jpeg' })
-			await fetch(
-				`/moul/r2/${prefix}/${
-					isProfilePicture ? picture?.pid : cover?.pid
-				}/${k}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'image/jpeg',
-					},
-					body: newBlob,
-				}
-			)
-		}
-		isProfilePicture
-			? setIsProcessingPicture(false)
-			: setIsProcessingCover(false)
-	}
-
-	async function handleInputPhoto(event: any) {
-		const prefix = event.target.name
-		const image = await readFileAsync(event.target.files[0])
+		const file = event.target.files[0]
+		const image = await readFileAsync(file)
 		const result = await fetch(`${image}`)
 		const blob = await result.blob()
-		const url = URL.createObjectURL(blob)
 		const metadata = await parseExif(result.url)
+		const url = URL.createObjectURL(blob)
+		document.getElementById(`img-${prefix}`)?.setAttribute('src', url)
+
 		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
 		const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
 		const { width, height } = original
 		const photo: Photo = {
+			name: file.name,
 			pid: nanoid(),
 			order: 0,
 			blurhash: '',
 			width,
 			height,
-			prefix: prefix,
+			prefix,
 			url,
 			metadata,
 			contentType: result.headers.get('content-type') || 'image/jpeg',
@@ -148,7 +109,34 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
 		photo.blurhash = moulBlurhash(outBuffer)
 
-		prefix === 'profile-picture' ? setPicture(photo) : setCover(photo)
+		// this 2 sizes work for now!
+		// later we can even support different type of format,
+		// base on users accept headers, webp? avif?
+		const sizes = { xl: 3840, md: 1920 }
+
+		for (let [k, v] of Object.entries(sizes)) {
+			const img = vips.Image.thumbnailBuffer(buffer, v, {
+				no_rotate: false,
+			})
+			const out = new Uint8Array(img.writeToBuffer('.jpg'))
+			const body = new Blob([out], { type: 'image/jpeg' })
+			await fetch(`/_moul/r2/${prefix}/${photo.pid}/${k}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'image/jpeg',
+				},
+				body,
+			})
+		}
+
+		await fetch(`/_moul/kv?prefix=${prefix}`, {
+			method: 'POST',
+			body: JSON.stringify(photo),
+		})
+
+		isProfilePicture
+			? setIsProcessingPicture(false)
+			: setIsProcessingCover(false)
 	}
 
 	return (
@@ -229,21 +217,19 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 												onClick={() => handleAdd('cover')}
 												className="relative mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
-												{cover ? (
-													<picture className="absolute top-0 left-0 w-full h-full">
-														<img
-															src={getPhotoURL(cover)}
-															alt=""
-															className="w-full h-full object-cover"
-														/>
-													</picture>
-												) : (
-													<span className="text-xl font-bold">Cover</span>
-												)}
+												<span className="text-xl font-bold">Cover</span>
+												<picture className="absolute top-0 left-0 w-full h-full">
+													<img
+														id="img-profile-cover"
+														src={`data:image/jpeg;base64,${cover?.blurhash}`}
+														srcSet={getPhotoSrcSet(cover!)}
+														alt=""
+														className="w-full h-full object-cover"
+													/>
+												</picture>
 												<input
 													type="file"
 													onChange={handleChangePhoto}
-													onInput={handleInputPhoto}
 													name="profile-cover"
 													className="hidden"
 													ref={coverRef}
@@ -261,31 +247,27 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 													!isProcessingPicture && 'hover:cursor-pointer'
 												)}
 											>
-												{picture && picture.pid ? (
-													<>
-														<picture className="absolute top-0 left-0 w-full h-full rounded-full">
-															{isProcessingPicture && (
-																<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50 rounded-full">
-																	<Icon
-																		name="cloud-upload-fill"
-																		className="w-10 h-10 text-neutral-900 animate-pulse"
-																	/>
-																</span>
-															)}
-															<img
-																src={getPhotoURL(picture)}
-																alt=""
-																className="rounded-full w-full h-full object-cover"
+												<span className="text-lg font-bold">Picture</span>
+												<picture className="absolute top-0 left-0">
+													{isProcessingPicture && (
+														<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50 rounded-full">
+															<Icon
+																name="cloud-upload-fill"
+																className="w-10 h-10 text-neutral-900 animate-pulse"
 															/>
-														</picture>
-													</>
-												) : (
-													<span className="text-lg font-bold">Picture</span>
-												)}
+														</span>
+													)}
+													<img
+														id="img-profile-picture"
+														src={`data:image/jpeg;base64,${picture?.blurhash}`}
+														srcSet={getPhotoSrcSet(picture!)}
+														alt=""
+														className="rounded-full w-full h-full object-cover"
+													/>
+												</picture>
 												<input
 													type="file"
 													onChange={handleChangePhoto}
-													onInput={handleInputPhoto}
 													name="profile-picture"
 													className="hidden"
 													ref={pictureRef}
@@ -339,7 +321,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 															className="input"
 															id="github"
 															name="github"
-															defaultValue={github}
+															defaultValue={profile.github}
 														/>
 													</div>
 													<div className="relative mb-5">
@@ -357,7 +339,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 															className="input"
 															id="twitter"
 															name="twitter"
-															defaultValue={twitter}
+															defaultValue={profile.twitter}
 														/>
 													</div>
 													<div className="relative mb-5">
@@ -375,7 +357,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 															className="input"
 															id="youtube"
 															name="youtube"
-															defaultValue={youtube}
+															defaultValue={profile.youtube}
 														/>
 													</div>
 													<div className="relative mb-5">
@@ -393,7 +375,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 															className="input"
 															id="instagram"
 															name="instagram"
-															defaultValue={instagram}
+															defaultValue={profile.instagram}
 														/>
 													</div>
 													<div className="relative mb-5">
@@ -411,7 +393,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 															className="input"
 															id="facebook"
 															name="facebook"
-															defaultValue={facebook}
+															defaultValue={profile.facebook}
 														/>
 													</div>
 												</Form>
