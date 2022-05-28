@@ -3,11 +3,21 @@ import { getSession } from '~/session'
 
 export const action: ActionFunction = async ({ request, params }) => {
 	const session = await getSession(request.headers.get('Cookie'))
-	if (session.get('auth') !== 'true') {
+	if (session.get('auth') !== true) {
 		return redirect('/_moul')
 	}
-	const prefix = new URL(request.url).searchParams.get('prefix')
+	const url = new URL(request.url)
+	const prefix = url.searchParams.get('prefix')
+	const slug = url.searchParams.get('slug')
 	const body = await request.text()
+	if (prefix === 'story') {
+		const key = `story-${slug}`
+		await MOUL_KV.put(key, body)
+		return new Response('ok')
+	}
+	if (prefix?.startsWith('story-photo-')) {
+		await MOUL_KV.put(prefix, body)
+	}
 
 	const profileKV = (await MOUL_KV.get('profile')) as any
 	let profile = JSON.parse(profileKV)
@@ -21,6 +31,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 	if (prefix === 'profile-cover') {
 		profile.cover = parsedBody
 	}
+	console.log('profile in kv action', profile)
 	await MOUL_KV.put('profile', JSON.stringify(profile))
 
 	return new Response('ok')

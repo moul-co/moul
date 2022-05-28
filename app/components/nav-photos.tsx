@@ -1,11 +1,27 @@
-import { Fragment, useRef, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import { useLoaderData } from '@remix-run/react'
+import { Fragment, useEffect, useRef, useState } from 'react'
+import { Dialog, Transition, RadioGroup } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
-import Icon from './icon'
+
+import Icon from '~/components/icon'
+import { Tooltip } from '~/components/tooltip'
+import {
+	getPhotoSrcSet,
+	nanoid,
+	parseExif,
+	readFileAsync,
+	toastSuccess,
+} from '~/utilities'
+import { Photo } from '~/types'
 
 export default function NavPhotos() {
 	let [isOpen, setIsOpen] = useState(false)
 	const photoRef = useRef() as any
+	const { profile, status, photos } = useLoaderData()
+
+	useEffect(() => {
+		console.log(photos)
+	}, [])
 
 	function handleAdd() {
 		photoRef.current.click()
@@ -16,23 +32,76 @@ export default function NavPhotos() {
 	}
 
 	async function openModal() {
-		let photos = await get('photos')
-		if (photos) {
-			photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
-		}
+		// let photos = await get('photos')
+		// if (photos) {
+		// 	photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
+		// }
 		setIsOpen(true)
 	}
 
-	function handleChange(event: any) {
-		for (const file of event.target.files) {
-			const reader = new FileReader()
-			reader.onload = async (e: any) => {
-				let photos = (await get('photos')) || []
-				const result = await fetch(`${e.target.result}`)
-				const blob = await result.blob()
-				await set('photos', [...photos, blob])
+	async function handleChange(event: any) {
+		const prefix = event.target.name
+		for (let f of event.target.files) {
+			const image = await readFileAsync(f)
+			const result = await fetch(`${image}`)
+			const blob = await result.blob()
+			const metadata = await parseExif(result.url)
+			const url = URL.createObjectURL(blob)
+
+			const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
+			const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
+			const { width, height } = original
+			const photo: Photo = {
+				name: f.name,
+				pid: nanoid(),
+				order: 0,
+				blurhash: '',
+				width,
+				height,
+				prefix,
+				url,
+				metadata,
+				contentType: result.headers.get('content-type') || 'image/jpeg',
 			}
-			reader.readAsDataURL(file)
+			const img = vips.Image.thumbnailBuffer(buffer, 16, {
+				no_rotate: false,
+			})
+			const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
+			photo.blurhash = moulBlurhash(outBuffer)
+
+			const sizes = { xl: 3840, md: 1920 }
+			for (let [k, v] of Object.entries(sizes)) {
+				const img = vips.Image.thumbnailBuffer(buffer, v, {
+					no_rotate: false,
+				})
+				const out = new Uint8Array(img.writeToBuffer('.jpg'))
+				const body = new Blob([out], { type: 'image/jpeg' })
+				await fetch(`/_moul/r2/${prefix}/${photo.pid}/${k}`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'image/jpeg',
+					},
+					body,
+				})
+			}
+			await fetch(`/_moul/kv?prefix=story-photo-${photo.pid}`, {
+				method: 'POST',
+				body: JSON.stringify(photo),
+			})
+		}
+	}
+
+	const handleCopy = (pid: string) => {
+		console.log(`pid-${pid}`)
+		const pidInput = document.getElementById(`pid-${pid}`) as any
+		pidInput.select()
+		navigator.clipboard.writeText(pidInput.value)
+		toastSuccess(`Copied successfully`)
+	}
+
+	const confirmDelete = () => {
+		if (window.confirm('Do you really want to delete?')) {
+			console.log('delete...')
 		}
 	}
 
@@ -85,13 +154,10 @@ export default function NavPhotos() {
 										<h3 className="text-2xl font-bold leading-normal text-neutral-200 mr-auto">
 											Photos
 										</h3>
-										<button className="button w-auto py-2.5 font-normal mr-4">
-											Insert
-										</button>
 									</Dialog.Title>
 									<Dialog.Description
 										as="main"
-										className="h-[600px] max-h-[80vh] overflow-y-auto"
+										className="h-[600px] max-h-[80vh] overflow-y-auto w-full"
 									>
 										<div className="mb-2 px-6">
 											<div
@@ -102,13 +168,54 @@ export default function NavPhotos() {
 												<input
 													type="file"
 													onChange={handleChange}
-													name="photos"
+													name="story"
 													className="hidden"
 													ref={photoRef}
 													multiple
 													accept=".jpeg,.jpg"
 												/>
 											</div>
+										</div>
+										<div className="px-6 flex flex-wrap">
+											{photos &&
+												photos.map((photo: Photo, i: number) => (
+													<div className="w-2/6 h-48 relative" key={i}>
+														<picture className="absolute top-0 left-0 w-full h-full">
+															<img
+																src={`data:image/jpeg;base64,${photo?.blurhash}`}
+																data-srcset={getPhotoSrcSet(photo)}
+																data-sizes="auto"
+																alt={photo.name}
+																className="lazy w-full h-full object-cover"
+															/>
+														</picture>
+														<input
+															type="hidden"
+															value={photo.pid}
+															id={'pid-' + photo.pid}
+														/>
+														<div className="absolute bottom-0 w-full">
+															<div className="relative z-20 flex justify-center bg-black bg-opacity-80">
+																<Tooltip label="Copy `pid` to clipboard">
+																	<button
+																		className="button--icon h-9 hover:bg-blue-600 mr-2"
+																		onClick={() => handleCopy(photo.pid)}
+																	>
+																		<Icon name="clipboard" className="" />
+																	</button>
+																</Tooltip>
+																<Tooltip label="Delete photo">
+																	<button
+																		className="button--icon hover:bg-red-600 h-9"
+																		onClick={confirmDelete}
+																	>
+																		<Icon name="trash" className="" />
+																	</button>
+																</Tooltip>
+															</div>
+														</div>
+													</div>
+												))}
 										</div>
 									</Dialog.Description>
 								</Dialog.Panel>

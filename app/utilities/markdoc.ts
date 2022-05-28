@@ -1,5 +1,9 @@
 export const markdocConfig = {
 	tags: {
+		title: {
+			render: 'title',
+			children: ['paragraph'],
+		},
 		profile: {
 			render: 'profile',
 			attributes: {

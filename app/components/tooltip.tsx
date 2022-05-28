@@ -26,7 +26,7 @@ export const Tooltip = ({ children, label, placement = 'top' }: Props) => {
 		placement,
 		open,
 		onOpenChange: setOpen,
-		middleware: [offset(3), flip(), shift({ padding: 4 })],
+		middleware: [offset(6), flip(), shift({ padding: 4 })],
 		whileElementsMounted: autoUpdate,
 	})
 
@@ -49,7 +49,7 @@ export const Tooltip = ({ children, label, placement = 'top' }: Props) => {
 					{...getFloatingProps({
 						ref: floating,
 						className:
-							'w-fit bg-black px-2 rounded-md bg-red-500 text-neutral-50 leading-none pt-1 pb-2',
+							'w-fit bg-black px-2 rounded-md bg-neutral-800 text-neutral-50 leading-none pt-1 pb-2',
 						style: {
 							position: strategy,
 							top: y ?? '',

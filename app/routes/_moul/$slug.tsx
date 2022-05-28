@@ -22,6 +22,7 @@ import {
 	Scripts,
 	useActionData,
 	useLoaderData,
+	useParams,
 } from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
 
@@ -60,12 +61,10 @@ export const action: ActionFunction = async ({ request }) => {
 
 export const loader: LoaderFunction = async ({ request, params }) => {
 	const session = await getSession(request.headers.get('Cookie'))
-	if (!session.has('auth')) {
+	if (session.get('auth') !== true) {
 		return json({ status: 'Unauthorized' })
 	}
-	const { slug } = params
 	const profile = (await MOUL_KV.get('profile')) as any
-	console.log({ slug, profile })
 
 	return json({ profileKV: JSON.parse(profile) })
 }
@@ -82,11 +81,12 @@ export default function MoulSlug() {
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null) as any
 	const { profileKV, status } = useLoaderData()
+	const { slug = 'index' } = useParams()
 	const [profile, setProfile] = useState(profileKV)
 
 	useEffect(() => {
 		const getStory = async () => {
-			const story = await get('story')
+			const story = await get(`story-${slug}`)
 			setText(story)
 			editorRef?.current?.setValue(story)
 		}
@@ -108,79 +108,30 @@ export default function MoulSlug() {
 				},
 			],
 		})
-
-		// initialize wasm
-		const wasm = async () => {
-			const go = new Go()
-			const moulWasm = await WebAssembly.instantiateStreaming(
-				fetch('/build/moul.wasm'),
-				go.importObject
-			)
-			go.run(moulWasm.instance)
-		}
-		wasm().catch(console.error)
 	}, [])
 
 	const handleChange = async () => {
 		const updated = editorRef?.current.getValue()
 		setText(updated)
-		await set('story', updated)
+		await set(`story-${slug}`, updated)
 
 		const ast = Markdoc.parse(updated)
 		const errors = Markdoc.validate(ast, markdocConfig)
 		console.log('errors', errors) //! show errors properly
 		const content = Markdoc.transform(ast, markdocConfig)
 		setContent(content)
+		console.log(content)
 	}
 
 	return (
-		<div className="bg-neutral-900 text-neutral-50">
-			{status === 'Unauthorized' ? (
-				<>
-					<div className="max-w-md w-full h-screen mx-auto flex justify-center flex-col">
-						<h1 className="text-3xl font-bold mb-4">Log in</h1>
-						<Form method="post" id="profileForm">
-							<div className="relative mb-5">
-								<label htmlFor="name" className="label">
-									Access Key
-								</label>
-								<input
-									type="password"
-									className="input bg-black"
-									id="key"
-									name="key"
-									autoComplete="false"
-									autoCapitalize="false"
-								/>
-							</div>
-							<button className="button" type="submit">
-								Log in
-							</button>
-						</Form>
-					</div>
-				</>
-			) : (
-				<>
-					<script src="/build/wasm_exec.js"></script>
-					<script src="/build/vips.js"></script>
-					<script type="module">window.vips = await Vips();</script>
-
-					<Nav profile={profileKV} />
-					<section className="grid relative">
-						<aside className="editor-wrap overflow-auto sticky top-14">
-							<Editor
-								ref={editorRef}
-								initialValue={text}
-								onChange={handleChange}
-							/>
-						</aside>
-						<div className="gutter-col gutter-col-1"></div>
-						<main>
-							{profileKV && <Preview content={content} profile={profileKV} />}
-						</main>
-					</section>
-				</>
-			)}
-		</div>
+		<>
+			<aside className="editor-wrap overflow-auto sticky top-14">
+				<Editor ref={editorRef} initialValue={text} onChange={handleChange} />
+			</aside>
+			<div className="gutter-col gutter-col-1"></div>
+			<main className="h-auto">
+				{profileKV && <Preview content={content} profile={profileKV} />}
+			</main>
+		</>
 	)
 }

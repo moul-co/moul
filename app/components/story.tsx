@@ -1,6 +1,7 @@
 import { Link } from '@remix-run/react'
 import { getPhotoSrcSet } from '~/utilities'
 import { Photo } from '~/types'
+import { Tooltip } from '~/components/tooltip'
 
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (

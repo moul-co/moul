@@ -6,8 +6,14 @@ import { get, set } from 'idb-keyval'
 
 import Icon from '~/components/icon'
 import { Photo, PhotoMetadata, Profile } from '~/types'
-import { getPhotoSrcSet, getPhotoURL, nanoid, parseExif } from '~/utilities'
-import { Tooltip } from './tooltips'
+import {
+	getPhotoSrcSet,
+	getPhotoURL,
+	nanoid,
+	parseExif,
+	readFileAsync,
+} from '~/utilities'
+import { Tooltip } from './tooltip'
 
 export default function NavProfile({ profile }: { profile: Profile }) {
 	const [name, setName] = useState(profile?.name)
@@ -47,16 +53,6 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		// 	photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
 		// }
 		setIsOpen(true)
-	}
-
-	function readFileAsync(file: any) {
-		return new Promise((resolve) => {
-			let fileReader = new FileReader()
-			fileReader.onload = () => {
-				resolve(fileReader.result)
-			}
-			fileReader.readAsDataURL(file)
-		})
 	}
 
 	async function handleSubmit(e: any) {
@@ -112,7 +108,8 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		// this 2 sizes work for now!
 		// later we can even support different type of format,
 		// base on users accept headers, webp? avif?
-		const sizes = { xl: 3840, md: 1920 }
+		let sizes = { xl: 3840, md: 1920 }
+		if (isProcessingPicture) sizes = { xl: 1024, md: 512 }
 
 		for (let [k, v] of Object.entries(sizes)) {
 			const img = vips.Image.thumbnailBuffer(buffer, v, {
@@ -222,9 +219,10 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 													<img
 														id="img-profile-cover"
 														src={`data:image/jpeg;base64,${cover?.blurhash}`}
-														srcSet={getPhotoSrcSet(cover!)}
-														alt=""
-														className="w-full h-full object-cover"
+														data-srcset={getPhotoSrcSet(cover!)}
+														data-sizes="auto"
+														alt={cover?.name}
+														className="w-full h-full object-cover lazy"
 													/>
 												</picture>
 												<input
@@ -260,9 +258,10 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 													<img
 														id="img-profile-picture"
 														src={`data:image/jpeg;base64,${picture?.blurhash}`}
-														srcSet={getPhotoSrcSet(picture!)}
-														alt=""
-														className="rounded-full w-full h-full object-cover"
+														data-srcset={getPhotoSrcSet(picture!)}
+														data-sizes="auto"
+														alt={picture?.name}
+														className="rounded-full w-full h-full object-cover lazy"
 													/>
 												</picture>
 												<input
