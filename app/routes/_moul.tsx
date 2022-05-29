@@ -30,15 +30,15 @@ import { Photo } from '~/types'
 //? KV prefix
 /**
  * `profile`
- * `story-photo-{pid}`
+ * `photo-{slug}-{pid}`
  * `story-{slug}` slug is dynamic base on real pathname
  */
 
 //? R2 prefix + path
 /**
- * `moul/photos/profile-picture/{uuid}/{size}` uuid is the pathname from URL.createObjectURL(), size is `md` or `xl`
- * `moul/photos/profile-cover/{uuid}/{size}`
- * `moul/photos/story/{uuid}/{size}`
+ * `moul/photos/profile-picture/{pid}/{size}`
+ * `moul/photos/profile-cover/{pid}/{size}`
+ * `moul/photos/story/{pid}/{size}`
  */
 
 export const action: ActionFunction = async ({ request }) => {
@@ -68,7 +68,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 	}
 	const { slug } = params
 	const profile = await MOUL_KV.get('profile', { type: 'json' })
-	const photosKeys = await MOUL_KV.list({ prefix: 'story-photo-' })
+	const photosKeys = await MOUL_KV.list({ prefix: `photo-${slug}` })
 	const photos: Photo[] = []
 	if (photosKeys) {
 		for (let key of photosKeys.keys) {

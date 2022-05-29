@@ -25,6 +25,7 @@ import {
 	useParams,
 } from '@remix-run/react'
 import { getSession, commitSession } from '~/session'
+import { Photo } from '~/types'
 
 //? KV prefix
 /**
@@ -64,9 +65,20 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 	if (session.get('auth') !== true) {
 		return json({ status: 'Unauthorized' })
 	}
-	const profile = (await MOUL_KV.get('profile')) as any
+	const { slug } = params
+	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	const photosKeys = await MOUL_KV.list({ prefix: `photo-${slug}` })
+	const photos: Photo[] = []
+	if (photosKeys) {
+		for (let key of photosKeys.keys) {
+			const photo = (await MOUL_KV.get(key.name, { type: 'json' })) as Photo
+			if (photo) {
+				photos.push(photo)
+			}
+		}
+	}
 
-	return json({ profileKV: JSON.parse(profile) })
+	return json({ profile, photos })
 }
 
 export const headers: HeadersFunction = () => {

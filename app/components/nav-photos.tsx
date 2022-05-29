@@ -1,4 +1,4 @@
-import { useLoaderData } from '@remix-run/react'
+import { useFetcher, useLoaderData, useParams } from '@remix-run/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Dialog, Transition, RadioGroup } from '@headlessui/react'
 import { get, set } from 'idb-keyval'
@@ -13,15 +13,22 @@ import {
 	toastSuccess,
 } from '~/utilities'
 import { Photo } from '~/types'
+import clsx from 'clsx'
 
 export default function NavPhotos() {
 	let [isOpen, setIsOpen] = useState(false)
 	const photoRef = useRef() as any
-	const { profile, status, photos } = useLoaderData()
+	const loaderData = useLoaderData()
+	const [data, setData] = useState(loaderData)
+	const [processing, setProcessing] = useState(false)
+	const { slug } = useParams()
+	const fetcher = useFetcher()
 
 	useEffect(() => {
-		console.log(photos)
-	}, [])
+		if (fetcher.data) {
+			setData(fetcher.data)
+		}
+	}, [fetcher.data])
 
 	function handleAdd() {
 		photoRef.current.click()
@@ -40,6 +47,7 @@ export default function NavPhotos() {
 	}
 
 	async function handleChange(event: any) {
+		setProcessing(true)
 		const prefix = event.target.name
 		for (let f of event.target.files) {
 			const image = await readFileAsync(f)
@@ -84,11 +92,17 @@ export default function NavPhotos() {
 					body,
 				})
 			}
-			await fetch(`/_moul/kv?prefix=story-photo-${photo.pid}`, {
+			let params = slug
+				? `?prefix=photo-${slug}-${photo.pid}`
+				: `?prefix=photo-${photo.pid}`
+
+			await fetch(`/_moul/kv${params}`, {
 				method: 'POST',
 				body: JSON.stringify(photo),
 			})
 		}
+		fetcher.load(`/_moul/${slug}`)
+		setProcessing(false)
 	}
 
 	const handleCopy = (pid: string) => {
@@ -99,11 +113,56 @@ export default function NavPhotos() {
 		toastSuccess(`Copied successfully`)
 	}
 
-	const confirmDelete = () => {
-		if (window.confirm('Do you really want to delete?')) {
-			console.log('delete...')
-		}
-	}
+	// const confirmDelete = async (pid:string) => {
+	// 	if (window.confirm('Do you really want to delete?')) {
+	// 		let params = slug ? `?prefix=photo-${slug}-${pid}`
+	// 			: `?prefix=photo-${pid}`
+	// 		await fetch(`/_moul/kv${params}`, {
+	// 			method: 'DELETE',
+	// 		})
+	// 		fetcher.load('/_moul')
+	// 	}
+	// }
+
+	const ListPhotos = ({ photos }: any) => (
+		<>
+			{photos &&
+				photos?.map((photo: Photo, i: number) => (
+					<div className="w-2/6 h-48 relative" key={i}>
+						<picture className="absolute top-0 left-0 w-full h-full">
+							<img
+								src={`data:image/jpeg;base64,${photo?.blurhash}`}
+								data-srcset={getPhotoSrcSet(photo)}
+								data-sizes="auto"
+								alt={photo.name}
+								className="lazy w-full h-full object-cover"
+							/>
+						</picture>
+						<input type="hidden" value={photo.pid} id={'pid-' + photo.pid} />
+						<div className="absolute bottom-0 w-full">
+							<div className="relative z-20 flex justify-center bg-black bg-opacity-80">
+								<Tooltip label="Copy `pid` to clipboard">
+									<button
+										className="button--icon h-9 hover:bg-blue-600 mr-2"
+										onClick={() => handleCopy(photo.pid)}
+									>
+										<Icon name="clipboard" className="" />
+									</button>
+								</Tooltip>
+								{/* <Tooltip label="Delete photo">
+																	<button
+																		className="button--icon hover:bg-red-600 h-9"
+																		onClick={() => confirmDelete(photo.pid)}
+																	>
+																		<Icon name="trash" className="" />
+																	</button>
+																</Tooltip> */}
+							</div>
+						</div>
+					</div>
+				))}
+		</>
+	)
 
 	return (
 		<>
@@ -126,7 +185,7 @@ export default function NavPhotos() {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<div className="fixed inset-0 bg-black bg-opacity-50" />
+						<div className="fixed inset-0 bg-black" />
 					</Transition.Child>
 
 					<div className="fixed inset-0 overflow-y-auto">
@@ -162,9 +221,15 @@ export default function NavPhotos() {
 										<div className="mb-2 px-6">
 											<div
 												onClick={handleAdd}
-												className="my-4 w-full h-28 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-xl hover:cursor-pointer flex items-center justify-center"
+												className={clsx(
+													'my-4 w-full h-28 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-xl hover:cursor-pointer flex items-center justify-center',
+													processing &&
+														'bg-black hover:cursor-not-allowed animate-pulse'
+												)}
 											>
-												<span className="text-xl font-bold">Add</span>
+												<span className="text-xl font-bold">
+													{processing ? 'Processing' : 'Add'}
+												</span>
 												<input
 													type="file"
 													onChange={handleChange}
@@ -177,45 +242,7 @@ export default function NavPhotos() {
 											</div>
 										</div>
 										<div className="px-6 flex flex-wrap">
-											{photos &&
-												photos.map((photo: Photo, i: number) => (
-													<div className="w-2/6 h-48 relative" key={i}>
-														<picture className="absolute top-0 left-0 w-full h-full">
-															<img
-																src={`data:image/jpeg;base64,${photo?.blurhash}`}
-																data-srcset={getPhotoSrcSet(photo)}
-																data-sizes="auto"
-																alt={photo.name}
-																className="lazy w-full h-full object-cover"
-															/>
-														</picture>
-														<input
-															type="hidden"
-															value={photo.pid}
-															id={'pid-' + photo.pid}
-														/>
-														<div className="absolute bottom-0 w-full">
-															<div className="relative z-20 flex justify-center bg-black bg-opacity-80">
-																<Tooltip label="Copy `pid` to clipboard">
-																	<button
-																		className="button--icon h-9 hover:bg-blue-600 mr-2"
-																		onClick={() => handleCopy(photo.pid)}
-																	>
-																		<Icon name="clipboard" className="" />
-																	</button>
-																</Tooltip>
-																<Tooltip label="Delete photo">
-																	<button
-																		className="button--icon hover:bg-red-600 h-9"
-																		onClick={confirmDelete}
-																	>
-																		<Icon name="trash" className="" />
-																	</button>
-																</Tooltip>
-															</div>
-														</div>
-													</div>
-												))}
+											{data?.photos && <ListPhotos photos={data?.photos} />}
 										</div>
 									</Dialog.Description>
 								</Dialog.Panel>

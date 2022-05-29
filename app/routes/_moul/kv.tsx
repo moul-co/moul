@@ -7,7 +7,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 		return redirect('/_moul')
 	}
 	const url = new URL(request.url)
-	const prefix = url.searchParams.get('prefix')
+	const prefix = url.searchParams.get('prefix')!
 	const slug = url.searchParams.get('slug')
 	const body = await request.text()
 	if (prefix === 'story') {
@@ -15,8 +15,9 @@ export const action: ActionFunction = async ({ request, params }) => {
 		await MOUL_KV.put(key, body)
 		return new Response('ok')
 	}
-	if (prefix?.startsWith('story-photo-')) {
+	if (prefix?.startsWith('photo-')) {
 		await MOUL_KV.put(prefix, body)
+		return new Response('ok')
 	}
 
 	const profileKV = (await MOUL_KV.get('profile')) as any
@@ -31,7 +32,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 	if (prefix === 'profile-cover') {
 		profile.cover = parsedBody
 	}
-	console.log('profile in kv action', profile)
+
 	await MOUL_KV.put('profile', JSON.stringify(profile))
 
 	return new Response('ok')
