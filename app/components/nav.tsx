@@ -46,13 +46,15 @@ export default function Nav({ profile }: { profile: Profile }) {
 				<NavPhotos />
 			</nav>
 			<nav className="w-36 flex justify-end">
-				<button
-					className="button w-auto py-2"
-					onClick={handleSave}
-					disabled={disabled}
-				>
-					{btnText}
-				</button>
+				{slug !== 'index' && (
+					<button
+						className="button w-auto py-2"
+						onClick={handleSave}
+						disabled={disabled}
+					>
+						{btnText}
+					</button>
+				)}
 			</nav>
 		</section>
 	)

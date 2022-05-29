@@ -75,10 +75,6 @@ export let getPhotoSrcSet = (photo: Photo) => {
 	${base}/${photo?.prefix}/${photo?.pid}/xl 1440w`
 }
 
-export let getPhotoSrcSetBlob = (photo: Photo) => {
-	return `${photo.url} 1024w`
-}
-
 export let getPhotoSrc = (photo: Photo) => {
 	const prefix = '/_moul/photos'
 	return `${prefix}/${photo?.pid}/xl`

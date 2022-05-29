@@ -34,6 +34,11 @@ export const markdocConfig = {
 				},
 			},
 		},
+		cover: {
+			render: 'cover',
+			description: 'Cover of story',
+			children: ['photo'],
+		},
 		grid: {
 			render: 'grid',
 			description: 'Display grid of photos',

@@ -78,7 +78,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		}
 	}
 
-	return json({ profile, photos })
+	return json({ profile, photos, slug })
 }
 
 export const headers: HeadersFunction = () => {
