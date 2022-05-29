@@ -83,6 +83,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 			const headers = new Headers()
 			object.writeHttpMetadata(headers)
 			headers.set('etag', object.httpEtag)
+			headers.set(
+				'Cache-Control',
+				'public, max-age=31540000000, stale-while-revalidate=31540000000'
+			)
 			return new Response(object.body, {
 				headers,
 			})
@@ -99,6 +103,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		const headers = new Headers()
 		object.writeHttpMetadata(headers)
 		headers.set('etag', object.httpEtag)
+		headers.set(
+			'Cache-Control',
+			'public, max-age=31540000000, stale-while-revalidate=31540000000'
+		)
 		return new Response(null, {
 			headers,
 		})

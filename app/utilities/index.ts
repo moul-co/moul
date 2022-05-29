@@ -1,10 +1,7 @@
 import { toast, Slide } from 'react-toastify'
 
 import { customAlphabet } from 'nanoid'
-const customNanoid = customAlphabet(
-	'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-	21
-)
+const customNanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
 
 export { markdocConfig } from './markdoc'
 export {

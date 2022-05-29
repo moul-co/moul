@@ -6,22 +6,13 @@ import { Tooltip } from '~/components/tooltip'
 export const Cover = ({ photo }: { photo: Photo }) => {
 	return (
 		<picture className="absolute top-0 left-0 w-full h-full">
-			{photo?.blurhash ? (
-				<img
-					src={`data:image/jpeg;charset=utf-8;base64,${photo?.blurhash}`}
-					data-srcset={getPhotoSrcSet(photo)}
-					data-sizes="auto"
-					className="lazy w-full h-full object-cover"
-					alt="Cover photo"
-				/>
-			) : (
-				<img
-					src={photo?.url}
-					data-sizes="auto"
-					className="lazy w-full h-full object-cover"
-					alt="Cover photo"
-				/>
-			)}
+			<img
+				src={`data:image/jpeg;charset=utf-8;base64,${photo?.blurhash}`}
+				data-srcset={getPhotoSrcSet(photo)}
+				data-sizes="auto"
+				className="lazy w-full h-full object-cover"
+				alt="Cover photo"
+			/>
 		</picture>
 	)
 }

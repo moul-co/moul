@@ -17,25 +17,35 @@ import {
 import { Photo } from '~/types'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-	const storiesStr = (await MOUL_KV.get('stories')) as any
-	if (!storiesStr) {
-		return json({ data: 'not_found' }, { status: 404 })
-	}
-	const stories = JSON.parse(storiesStr) as any
-
 	const { slug, hash } = params
-	const story = stories.find((story: any) => story.slug === slug)
-	const currentPhoto = story?.photos.find((p: Photo) => p.hash === hash)
-	const title = story?.blocks.find((b: any) => b.type === 'title')?.text
+	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	const photosKeys = await MOUL_KV.list({ prefix: `photo-${slug}` })
+	const photos: Photo[] = []
+	if (photosKeys) {
+		for (let key of photosKeys.keys) {
+			const photo = (await MOUL_KV.get(key.name, { type: 'json' })) as Photo
+			if (photo) {
+				photos.push(photo)
+			}
+		}
+	}
+	const story = (await MOUL_KV.get(`story-${slug}`, { type: 'json' })) as any
+	if (!story) {
+		return new Response('not_found', { status: 404 })
+	}
+	story.title = story.children.find((c: any) => c.name === 'title')
+	const currentPhoto = photos.find((p: Photo) => p.pid === hash)
+	const title = story.title.children[0]?.children[0]
 
 	return json(
 		{
 			currentPhoto,
-			photos: story?.photos,
+			photos,
 			slug,
 			story,
 			title,
 			canonical: request.url,
+			profile,
 		},
 		{
 			headers: { Link: request.url },
@@ -56,14 +66,11 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 
 export const meta: MetaFunction = ({ data }) => {
 	if (data.data == 'not_found') return {}
-	const { name, bio, twitter } = data.story?.profile
+	const { name, bio, twitter } = data.profile
 	const { title: t, currentPhoto } = data
 	const title = t ? `${t} | ${name}` : name
 	const url = new URL(data.canonical)
-	const imgURL =
-		currentPhoto && currentPhoto?.bh
-			? `${url.protocol}//${url.host}${getPhotoSrc(currentPhoto)}`
-			: currentPhoto.url
+	const imgURL = `${url.protocol}//${url.host}${getPhotoSrc(currentPhoto)}`
 
 	return {
 		title,
@@ -86,9 +93,9 @@ export default function Photo() {
 	const { currentPhoto, photos, slug, data } = useLoaderData()
 	const navigation = useNavigate()
 
-	const [photo, setPhoto] = useState(currentPhoto?.hash)
+	const [photo, setPhoto] = useState(currentPhoto?.pid)
 
-	const [hash, setHash] = useState(currentPhoto?.bh)
+	const [hash, setHash] = useState(currentPhoto?.blurhash)
 	const [width, setWidth] = useState(0)
 	const [height, setHeight] = useState(0)
 
@@ -111,21 +118,22 @@ export default function Photo() {
 			paintPhotos()
 		}
 
-		setCurrentIndex(photos.findIndex((p: any) => p.hash === photo))
+		setCurrentIndex(photos.findIndex((p: any) => p.pid === photo))
 		if (currentIndex > 0 && currentIndex < photos.length - 1) {
-			setNext(photos[currentIndex + 1].hash)
-			setPrev(photos[currentIndex - 1].hash)
+			setNext(photos[currentIndex + 1].pid)
+			setPrev(photos[currentIndex - 1].pid)
 		} else if (currentIndex === photos.length - 1) {
 			setNext('')
-			setPrev(photos[currentIndex - 1].hash)
+			setPrev(photos[currentIndex - 1].pid)
 		} else if (currentIndex === 0) {
 			setPrev('')
-			setNext(photos[currentIndex + 1].hash)
+			setNext(photos[currentIndex + 1].pid)
 		}
-
-		window.addEventListener('resize', paintPhotos)
-		window.addEventListener('popstate', handlePopstate)
-		window.addEventListener('keyup', handleKeyup)
+		if (isBrowser()) {
+			window.addEventListener('resize', paintPhotos)
+			window.addEventListener('popstate', handlePopstate)
+			window.addEventListener('keyup', handleKeyup)
+		}
 
 		return () => {
 			window.removeEventListener('popstate', handlePopstate)
@@ -151,9 +159,9 @@ export default function Photo() {
 		if (pn.length) {
 			const isPhoto = pn[pn.length - 2] == 'photo'
 			if (isPhoto) {
-				const pIdx = photos.findIndex((p: any) => p.hash === pn[pn.length - 1])
-				setPhoto(photos[pIdx].hash)
-				setHash(photos[pIdx].bh)
+				const pIdx = photos.findIndex((p: any) => p.pid === pn[pn.length - 1])
+				setPhoto(photos[pIdx].pid)
+				setHash(photos[pIdx].blurhash)
 			}
 		}
 	}
@@ -171,7 +179,7 @@ export default function Photo() {
 		setCurrentWidth(window.innerWidth)
 		setWrapper(photos.length * window.innerWidth)
 
-		const activeIndex = photos.findIndex((p: any) => p.hash === photo)
+		const activeIndex = photos.findIndex((p: any) => p.pid === photo)
 		// @ts-ignore
 		setActive(`translateX(-${currentWidth * activeIndex}px)`)
 
@@ -207,8 +215,8 @@ export default function Photo() {
 		if (!next) return
 		setTransition('all var(--transition-photos)')
 		const photoIndex = currentIndex + 1
-		setPhoto(photos[photoIndex].hash)
-		setHash(photos[photoIndex].bh)
+		setPhoto(photos[photoIndex].pid)
+		setHash(photos[photoIndex].blurhash)
 
 		navigation(`/${slug}/photo/${next}`)
 	}
@@ -217,8 +225,8 @@ export default function Photo() {
 		if (!prev) return
 		setTransition('all var(--transition-photos)')
 		const photoIndex = currentIndex - 1
-		setPhoto(photos[photoIndex].hash)
-		setHash(photos[photoIndex].bh)
+		setPhoto(photos[photoIndex].pid)
+		setHash(photos[photoIndex].blurhash)
 
 		navigation(`/${slug}/photo/${prev}`)
 	}
@@ -310,71 +318,36 @@ export default function Photo() {
 											<AnimatePresence initial={false}>
 												{photos?.map((p: Photo) => (
 													<div
-														key={p.hash}
+														key={p.pid}
 														className="moul-darkbox-list flex justify-center items-center"
 														style={{
 															minWidth: `${currentWidth}px`,
 														}}
 													>
 														<picture>
-															{p.bh ? (
-																<motion.img
-																	src={`data:image/jpeg;charset=utf-8;base64,${p.bh}`}
-																	className="lazy"
-																	data-sizes="auto"
-																	data-srcset={getPhotoSrcSet(p)}
-																	onClick={toggleUI}
-																	data-size={`${p.width}:${p.height}`}
-																	drag="x"
-																	dragConstraints={{
-																		left: 0,
-																		right: 0,
-																	}}
-																	dragElastic={0}
-																	onDragEnd={(e, { offset, velocity }) => {
-																		const swipe = swipePower(
-																			offset.x,
-																			velocity.x
-																		)
-																		if (swipe < -swipeConfidenceThreshold) {
-																			handleNext()
-																		} else if (
-																			swipe > swipeConfidenceThreshold
-																		) {
-																			handlePrev()
-																		}
-																	}}
-																	alt="photo"
-																/>
-															) : (
-																<motion.img
-																	src={p.url}
-																	className="lazy"
-																	data-sizes="auto"
-																	onClick={toggleUI}
-																	data-size={`${p.width}:${p.height}`}
-																	drag="x"
-																	dragConstraints={{
-																		left: 0,
-																		right: 0,
-																	}}
-																	dragElastic={0}
-																	onDragEnd={(e, { offset, velocity }) => {
-																		const swipe = swipePower(
-																			offset.x,
-																			velocity.x
-																		)
-																		if (swipe < -swipeConfidenceThreshold) {
-																			handleNext()
-																		} else if (
-																			swipe > swipeConfidenceThreshold
-																		) {
-																			handlePrev()
-																		}
-																	}}
-																	alt="photo"
-																/>
-															)}
+															<motion.img
+																src={`data:image/jpeg;charset=utf-8;base64,${p.blurhash}`}
+																className="lazy"
+																data-sizes="auto"
+																data-srcset={getPhotoSrcSet(p)}
+																onClick={toggleUI}
+																data-size={`${p.width}:${p.height}`}
+																drag="x"
+																dragConstraints={{
+																	left: 0,
+																	right: 0,
+																}}
+																dragElastic={0}
+																onDragEnd={(e, { offset, velocity }) => {
+																	const swipe = swipePower(offset.x, velocity.x)
+																	if (swipe < -swipeConfidenceThreshold) {
+																		handleNext()
+																	} else if (swipe > swipeConfidenceThreshold) {
+																		handlePrev()
+																	}
+																}}
+																alt={p.name}
+															/>
 														</picture>
 													</div>
 												))}

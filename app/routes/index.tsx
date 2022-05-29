@@ -7,29 +7,43 @@ import {
 import { useLoaderData } from '@remix-run/react'
 
 import { Stories, Cover, Profile } from '~/components/story'
+import { Photo } from '~/types'
 import { getPhotoSrc } from '~/utilities'
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const profileStr = (await MOUL_KV.get('profile')) as any
-	const storiesStr = (await MOUL_KV.get('stories')) as any
-
-	const profile = JSON.parse(profileStr)
-	const stories = JSON.parse(storiesStr)?.map((s: any) => {
-		const cover = s.photos.find((p: any) => p.type === 'cover')
-		const title = s.blocks.find((b: any) => b.type === 'title')
-		return {
-			slug: s.slug,
-			cover,
-			title: title?.text,
+	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	const photosKeys = await MOUL_KV.list({ prefix: `photo-` })
+	const photos: Photo[] = []
+	if (photosKeys) {
+		for (let key of photosKeys.keys) {
+			const photo = (await MOUL_KV.get(key.name, { type: 'json' })) as Photo
+			if (photo) {
+				photos.push(photo)
+			}
 		}
-	})
+	}
+
+	const listStories = await MOUL_KV.list({ prefix: 'story-' })
+	const stories = []
+	if (listStories) {
+		for (let key of listStories.keys) {
+			const story = (await MOUL_KV.get(key.name, { type: 'json' })) as any
+			if (story) {
+				let slugArr = key.name.split('-')
+				slugArr.shift()
+				story.slug = slugArr.join('-')
+				const coverExist = story.children.find((c: any) => c.name === 'cover')
+				story.title = story.children.find((c: any) => c.name === 'title')
+				story.cover = photos.find(
+					(p: Photo) => p.pid === coverExist?.children[0].attributes.pid
+				)
+				stories.push(story)
+			}
+		}
+	}
 
 	return json(
-		{
-			profile,
-			stories,
-			canonical: request.url,
-		},
+		{ profile, stories, photos, canonical: request.url },
 		{ headers: { Link: request.url } }
 	)
 }

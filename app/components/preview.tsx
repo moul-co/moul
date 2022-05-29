@@ -45,9 +45,16 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 				photosSize.push({ width, height })
 			})
 			const viewportWidth = document.querySelector('main')?.clientWidth!
-			const idealElementHeight = viewportWidth < 800 ? 280 : 380
+			const idealElementHeight =
+				viewportWidth && photosSize.length < 2
+					? 500
+					: viewportWidth < 800
+					? 280
+					: 360
 			const containerWidth =
-				viewportWidth > 2000 && photosSize.length < 4
+				viewportWidth > 2000 && photosSize.length <= 2
+					? 800
+					: viewportWidth > 2000 && photosSize.length < 4
 					? 1800
 					: viewportWidth > 3000
 					? 2400
@@ -67,6 +74,12 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 				photos[i].style.left = `${layout.positions[i].x}px`
 				photos[i].style.width = `${layout.positions[i].width}px`
 				photos[i].style.height = `${layout.positions[i].height}px`
+				photos[i].querySelector(
+					'img'
+				).style.width = `${layout.positions[i].width}px`
+				photos[i].querySelector(
+					'img'
+				).style.height = `${layout.positions[i].height}px`
 			})
 		})
 	}
@@ -122,7 +135,7 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 								</blockquote>
 							)}
 							{c.name === 'grid' && (
-								<div className="relative">
+								<div className="relative mx-auto">
 									{/* .attributes.pid */}
 									{c.children.map((c: any, i: number) => {
 										const photo = photos.find(
