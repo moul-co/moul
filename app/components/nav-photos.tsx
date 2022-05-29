@@ -228,7 +228,7 @@ export default function NavPhotos() {
 												)}
 											>
 												<span className="text-xl font-bold">
-													{processing ? 'Processing' : 'Add'}
+													{processing ? 'Processing...' : 'Add'}
 												</span>
 												<input
 													type="file"

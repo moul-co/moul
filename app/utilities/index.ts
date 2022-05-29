@@ -14,7 +14,7 @@ export {
 	getPhotoURL,
 	parseExif,
 } from '~/utilities/photo'
-export const isBrowser = () => typeof window !== 'undefined'
+export const isBrowser = () => typeof document !== 'undefined'
 export const nanoid = () => customNanoid()
 export const toastSuccess = (text: string) =>
 	toast.success(text, {

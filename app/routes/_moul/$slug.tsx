@@ -92,9 +92,8 @@ export default function MoulSlug() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null) as any
-	const { profileKV, status } = useLoaderData()
+	const { profile, status } = useLoaderData()
 	const { slug = 'index' } = useParams()
-	const [profile, setProfile] = useState(profileKV)
 
 	useEffect(() => {
 		const getStory = async () => {
@@ -119,6 +118,9 @@ export default function MoulSlug() {
 					element: document.querySelector('.gutter-col-1') as any,
 				},
 			],
+			onDragEnd: () => {
+				handleChange()
+			},
 		})
 	}, [])
 
@@ -132,7 +134,6 @@ export default function MoulSlug() {
 		console.log('errors', errors) //! show errors properly
 		const content = Markdoc.transform(ast, markdocConfig)
 		setContent(content)
-		console.log(content)
 	}
 
 	return (
@@ -142,7 +143,7 @@ export default function MoulSlug() {
 			</aside>
 			<div className="gutter-col gutter-col-1"></div>
 			<main className="h-auto">
-				{profileKV && <Preview content={content} profile={profileKV} />}
+				{profile && <Preview content={content} profile={profile} />}
 			</main>
 		</>
 	)

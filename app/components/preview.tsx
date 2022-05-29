@@ -1,4 +1,10 @@
+import { useLoaderData } from '@remix-run/react'
+import { fixed_partition } from 'image-layout'
+import { useEffect } from 'react'
+
 import { Cover, Profile } from '~/components/story'
+import { Photo } from '~/types'
+import { getDimension, getPhotoSrcSet, isBrowser } from '~/utilities'
 
 type PreviewProps = {
 	content: any
@@ -6,7 +12,59 @@ type PreviewProps = {
 }
 
 export default function Preview({ content, profile }: PreviewProps) {
+	const { photos } = useLoaderData()
 	let title = content && content.children.find((c: any) => c.name === 'title')
+	console.log(content?.children, photos)
+
+	useEffect(() => {
+		paintGrid()
+
+		if (isBrowser()) {
+			document.querySelector('main')?.addEventListener('resize', paintGrid)
+		}
+		return () => {
+			document.querySelector('main')?.removeEventListener('resize', paintGrid)
+		}
+	}, [content])
+
+	const paintGrid = () => {
+		console.log('pain grid...')
+		const grid = document.querySelectorAll('.moul-content-grid')
+		grid.forEach((el: any) => {
+			const photos = el.querySelectorAll('.moul-grid')
+			const photosSize: any = []
+			photos.forEach((photo: any) => {
+				const [w, h] = photo.getAttribute('data-size')?.split(':') as any
+				const { width, height } = getDimension(+w, +h, 2048, 2048)
+
+				photosSize.push({ width, height })
+			})
+			const viewportWidth = document.querySelector('main')?.clientWidth!
+			const idealElementHeight = viewportWidth < 800 ? 280 : 380
+			const containerWidth =
+				viewportWidth > 2000 && photosSize.length < 4
+					? 1800
+					: viewportWidth > 3000
+					? 2400
+					: viewportWidth
+			const layout = fixed_partition(photosSize, {
+				containerWidth,
+				idealElementHeight,
+				spacing: 16,
+			})
+			el.classList.add('is-grid')
+			el.style.width = `auto`
+			el.style.height = `${layout.height}px`
+
+			layout.positions.forEach((_: any, i: number) => {
+				photos[i].style.position = `absolute`
+				photos[i].style.top = `${layout.positions[i].y}px`
+				photos[i].style.left = `${layout.positions[i].x}px`
+				photos[i].style.width = `${layout.positions[i].width}px`
+				photos[i].style.height = `${layout.positions[i].height}px`
+			})
+		})
+	}
 
 	return (
 		<>
@@ -23,7 +81,7 @@ export default function Preview({ content, profile }: PreviewProps) {
 			)}
 			{content &&
 				content.children.map((c: any, i: number) => (
-					<div className="mx-auto" key={i}>
+					<div className={`mx-auto moul-content-${c.name}`} key={i}>
 						{c.name === 'p' && (
 							<p className="px-6 xs:px-0 text-lg md:text-xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-700 dark:text-neutral-200">
 								{c.children[0]}
@@ -49,8 +107,37 @@ export default function Preview({ content, profile }: PreviewProps) {
 								{c.children[0].children[0]}
 							</blockquote>
 						)}
+						{c.name === 'grid' && (
+							<div className="relative">
+								{/* .attributes.pid */}
+								{c.children.map((c: any, i: number) => {
+									const photo = photos.find(
+										(p: Photo) => p.pid === c.attributes.pid
+									)
+									return (
+										<picture
+											key={i}
+											className={`moul-grid`}
+											data-size={`${photo.width}:${photo.height}`}
+										>
+											<img
+												className="lazy"
+												src={`data:image/jpeg;charset=utf-8;base64,${photo.blurhash}`}
+												data-sizes="auto"
+												data-srcset={getPhotoSrcSet(photo)}
+											/>
+										</picture>
+									)
+								})}
+							</div>
+						)}
 					</div>
 				))}
+			<footer className="flex flex-col w-full text-center px-6 my-16 text-neutral-500 dark:text-neutral-400">
+				{profile.name && (
+					<p>Copyright © {profile.name}. All Rights Reserved.</p>
+				)}
+			</footer>
 		</>
 	)
 }

@@ -80,13 +80,6 @@ export default function Story() {
 
 	useEffect(() => {
 		paintGrid()
-
-		if (isBrowser()) {
-			window.addEventListener('resize', paintGrid)
-		}
-		return () => {
-			window.removeEventListener('resize', paintGrid)
-		}
 	}, [])
 
 	const paintGrid = () => {
