@@ -108,6 +108,7 @@ export default function Photo() {
 	const [open, setOpen] = useState(false)
 	const [index, setIndex] = useState(0)
 	const [ui, setUi] = useState(true)
+	const [showExif, setShowExif] = useState(false)
 	const [active, setActive] = useState('translateX(0)')
 	const [transition, setTransition] = useState('none')
 
@@ -235,11 +236,38 @@ export default function Photo() {
 		setUi(!ui)
 	}
 
+	const toggleExif = () => {
+		setShowExif(!showExif)
+	}
+
 	const handleUiClick = (event: any) => {
 		if (event.target.className === 'moul-darkbox-list') {
 			navigation('/' + slug)
 		}
 	}
+
+	const ShowExifData = ({ type, value }: any) => {
+		return (
+			<div className="flex h-6 mr-2">
+				<span className="text-right bg-neutral-400/80 text-neutral-900 py-0.5 px-2 rounded-tl-full rounded-bl-full">
+					{type}
+				</span>
+				<span className="bg-neutral-500 font-bold text-neutral-900 py-0.5 px-2 rounded-tr-full rounded-br-full">
+					{value}
+				</span>
+			</div>
+		)
+	}
+
+	const {
+		cameraMake,
+		cameraModel,
+		lens,
+		focalLength,
+		aperture,
+		shutterSpeed,
+		iso,
+	} = photos[currentIndex].metadata
 
 	return (
 		<>
@@ -251,7 +279,7 @@ export default function Photo() {
 						<>
 							{prev && (
 								<button
-									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-prev left-4 rounded-full"
+									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-black/20 dark:hover:bg-black/60 transition-colors is-prev left-4 rounded-full"
 									onClick={handlePrev}
 								>
 									<svg
@@ -268,7 +296,7 @@ export default function Photo() {
 							)}
 							{next && (
 								<button
-									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors is-next right-4 rounded-full"
+									className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-black/20 dark:hover:bg-black/60 transition-colors is-next right-4 rounded-full"
 									onClick={handleNext}
 								>
 									<svg
@@ -285,7 +313,7 @@ export default function Photo() {
 							)}
 							<Link
 								to={'/' + slug}
-								className="moul-darkbox-btn fixed z-30 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-neutral-900/20 dark:hover:bg-neutral-900/60 transition-colors top-4 left-4 is-close rounded-full"
+								className="moul-darkbox-btn fixed z-50 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-black/20 dark:hover:bg-black/60 transition-colors top-4 left-4 is-close rounded-full"
 							>
 								<svg
 									fill="currentColor"
@@ -295,6 +323,60 @@ export default function Photo() {
 									<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
 								</svg>
 							</Link>
+							<button
+								onClick={toggleExif}
+								className="moul-darkbox-btn fixed top-4 right-4 p-0 border-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-black/20 dark:hover:bg-black/60 transition-colors rounded-full z-50"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="currentColor"
+									viewBox="0 0 16 16"
+									className="w-9 h-9 p-1.5"
+								>
+									<path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z" />
+									<path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z" />
+								</svg>
+							</button>
+							{showExif && (
+								<div className="bg-black absolute inset-0 py-4 flex text-sm justify-center items-center h-16 z-30">
+									{cameraMake && (
+										<ShowExifData type="Make" value={cameraMake} />
+									)}
+									{cameraModel && (
+										<ShowExifData type="Model" value={cameraModel} />
+									)}
+									{lens && <ShowExifData type="Lens" value={lens} />}
+									{focalLength && (
+										<ShowExifData
+											type="Focal Length"
+											value={`${focalLength[0] / focalLength[1]}mm`}
+										/>
+									)}
+									{aperture && (
+										<ShowExifData
+											type="Aperture"
+											value={
+												<>
+													<em>f</em>/{aperture[0] / aperture[1]}
+												</>
+											}
+										/>
+									)}
+									{shutterSpeed && (
+										<ShowExifData
+											type="Shutter Speed"
+											value={
+												shutterSpeed[0] / 10 > 1
+													? `${shutterSpeed[0] / 10}s`
+													: `${shutterSpeed[0] / 10}/${shutterSpeed[1] / 10}s`
+											}
+										/>
+									)}
+									{iso && <ShowExifData type="ISO" value={iso} />}
+								</div>
+							)}
 						</>
 					)}
 					<div className="moul-darkbox fixed top-0 bottom-0 left-0 right-0 z-10 transition opacity-100">
