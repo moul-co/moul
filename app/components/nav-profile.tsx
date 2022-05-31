@@ -1,5 +1,12 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { Form, useNavigate, useTransition } from '@remix-run/react'
+import {
+	Form,
+	useFetcher,
+	useLoaderData,
+	useNavigate,
+	useParams,
+	useTransition,
+} from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import { get, set } from 'idb-keyval'
@@ -35,6 +42,8 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	const inputProfileCover = useRef() as any
 	const transition = useTransition()
 	const navigation = useNavigate()
+	const fetcher = useFetcher()
+	const { slug } = useParams()
 
 	useEffect(() => {})
 
@@ -69,7 +78,9 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			console.error('log error')
 		}
 		closeModal()
-		navigation('/_moul', { replace: true })
+		// navigation('/_moul', { replace: true })
+		//!fixme handle this properly
+		window.location = window.location
 	}
 
 	async function handleChangePhoto(event: any) {
@@ -82,7 +93,10 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		const blob = await result.blob()
 		const metadata = await parseExif(result.url)
 		const url = URL.createObjectURL(blob)
-		document.getElementById(`img-${prefix}`)?.setAttribute('src', url)
+		const el = document.getElementById(`img-${prefix}`)
+		el?.setAttribute('src', url)
+		el?.setAttribute('data-srcset', url)
+		el?.setAttribute('srcset', url)
 
 		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
 		const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
@@ -130,6 +144,8 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			method: 'POST',
 			body: JSON.stringify(photo),
 		})
+
+		fetcher.load(`/_moul${slug ? '/' + slug : ''}`)
 
 		isProfilePicture
 			? setIsProcessingPicture(false)
@@ -216,9 +232,21 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 											>
 												<span className="text-xl font-bold">Cover</span>
 												<picture className="absolute top-0 left-0 w-full h-full">
+													{isProcessingCover && (
+														<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50">
+															<Icon
+																name="cloud-upload-fill"
+																className="w-10 h-10 text-neutral-900 animate-pulse"
+															/>
+														</span>
+													)}
 													<img
 														id="img-profile-cover"
-														src={`data:image/jpeg;base64,${cover?.blurhash}`}
+														src={
+															cover?.url
+																? cover.url
+																: `data:image/jpeg;base64,${cover?.blurhash}`
+														}
 														data-srcset={getPhotoSrcSet(cover!)}
 														data-sizes="auto"
 														alt={cover?.name}
@@ -257,7 +285,11 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 													)}
 													<img
 														id="img-profile-picture"
-														src={`data:image/jpeg;base64,${picture?.blurhash}`}
+														src={
+															picture?.url
+																? picture.url
+																: `data:image/jpeg;base64,${picture?.blurhash}`
+														}
 														data-srcset={getPhotoSrcSet(picture!)}
 														data-sizes="auto"
 														alt={picture?.name}

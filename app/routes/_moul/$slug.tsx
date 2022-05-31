@@ -15,12 +15,13 @@ import Nav from '~/components/nav'
 import Editor from '~/components/editor'
 import Preview from '~/components/preview'
 
-import { markdocConfig } from '~/utilities'
+import { isBrowser, markdocConfig } from '~/utilities'
 import {
 	Form,
 	Outlet,
 	Scripts,
 	useActionData,
+	useFetcher,
 	useLoaderData,
 	useParams,
 } from '@remix-run/react'
@@ -78,7 +79,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		}
 	}
 
-	return json({ profile, photos, slug })
+	const story = await MOUL_KV.get(`story-${slug}`, { type: 'json' })
+	const storyMd = await MOUL_KV.get(`md-${slug}`)
+
+	return json({ profile, photos, slug, story, storyMd })
 }
 
 export const headers: HeadersFunction = () => {
@@ -92,25 +96,12 @@ export default function MoulSlug() {
 	const editorRef = useRef() as any
 	const [text, setText] = useState('')
 	const [content, setContent] = useState(null) as any
-	const { profile, status } = useLoaderData()
+	const { profile, status, photos, story, storyMd } = useLoaderData()
 	const { slug = 'index' } = useParams()
 
 	useEffect(() => {
-		const getStory = async () => {
-			const story = await get(`story-${slug}`)
-			setText(story)
-			editorRef?.current?.setValue(story)
-		}
-		getStory().catch(console.error)
-		// if (!profile) {
-		// 		const getProfile = async () => {
-		// 			const profile = await get('profile')
-		// 			setProfile(profile)
-		// 		}
-		// 		getProfile().catch(console.error)
-		// }
+		console.log(storyMd)
 
-		// initialize grid
 		Split({
 			columnGutters: [
 				{
@@ -127,7 +118,7 @@ export default function MoulSlug() {
 	const handleChange = async () => {
 		const updated = editorRef?.current.getValue()
 		setText(updated)
-		await set(`story-${slug}`, updated)
+		await set(`md-${slug}`, updated)
 
 		const ast = Markdoc.parse(updated)
 		const errors = Markdoc.validate(ast, markdocConfig)
@@ -139,11 +130,15 @@ export default function MoulSlug() {
 	return (
 		<>
 			<aside className="editor-wrap overflow-auto sticky top-14">
-				<Editor ref={editorRef} initialValue={text} onChange={handleChange} />
+				<Editor
+					ref={editorRef}
+					initialValue={storyMd}
+					onChange={handleChange}
+				/>
 			</aside>
 			<div className="gutter-col gutter-col-1"></div>
 			<main className="h-auto">
-				{profile && <Preview content={content} profile={profile} />}
+				{profile && <Preview content={content || story} profile={profile} />}
 			</main>
 		</>
 	)

@@ -18,7 +18,7 @@ export default function Nav({ profile }: { profile: Profile }) {
 	const handleSave = async () => {
 		setBtnText('Saving...')
 		setDisabled(true)
-		const story = await get(`story-${slug}`)
+		const story = await get(`md-${slug}`)
 		const ast = Markdoc.parse(story)
 		const content = Markdoc.transform(ast, markdocConfig)
 
@@ -29,7 +29,15 @@ export default function Nav({ profile }: { profile: Profile }) {
 		if (!resp.ok) {
 			console.error('log error')
 		}
-		console.log(resp.ok)
+
+		const respMd = await fetch(`/_moul/kv?prefix=md&slug=${slug}`, {
+			method: 'POST',
+			body: story,
+		})
+		if (!respMd.ok) {
+			console.error('log error')
+		}
+
 		toastSuccess('Your changes have been saved!')
 		setBtnText('Save')
 		setDisabled(false)

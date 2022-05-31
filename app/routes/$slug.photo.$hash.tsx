@@ -19,28 +19,18 @@ import { Photo } from '~/types'
 export const loader: LoaderFunction = async ({ request, params }) => {
 	const { slug, hash } = params
 	const profile = await MOUL_KV.get('profile', { type: 'json' })
-	const photosKeys = await MOUL_KV.list({ prefix: `photo-${slug}` })
-	const photos: Photo[] = []
-	if (photosKeys) {
-		for (let key of photosKeys.keys) {
-			const photo = (await MOUL_KV.get(key.name, { type: 'json' })) as Photo
-			if (photo) {
-				photos.push(photo)
-			}
-		}
-	}
 	const story = (await MOUL_KV.get(`story-${slug}`, { type: 'json' })) as any
 	if (!story) {
 		return new Response('not_found', { status: 404 })
 	}
 	story.title = story.children.find((c: any) => c.name === 'title')
-	const currentPhoto = photos.find((p: Photo) => p.pid === hash)
+	const currentPhoto = story.photos?.find((p: Photo) => p.pid === hash)
 	const title = story.title.children[0]?.children[0]
 
 	return json(
 		{
 			currentPhoto,
-			photos,
+			photos: story.photos,
 			slug,
 			story,
 			title,
@@ -143,6 +133,7 @@ export default function Photo() {
 		}
 	}, [
 		photo,
+		photos,
 		currentIndex,
 		next,
 		prev,
@@ -252,7 +243,7 @@ export default function Photo() {
 				<span className="text-right bg-neutral-400/80 text-neutral-900 py-0.5 px-2 rounded-tl-full rounded-bl-full">
 					{type}
 				</span>
-				<span className="bg-neutral-500 font-bold text-neutral-900 py-0.5 px-2 rounded-tr-full rounded-br-full">
+				<span className="bg-neutral-400 font-bold text-neutral-900 py-0.5 px-2 rounded-tr-full rounded-br-full">
 					{value}
 				</span>
 			</div>
@@ -340,7 +331,7 @@ export default function Photo() {
 								</svg>
 							</button>
 							{showExif && (
-								<div className="bg-black absolute inset-0 py-4 flex text-sm justify-center items-center h-16 z-30">
+								<div className="bg-black/75 absolute inset-0 py-4 flex text-sm justify-center items-center h-16 z-30">
 									{cameraMake && (
 										<ShowExifData type="Make" value={cameraMake} />
 									)}

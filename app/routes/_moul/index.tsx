@@ -113,16 +113,7 @@ export default function MoulIndex() {
 	const { profile, status, stories } = useLoaderData()
 	const { slug = 'index' } = useParams()
 
-	console.log('stories', stories)
-
 	useEffect(() => {
-		const getStory = async () => {
-			const story = await get(`story-${slug}`)
-			setText(story)
-			editorRef?.current?.setValue(story)
-		}
-		getStory().catch(console.error)
-
 		// initialize grid
 		Split({
 			columnGutters: [

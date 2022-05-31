@@ -138,18 +138,18 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 								<div className="relative mx-auto">
 									{/* .attributes.pid */}
 									{c.children.map((c: any, i: number) => {
-										const photo = photos.find(
+										const photo = photos?.find(
 											(p: Photo) => p.pid === c.attributes.pid
 										)
 										return (
 											<picture
 												key={i}
 												className={`moul-grid`}
-												data-size={`${photo.width}:${photo.height}`}
+												data-size={`${photo?.width}:${photo?.height}`}
 											>
 												<img
 													className="lazy"
-													src={`data:image/jpeg;charset=utf-8;base64,${photo.blurhash}`}
+													src={`data:image/jpeg;charset=utf-8;base64,${photo?.blurhash}`}
 													data-sizes="auto"
 													data-srcset={getPhotoSrcSet(photo)}
 												/>

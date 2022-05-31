@@ -115,20 +115,6 @@ export default function Moul() {
 	const { profile, status, photos } = useLoaderData()
 
 	useEffect(() => {
-		const getStory = async () => {
-			const story = await get('story')
-			setText(story)
-			editorRef?.current?.setValue(story)
-		}
-		getStory().catch(console.error)
-		// if (!profile) {
-		// 		const getProfile = async () => {
-		// 			const profile = await get('profile')
-		// 			setProfile(profile)
-		// 		}
-		// 		getProfile().catch(console.error)
-		// }
-
 		// initialize grid
 		Split({
 			columnGutters: [
