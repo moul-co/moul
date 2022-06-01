@@ -41,6 +41,8 @@ export default function Nav({ profile }: { profile: Profile }) {
 		toastSuccess('Your changes have been saved!')
 		setBtnText('Save')
 		setDisabled(false)
+		//!fixme: handle this properly
+		window.location = window.location
 	}
 
 	return (

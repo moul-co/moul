@@ -57,10 +57,6 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 	}
 
 	async function openModal() {
-		// const photos = await get('photos')
-		// if (photos) {
-		// 	photos.forEach((p: any) => console.log(URL.createObjectURL(p)))
-		// }
 		setIsOpen(true)
 	}
 
@@ -79,7 +75,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		}
 		closeModal()
 		// navigation('/_moul', { replace: true })
-		//!fixme handle this properly
+		//!fixme: handle this properly
 		window.location = window.location
 	}
 

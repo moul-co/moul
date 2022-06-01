@@ -28,39 +28,6 @@ import {
 import { getSession, commitSession } from '~/session'
 import { Photo } from '~/types'
 
-//? KV prefix
-/**
- * `profile`
- * `story-{slug}` slug is dynamic base on real pathname
- */
-
-//? R2 prefix + path
-/**
- * `moul/photos/profile-picture/{uuid}/{size}` uuid is the pathname from URL.createObjectURL(), size is `md` or `xl`
- * `moul/photos/profile-cover/{uuid}/{size}`
- * `moul/photos/story-{slug}/{uuid}/{size}`
- */
-
-export const action: ActionFunction = async ({ request }) => {
-	const session = await getSession(request.headers.get('Cookie'))
-	const formData = await request.formData()
-	if (formData.has('key')) {
-		const key = formData.get('key')
-		if (key === MOUL_SECRET_ACCESS_KEY) {
-			session.set('auth', true)
-			return redirect('/_moul', {
-				headers: {
-					'Set-Cookie': await commitSession(session),
-				},
-			})
-		}
-	}
-	if (session.get('auth') !== 'true') {
-		return redirect('/_moul')
-	}
-	return new Response('Method Not Allowed', { status: 405 })
-}
-
 export const loader: LoaderFunction = async ({ request, params }) => {
 	const session = await getSession(request.headers.get('Cookie'))
 	if (session.get('auth') !== true) {
@@ -81,7 +48,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 	const story = await MOUL_KV.get(`story-${slug}`, { type: 'json' })
 	const storyMd = await MOUL_KV.get(`md-${slug}`)
-
 	return json({ profile, photos, slug, story, storyMd })
 }
 
