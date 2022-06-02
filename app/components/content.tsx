@@ -30,7 +30,11 @@ export default function Content({ content, photos }: any) {
 			const idealElementHeight =
 				document.body.clientWidth && photosSize.length < 2
 					? 500
-					: document.body.clientWidth < 800
+					: document.body.clientWidth > 2000 && photosSize.length <= 4
+					? 620
+					: document.body.clientWidth < 1000 && photosSize.length <= 4
+					? 380
+					: document.body.clientWidth < 700 && photosSize.length <= 4
 					? 280
 					: 360
 			const containerWidth =
