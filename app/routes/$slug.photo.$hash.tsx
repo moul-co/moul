@@ -334,7 +334,7 @@ export default function Photo() {
 								</svg>
 							</button>
 							{showExif && (
-								<div className="bg-black/75 absolute inset-0 py-4 flex text-sm justify-center items-center h-16 z-30">
+								<div className="bg-black/75 absolute inset-0 py-4 flex text-sm justify-center items-center flex-wrap h-44 sm:h-16 z-30">
 									{cameraMake && (
 										<ShowExifData type="Make" value={cameraMake} />
 									)}

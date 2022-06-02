@@ -104,3 +104,5 @@ Grid is work great with 3 or more photos.
 > you can copy `pid` from `clipboard` button when open photos modal.
 
 > Use your clipboard history to effectively working with it.
+
+[screenshot](./screenshots/intro.png)
