@@ -67,7 +67,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		return json({ status: 'Unauthorized' })
 	}
 	const { slug } = params
-	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	let profile = await MOUL_KV.get('profile', { type: 'json' })
 	const photosKeys = await MOUL_KV.list({ prefix: `photo-${slug}` })
 	const photos: Photo[] = []
 	if (photosKeys) {
@@ -78,6 +78,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 			}
 		}
 	}
+
+	if (!profile)
+		profile = {
+			name: '',
+			bio: '',
+			github: '',
+			twitter: '',
+			youtube: '',
+			instagram: '',
+			facebook: '',
+		}
+	// set default profile
+	await MOUL_KV.put('profile', JSON.stringify(profile))
 
 	if (slug) {
 		const formatedSlug = slugify(slug)

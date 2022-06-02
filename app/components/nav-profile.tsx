@@ -207,7 +207,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 										<button
 											className={clsx(
 												'button w-auto py-2.5 font-normal mr-4',
-												isProcessingPicture &&
+												(isProcessingPicture || isProcessingPicture) &&
 													'opacity-50 cursor-not-allowed hover:ring-0'
 											)}
 											type="submit"
@@ -224,9 +224,8 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 										<div className="mb-2">
 											<div
 												onClick={() => handleAdd('cover')}
-												className="relative mx-auto my-4 w-auto h-44 border-2 border-dashed transition text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
+												className="relative mx-auto my-4 w-auto h-44 border-2 border-dashed transition bg-neutral-700 text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 hover:cursor-pointer flex items-center justify-center"
 											>
-												<span className="text-xl font-bold">Cover</span>
 												<picture className="absolute top-0 left-0 w-full h-full">
 													{isProcessingCover && (
 														<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50">
@@ -241,12 +240,17 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 														src={
 															cover?.url
 																? cover.url
-																: `data:image/jpeg;base64,${cover?.blurhash}`
+																: cover?.blurhash
+																? `data:image/jpeg;base64,${cover.blurhash}`
+																: `data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNU+w8AAVEBJyqFqRcAAAAASUVORK5CYII=`
 														}
 														data-srcset={getPhotoSrcSet(cover!)}
 														data-sizes="auto"
 														alt={cover?.name}
-														className="w-full h-full object-cover lazy"
+														className={clsx(
+															'w-full h-full object-cover',
+															cover && 'lazy'
+														)}
 													/>
 												</picture>
 												<input
@@ -264,12 +268,11 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 													!isProcessingPicture && handleAdd('picture')
 												}
 												className={clsx(
-													'relative mx-auto my-5 w-28 h-28 transition border-2 border-dashed text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full flex items-center justify-center',
+													'relative mx-auto my-5 w-28 h-28 transition border-2 border-dashed bg-neutral-700 text-neutral-600 hover:text-neutral-200 border-neutral-600 hover:border-neutral-200 rounded-full flex items-center justify-center',
 													!picture && 'border-2 border-dashed',
 													!isProcessingPicture && 'hover:cursor-pointer'
 												)}
 											>
-												<span className="text-lg font-bold">Picture</span>
 												<picture className="absolute top-0 left-0">
 													{isProcessingPicture && (
 														<span className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-neutral-50 bg-opacity-50 rounded-full">
@@ -284,12 +287,17 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 														src={
 															picture?.url
 																? picture.url
-																: `data:image/jpeg;base64,${picture?.blurhash}`
+																: picture?.blurhash
+																? `data:image/jpeg;base64,${picture.blurhash}`
+																: `data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNU+w8AAVEBJyqFqRcAAAAASUVORK5CYII=`
 														}
 														data-srcset={getPhotoSrcSet(picture!)}
 														data-sizes="auto"
 														alt={picture?.name}
-														className="rounded-full w-full h-full object-cover lazy"
+														className={clsx(
+															'rounded-full w-full h-full object-cover',
+															picture && 'lazy'
+														)}
 													/>
 												</picture>
 												<input

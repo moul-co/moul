@@ -88,7 +88,7 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 		<>
 			{!slug && (
 				<div className="relative w-full h-96">
-					<Cover photo={profile.cover} />
+					<Cover photo={profile?.cover} />
 				</div>
 			)}
 			{slug && cover && (

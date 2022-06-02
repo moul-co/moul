@@ -11,7 +11,8 @@ import { Photo } from '~/types'
 import { getPhotoSrc } from '~/utilities'
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	let profile = await MOUL_KV.get('profile', { type: 'json' })
+	console.log('profiel', profile)
 	const photosKeys = await MOUL_KV.list({ prefix: `photo-` })
 	const photos: Photo[] = []
 	if (photosKeys) {
@@ -41,6 +42,16 @@ export const loader: LoaderFunction = async ({ request }) => {
 			}
 		}
 	}
+	if (!profile)
+		profile = {
+			name: '',
+			bio: '',
+			github: '',
+			twitter: '',
+			youtube: '',
+			instagram: '',
+			facebook: '',
+		}
 
 	return json(
 		{ profile, stories, photos, canonical: request.url },

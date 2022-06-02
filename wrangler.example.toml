@@ -1,0 +1,21 @@
+name = "moul-app"
+main = "build/index.js"
+
+account_id = "__replace__me__with__account__id__"
+# route = ""
+compatibility_date = "2022-05-19"
+workers_dev = true
+
+kv_namespaces = [
+  { binding = "MOUL_KV", id = "__replace__me__with__kv__id__" }
+]
+
+[[r2_buckets]]
+binding = "MOUL_BUCKET"
+bucket_name = "moul"
+
+[site]
+bucket = "./public"
+ 
+[build]
+command = "npm run build"

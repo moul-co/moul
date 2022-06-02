@@ -53,7 +53,7 @@ export default function Nav({ profile }: { profile: Profile }) {
 			<nav className="flex">
 				<NavProfile profile={profile} />
 				{/* <NavStories /> */}
-				<NavPhotos />
+				{slug !== 'index' && <NavPhotos />}
 			</nav>
 			<nav className="w-36 flex justify-end">
 				{slug !== 'index' && (

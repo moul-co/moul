@@ -65,7 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 	if (session.get('auth') !== true) {
 		return json({ status: 'Unauthorized' })
 	}
-	const profile = await MOUL_KV.get('profile', { type: 'json' })
+	let profile = await MOUL_KV.get('profile', { type: 'json' })
 	const photosKeys = await MOUL_KV.list({ prefix: `photo-` })
 	const photos: Photo[] = []
 	if (photosKeys) {
@@ -76,6 +76,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 			}
 		}
 	}
+	if (!profile)
+		profile = {
+			name: '',
+			bio: '',
+			github: '',
+			twitter: '',
+			youtube: '',
+			instagram: '',
+			facebook: '',
+		}
 
 	const listStories = await MOUL_KV.list({ prefix: 'story-' })
 	const stories = []
