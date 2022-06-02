@@ -10,7 +10,7 @@
 		"dev:miniflare": "cross-env NODE_ENV=development miniflare ./build/index.js --watch --kv MOUL_KV --kv-persist",
 		"dev": "remix build && npm run copy:wasm && run-p dev:*",
 		"dev:css": "npx tailwindcss -i ./styles/moul.css -o ./app/moul.css --watch",
-		"deploy": "npm run clean && npm run build:wasm && npm run build && npm run copy:wasm && wrangler publish build/index.js",
+		"deploy": "npm run clean && npm run build:css && npm run build && wrangler publish build/index.js",
 		"build:css": "npx tailwindcss -i ./styles/moul.css -o ./app/moul.css --minify",
 		"build:wasm": "GOOS=js GOARCH=wasm go build -o app/wasm/moul.wasm wasm/moul.go",
 		"clean": "rm -rf public/build/* && rm -rf build/*",

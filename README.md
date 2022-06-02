@@ -19,7 +19,11 @@ Demo: https://edge.moul.app
 - wrangler https://github.com/cloudflare/wrangler2
 
 ```
-// clone
+// git clone -b edge --single-branch git@github.com:moulapp/moul.git
 // install
+// update `wrangler.toml` base on your info
+// `name`, `account_id`, `kv_namespaces` id, and your bucket name
+// wrangler secret put MOUL_SESSION_SECRET
+// wrangler secret put MOUL_ACCESS_KEY
 // npm run deploy
 ```

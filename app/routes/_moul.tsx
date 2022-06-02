@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request }) => {
 	const formData = await request.formData()
 	if (formData.has('key')) {
 		const key = formData.get('key')
-		if (key === MOUL_SECRET_ACCESS_KEY) {
+		if (key === MOUL_ACCESS_KEY) {
 			session.set('auth', true)
 			return redirect('/_moul', {
 				headers: {
