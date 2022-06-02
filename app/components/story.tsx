@@ -125,7 +125,11 @@ export const Stories = ({ stories, basePath = '/' }: any) => {
 			{stories &&
 				stories?.map((story: any, index: number) => {
 					return (
-						<Link to={`${basePath}${story.slug}`} key={index}>
+						<Link
+							to={`${basePath}${story.slug}`}
+							key={index}
+							reloadDocument={basePath === '/_moul/'}
+						>
 							{story?.cover?.name ? (
 								<div className="relative h-96 w-full rounded-2xl overflow-hidden group mb-16">
 									<picture className="absolute top-0 left-0 w-full h-full rounded-2xl transition duration-[4s] ease-in group-hover:scale-150">

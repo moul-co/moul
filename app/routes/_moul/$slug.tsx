@@ -66,8 +66,6 @@ export default function MoulSlug() {
 	const { slug = 'index' } = useParams()
 
 	useEffect(() => {
-		console.log(storyMd)
-
 		Split({
 			columnGutters: [
 				{

@@ -1,7 +1,7 @@
 import { LoaderFunction } from "@remix-run/cloudflare";
 
 export const loader: LoaderFunction = async () => {
-  const object = await MOUL_BUCKET.get('/moul/wasm/vips.wasm')
+  const object = await MOUL_BUCKET.get('wasm/vips.wasm')
   if (object === null) {
     return new Response('Not found', { status: 404 })
   }

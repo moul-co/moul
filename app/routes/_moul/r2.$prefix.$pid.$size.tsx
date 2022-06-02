@@ -4,9 +4,7 @@ import { getSession } from '~/session'
 export const action: ActionFunction = async ({ request, params }) => {
 	const session = await getSession(request.headers.get('Cookie'))
 	const { prefix, pid, size } = params
-	console.log(`${request.method} object ${pid}: ${request.url}`)
 	const photoPath = `moul/photos/${prefix}/${pid}/${size}`
-	console.log(`store photo path: ${request.url}`)
 
 	if (!session.has('auth')) {
 		return redirect('/_moul')

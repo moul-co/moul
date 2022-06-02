@@ -41,61 +41,23 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		return new Response('Unauthorized', { status: 401 })
 	}
 
-	if (request.method === 'GET' || request.method === 'HEAD') {
-		// if (request.method == 'HEAD') {
-		//   return new Response(undefined, { status: 400 })
-		// }
-		// const options: R2ListOptions = {
-		//   prefix: url.searchParams.get('prefix') ?? undefined,
-		//   delimiter: url.searchParams.get('delimiter') ?? undefined,
-		//   cursor: url.searchParams.get('cursor') ?? undefined,
-		//   include: ['customMetadata', 'httpMetadata'],
-		// }
-		// console.log(JSON.stringify(options))
-
-		// const listing = await MOUL_BUCKET.list(options)
-		// return new Response(JSON.stringify(listing), {headers: {
-		//   'content-type': 'application/json; charset=UTF-8',
-		// }})
-		// }
-
-		if (request.method === 'GET') {
-			if (typeof MOUL_BUCKET === 'undefined') {
-				const file = await fetch(
-					`http://localhost:3030/moul/photos/${prefix}/${pid}/${size}`,
-					{
-						method: 'GET',
-					}
-				)
-				return new Response(file.body, {
-					headers: { 'Content-Type': 'image/jpeg' },
-				})
-			}
-
-			const object = await MOUL_BUCKET.get(photoPath, {
-				range: parseRange(request.headers.get('range')),
-				onlyIf: request.headers,
-			})
-			if (object === null) {
-				return objectNotFound(photoPath)
-			}
-
-			const headers = new Headers()
-			object.writeHttpMetadata(headers)
-			headers.set('etag', object.httpEtag)
-			headers.set(
-				'Cache-Control',
-				'public, max-age=31540000000, stale-while-revalidate=31540000000'
+	if (request.method === 'GET') {
+		if (typeof MOUL_BUCKET === 'undefined') {
+			const file = await fetch(
+				`http://localhost:3030/moul/photos/${prefix}/${pid}/${size}`,
+				{
+					method: 'GET',
+				}
 			)
-			return new Response(object.body, {
-				headers,
+			return new Response(file.body, {
+				headers: { 'Content-Type': 'image/jpeg' },
 			})
 		}
-
-		const object = await MOUL_BUCKET.head(photoPath, {
+		const range = parseRange(request.headers.get('range'))
+		const object = await MOUL_BUCKET.get(photoPath, {
+			range: parseRange(request.headers.get('range')),
 			onlyIf: request.headers,
 		})
-
 		if (object === null) {
 			return objectNotFound(photoPath)
 		}
@@ -103,12 +65,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		const headers = new Headers()
 		object.writeHttpMetadata(headers)
 		headers.set('etag', object.httpEtag)
-		headers.set(
-			'Cache-Control',
-			'public, max-age=31540000000, stale-while-revalidate=31540000000'
-		)
-		return new Response(null, {
+		const status = object.body ? (range ? 206 : 200) : 304
+		return new Response(object.body, {
 			headers,
+			status,
 		})
 	}
 

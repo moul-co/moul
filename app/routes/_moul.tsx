@@ -98,7 +98,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		if (!story) {
 			story = `{}`
 		}
-		return json({ profile, story, photos })
+		let storyMd = await MOUL_KV.get(`md-${formatedSlug}`)
+
+		return json({ profile, story, photos, storyMd })
 	}
 	const stories = await MOUL_KV.list({ prefix: 'story' })
 

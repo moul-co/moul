@@ -12,7 +12,6 @@ import { getPhotoSrc } from '~/utilities'
 
 export const loader: LoaderFunction = async ({ request }) => {
 	let profile = await MOUL_KV.get('profile', { type: 'json' })
-	console.log('profiel', profile)
 	const photosKeys = await MOUL_KV.list({ prefix: `photo-` })
 	const photos: Photo[] = []
 	if (photosKeys) {
@@ -81,7 +80,6 @@ export const meta: MetaFunction = ({ data }) => {
 			: cover && cover?.url
 			? cover?.url
 			: ''
-	console.log('imgURL', imgURL)
 
 	return {
 		title: name,

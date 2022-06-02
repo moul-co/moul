@@ -16,10 +16,10 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 	const { photos, slug } = useLoaderData()
 	const title = content && content.children.find((c: any) => c.name === 'title')
 	const coverExist =
-		content && content.children.find((c: any) => c.name === 'cover')
+		content && content.children?.find((c: any) => c.name === 'cover')
 	const cover =
 		photos &&
-		photos.find((p: Photo) => p.pid === coverExist?.children[0].attributes.pid)
+		photos.find((p: Photo) => p.pid === coverExist?.children[0]?.attributes.pid)
 
 	useEffect(() => {
 		paintGrid()
@@ -33,7 +33,6 @@ export default function Preview({ content, profile, stories }: PreviewProps) {
 	}, [content])
 
 	const paintGrid = () => {
-		console.log('pain grid...')
 		const grid = document.querySelectorAll('.moul-content-grid')
 		grid.forEach((el: any) => {
 			const photos = el.querySelectorAll('.moul-grid')

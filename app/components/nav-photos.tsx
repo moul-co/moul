@@ -106,7 +106,6 @@ export default function NavPhotos() {
 	}
 
 	const handleCopy = (pid: string) => {
-		console.log(`pid-${pid}`)
 		const pidInput = document.getElementById(`pid-${pid}`) as any
 		pidInput.select()
 		navigator.clipboard.writeText(pidInput.value)
@@ -124,32 +123,34 @@ export default function NavPhotos() {
 	// 	}
 	// }
 
-	const ListPhotos = ({ photos }: any) => (
-		<>
-			{photos &&
-				photos?.map((photo: Photo, i: number) => (
-					<div className="w-2/6 h-48 relative" key={i}>
-						<picture className="absolute top-0 left-0 w-full h-full">
-							<img
-								src={`data:image/jpeg;base64,${photo?.blurhash}`}
-								data-srcset={getPhotoSrcSet(photo)}
-								data-sizes="auto"
-								alt={photo.name}
-								className="lazy w-full h-full object-cover"
-							/>
-						</picture>
-						<input type="hidden" value={photo.pid} id={'pid-' + photo.pid} />
-						<div className="absolute bottom-0 w-full">
-							<div className="relative z-20 flex justify-center bg-black bg-opacity-80">
-								<Tooltip label="Copy `pid` to clipboard">
-									<button
-										className="button--icon h-9 hover:bg-blue-600 mr-2"
-										onClick={() => handleCopy(photo.pid)}
-									>
-										<Icon name="clipboard" className="" />
-									</button>
-								</Tooltip>
-								{/* <Tooltip label="Delete photo">
+	const ListPhotos = ({ photos }: any) => {
+		let filtered = photos.filter((p: any) => !data?.storyMd?.includes(p.pid))
+		return (
+			<>
+				{filtered &&
+					filtered?.map((photo: Photo, i: number) => (
+						<div className="w-2/6 h-48 relative" key={i}>
+							<picture className="absolute top-0 left-0 w-full h-full">
+								<img
+									src={`data:image/jpeg;base64,${photo?.blurhash}`}
+									data-srcset={getPhotoSrcSet(photo)}
+									data-sizes="auto"
+									alt={photo.name}
+									className="lazy w-full h-full object-cover"
+								/>
+							</picture>
+							<input type="hidden" value={photo.pid} id={'pid-' + photo.pid} />
+							<div className="absolute bottom-0 w-full">
+								<div className="relative z-20 flex justify-center bg-black bg-opacity-80">
+									<Tooltip label="Copy `pid` to clipboard">
+										<button
+											className="button--icon h-9 hover:bg-blue-600 mr-2"
+											onClick={() => handleCopy(photo.pid)}
+										>
+											<Icon name="clipboard" className="" />
+										</button>
+									</Tooltip>
+									{/* <Tooltip label="Delete photo">
 																	<button
 																		className="button--icon hover:bg-red-600 h-9"
 																		onClick={() => confirmDelete(photo.pid)}
@@ -157,12 +158,13 @@ export default function NavPhotos() {
 																		<Icon name="trash" className="" />
 																	</button>
 																</Tooltip> */}
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
-		</>
-	)
+					))}
+			</>
+		)
+	}
 
 	return (
 		<>

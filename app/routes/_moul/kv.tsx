@@ -36,7 +36,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 				{ type: 'json' }
 			))
 		const photos = [cover]
-		//async for
 		for (let tag of parsedBody?.children) {
 			if (tag.name === 'grid') {
 				for (let t of tag.children) {

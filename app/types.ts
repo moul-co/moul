@@ -18,6 +18,7 @@ export interface Photo {
 	url: string
 	metadata?: PhotoMetadata
 	contentType?: string
+	timestamp?: number
 }
 
 export interface Profile {

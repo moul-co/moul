@@ -24,13 +24,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 		return new Response('not_found', { status: 404 })
 	}
 	story.title = story.children.find((c: any) => c.name === 'title')
-	const currentPhoto = story.photos?.find((p: Photo) => p.pid === hash)
+	const currentPhoto = story.photos?.find((p: Photo) => p?.pid === hash)
 	const title = story.title.children[0]?.children[0]
 
 	return json(
 		{
 			currentPhoto,
-			photos: story.photos,
+			photos: story.photos.filter((p: any) => p),
 			slug,
 			story,
 			title,
@@ -110,13 +110,16 @@ export default function Photo() {
 		}
 
 		setCurrentIndex(photos.findIndex((p: any) => p.pid === photo))
-		if (currentIndex > 0 && currentIndex < photos.length - 1) {
+		if (photos.length === 1) {
+			setNext('')
+			setPrev('')
+		} else if (currentIndex > 0 && currentIndex < photos.length - 1) {
 			setNext(photos[currentIndex + 1].pid)
 			setPrev(photos[currentIndex - 1].pid)
 		} else if (currentIndex === photos.length - 1) {
 			setNext('')
 			setPrev(photos[currentIndex - 1].pid)
-		} else if (currentIndex === 0) {
+		} else if (currentIndex === 0 && photo.length > 1) {
 			setPrev('')
 			setNext(photos[currentIndex + 1].pid)
 		}
@@ -171,7 +174,7 @@ export default function Photo() {
 		setCurrentWidth(window.innerWidth)
 		setWrapper(photos.length * window.innerWidth)
 
-		const activeIndex = photos.findIndex((p: any) => p.pid === photo)
+		const activeIndex = photos?.findIndex((p: any) => p.pid === photo)
 		// @ts-ignore
 		setActive(`translateX(-${currentWidth * activeIndex}px)`)
 
@@ -258,7 +261,7 @@ export default function Photo() {
 		aperture,
 		shutterSpeed,
 		iso,
-	} = photos[currentIndex].metadata
+	} = photos[currentIndex]?.metadata || {}
 
 	return (
 		<>
@@ -391,7 +394,7 @@ export default function Photo() {
 											<AnimatePresence initial={false}>
 												{photos?.map((p: Photo) => (
 													<div
-														key={p.pid}
+														key={p?.pid}
 														className="moul-darkbox-list flex justify-center items-center"
 														style={{
 															minWidth: `${currentWidth}px`,
@@ -399,12 +402,12 @@ export default function Photo() {
 													>
 														<picture>
 															<motion.img
-																src={`data:image/jpeg;charset=utf-8;base64,${p.blurhash}`}
+																src={`data:image/jpeg;charset=utf-8;base64,${p?.blurhash}`}
 																className="lazy"
 																data-sizes="auto"
 																data-srcset={getPhotoSrcSet(p)}
 																onClick={toggleUI}
-																data-size={`${p.width}:${p.height}`}
+																data-size={`${p?.width}:${p?.height}`}
 																drag="x"
 																dragConstraints={{
 																	left: 0,
@@ -419,7 +422,7 @@ export default function Photo() {
 																		handlePrev()
 																	}
 																}}
-																alt={p.name}
+																alt={p?.name}
 															/>
 														</picture>
 													</div>

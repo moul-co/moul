@@ -12,7 +12,7 @@ kv_namespaces = [
 
 [[r2_buckets]]
 binding = "MOUL_BUCKET"
-bucket_name = "moul"
+bucket_name = "__replace__me__with__bucket__name__"
 
 [site]
 bucket = "./public"
