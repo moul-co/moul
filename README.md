@@ -105,4 +105,4 @@ Grid is work great with 3 or more photos.
 
 > Use your clipboard history to effectively working with it.
 
-[screenshot](./screenshots/intro.png)
+![screenshot](./screenshots/intro.png)
