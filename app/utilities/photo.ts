@@ -76,8 +76,8 @@ export let getPhotoSrcSet = (photo: Photo) => {
 }
 
 export let getPhotoSrc = (photo: Photo) => {
-	const prefix = '/_moul/photos'
-	return `${prefix}/${photo?.pid}/xl`
+	const base = '/_moul/photos'
+	return `${base}/${photo?.prefix}/${photo?.pid}/xl`
 }
 
 export let getPhotoURL = (photo: Photo) => {

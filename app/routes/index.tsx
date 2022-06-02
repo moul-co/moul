@@ -65,11 +65,12 @@ export const meta: MetaFunction = ({ data }) => {
 	const { name, bio, twitter, cover } = data?.profile
 	const url = new URL(data.canonical)
 	const imgURL =
-		cover && cover?.bh
+		cover && cover?.blurhash
 			? `${url.protocol}//${url.host}${getPhotoSrc(cover)}`
 			: cover && cover?.url
 			? cover?.url
 			: ''
+	console.log('imgURL', imgURL)
 
 	return {
 		title: name,
