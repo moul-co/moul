@@ -2,7 +2,7 @@
 
 > The minimalist publishing tool for photographers
 
-Demo: https://edge.moul.app
+Demo: https://moul-app.moul.workers.dev/
 
 ## Features
 

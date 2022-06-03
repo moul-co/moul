@@ -51,7 +51,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 			instagram: '',
 			facebook: '',
 		}
-
 	return json(
 		{ profile, stories, photos, canonical: request.url },
 		{ headers: { Link: request.url } }

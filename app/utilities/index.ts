@@ -36,3 +36,10 @@ export const readFileAsync = (file: any) => {
 		fileReader.readAsDataURL(file)
 	})
 }
+export const createHash = async (message: string) => {
+	const encoder = new TextEncoder()
+	const data = encoder.encode(message)
+	const hash = await crypto.subtle.digest('SHA-1', data)
+	const hashArray = Array.from(new Uint8Array(hash))
+	return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+}
