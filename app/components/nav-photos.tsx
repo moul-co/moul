@@ -59,6 +59,7 @@ export default function NavPhotos() {
 			const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
 			const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
 			const { width, height } = original
+			original.delete()
 			const photo: Photo = {
 				name: f.name,
 				pid: nanoid(),
@@ -74,7 +75,8 @@ export default function NavPhotos() {
 			const img = vips.Image.thumbnailBuffer(buffer, 16, {
 				no_rotate: false,
 			})
-			const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
+			const outBuffer = img.writeToBuffer('.jpg')
+			img.delete()
 			photo.blurhash = moulBlurhash(outBuffer)
 
 			const sizes = { xl: 3840, md: 1920 }
@@ -82,7 +84,8 @@ export default function NavPhotos() {
 				const img = vips.Image.thumbnailBuffer(buffer, v, {
 					no_rotate: false,
 				})
-				const out = new Uint8Array(img.writeToBuffer('.jpg'))
+				const out = img.writeToBuffer('.jpg')
+				img.delete()
 				const body = new Blob([out], { type: 'image/jpeg' })
 				await fetch(`/_moul/r2/${prefix}/${photo.pid}/${k}`, {
 					method: 'PUT',
