@@ -97,6 +97,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 		const buffer = await fetch(`${image}`).then((resp) => resp.arrayBuffer())
 		const original = vips.Image.jpegloadBuffer(buffer, { autorotate: true })
 		const { width, height } = original
+		original.delete()
 		const photo: Photo = {
 			name: file.name,
 			pid: nanoid(),
@@ -113,6 +114,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 			no_rotate: false,
 		})
 		const outBuffer = new Uint8Array(img.writeToBuffer('.jpg'))
+		img.delete()
 		photo.blurhash = moulBlurhash(outBuffer)
 
 		// this 2 sizes work for now!
@@ -126,6 +128,7 @@ export default function NavProfile({ profile }: { profile: Profile }) {
 				no_rotate: false,
 			})
 			const out = new Uint8Array(img.writeToBuffer('.jpg'))
+			img.delete()
 			const body = new Blob([out], { type: 'image/jpeg' })
 			await fetch(`/_moul/r2/${prefix}/${photo.pid}/${k}`, {
 				method: 'PUT',
