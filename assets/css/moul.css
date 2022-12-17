@@ -1,0 +1,9 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer components {
+  .moul-body {
+    @apply dark:bg-neutral-900 dark:text-neutral-50 bg-white text-neutral-900 overflow-x-hidden;
+  }
+}

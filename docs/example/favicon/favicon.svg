@@ -1,9 +1,0 @@
-<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-<style>
-path { fill: #131619; stroke: #131619;}
-@media (prefers-color-scheme: dark) {
-  path { fill: #F2F3F5; stroke: #F2F3F5;}
-}
-</style>
-<path d="M5 12.45l3.67-2.36V5.36A2.4 2.4 0 0111.1 3h13.45A2.4 2.4 0 0127 5.36v21.28A2.4 2.4 0 0124.56 29H11.1a2.4 2.4 0 01-2.44-2.36V21.9L5 19.55v-7.1zM10.22 16a7 7 0 1014 0 7 7 0 00-14 0z" stroke-width="2" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
