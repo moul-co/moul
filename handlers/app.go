@@ -79,9 +79,9 @@ func App() *fiber.App {
 		})
 
 		app.Get("/virachey-the-raw-beauty-of-nature", func(c *fiber.Ctx) error {
-			return c.Render("templates/index", fiber.Map{
+			return c.Render("templates/virachey-the-raw-beauty-of-nature", fiber.Map{
 				"Title": "Virachey — The raw beauty of nature",
-			})
+			}, "templates/layout/main")
 		})
 	}
 	return app
