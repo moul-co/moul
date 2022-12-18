@@ -16,6 +16,13 @@ export class MoulGrid extends LitElement {
 		)
 	}
 
+	disconnectedCallback() {
+		window.removeEventListener('resize', (event) => {
+			this._handleResize(event, this.renderRoot as HTMLElement)
+		})
+		super.disconnectedCallback()
+	}
+
 	updated() {
 		this._renderGrid(this.renderRoot as HTMLElement)
 	}

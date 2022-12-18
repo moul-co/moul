@@ -4,6 +4,34 @@
 
 @layer components {
   .moul-body {
-    @apply dark:bg-neutral-900 dark:text-neutral-50 bg-white text-neutral-900 overflow-x-hidden;
+    @apply dark:bg-neutral-900 dark:text-neutral-50 bg-white text-neutral-900 overflow-x-hidden antialiased;
   }
+}
+
+.moul-slide {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.moul-slide-viewport {
+  overflow: hidden;
+  background-color: #121212;
+}
+.moul-slide-container {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  margin-left: calc(1rem * -1);
+}
+.moul-slide-picture {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding-left: 1rem;
+  position: relative;
+}
+.moul-slide-picture img {
+  display: block;
+  margin: 0 auto;
 }
