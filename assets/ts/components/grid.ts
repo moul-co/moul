@@ -23,7 +23,7 @@ export class MoulGrid extends LitElement {
 		super.disconnectedCallback()
 	}
 
-	updated() {
+	firstUpdated() {
 		this._renderGrid(this.renderRoot as HTMLElement)
 	}
 
