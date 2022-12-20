@@ -25,12 +25,19 @@ export class MoulSlide extends LitElement {
 		window.addEventListener('resize', (event) =>
 			this._handleResize(event, this.renderRoot as HTMLElement)
 		)
+		window.addEventListener('popstate', (event) =>
+			this._handlePopstate(event, this.renderRoot as HTMLElement)
+		)
 	}
 
 	disconnectedCallback() {
 		window.removeEventListener('resize', (event) => {
 			this._handleResize(event, this.renderRoot as HTMLElement)
 		})
+		window.removeEventListener('popstate', (event) => {
+			this._handlePopstate(event, this.renderRoot as HTMLElement)
+		})
+
 		super.disconnectedCallback()
 	}
 
@@ -44,6 +51,18 @@ export class MoulSlide extends LitElement {
 
 	_handleResize(event: any, renderRoot: HTMLElement) {
 		this._init(renderRoot, true)
+	}
+
+	_handlePopstate(event: any, renderRoot: HTMLElement) {
+		renderRoot.removeAttribute('hidden')
+		const url = new URL(`${location}`) as URL
+		this.slidePictures.forEach((picture, i) => {
+			if (url.hash.includes(picture.getAttribute('data-pid') || '')) {
+				this.carousel.reInit({ startIndex: i })
+				this.canScrollPrev = this.carousel.canScrollPrev()
+				this.canScrollNext = this.carousel.canScrollNext()
+			}
+		})
 	}
 
 	_init(renderRoot: HTMLElement, reinit = false) {
@@ -75,12 +94,12 @@ export class MoulSlide extends LitElement {
 			this.carousel.on('select', () => {
 				this.canScrollPrev = this.carousel.canScrollPrev()
 				this.canScrollNext = this.carousel.canScrollNext()
-				const url = new URL(`${location}`) as any
+				const url = new URL(`${location}`) as URL
 				const currentHash =
 					this.slidePictures[this.carousel.selectedScrollSnap()].getAttribute(
 						'data-pid'
 					)
-				url.hash = currentHash
+				url.hash = currentHash || ''
 				if (!reinit) {
 					history.pushState({}, '', url)
 				}
@@ -95,6 +114,12 @@ export class MoulSlide extends LitElement {
 	}
 	handleNext() {
 		this.carousel.scrollNext()
+	}
+	handleClose() {
+		const url = new URL(`${location}`) as any
+		url.hash = ''
+		history.pushState({}, '', url)
+		;(this.renderRoot as HTMLElement).setAttribute('hidden', '')
 	}
 
 	render() {
@@ -158,6 +183,7 @@ export class MoulSlide extends LitElement {
 					</svg>
 				</button>
 				<button
+					@click=${this.handleClose}
 					class="moul-darkbox-btn fixed z-50 border-0 p-0 bg-neutral-100/50 hover:bg-neutral-100 dark:bg-black/20 dark:hover:bg-black/60 transition-colors top-4 left-4 is-close rounded-full"
 				>
 					<svg
