@@ -1,10 +1,13 @@
-import { LitElement, html, nothing, css } from 'lit'
+import { LitElement, html, nothing, css, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import EmblaCarousel, { EmblaCarouselType } from 'embla-carousel'
 import { getSize } from '../utils'
 
 @customElement('moul-slide')
 export class MoulSlide extends LitElement {
+	@property({ type: String })
+	pid?: String
+
 	@state()
 	carousel!: EmblaCarouselType
 
@@ -47,6 +50,20 @@ export class MoulSlide extends LitElement {
 
 	firstUpdated() {
 		this._init(this.renderRoot as HTMLElement)
+	}
+
+	protected updated(
+		_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+	): void {
+		if (_changedProperties.has('pid')) {
+			this.slidePictures.forEach((picture, i) => {
+				if (this.pid?.includes(picture.getAttribute('data-pid') || '')) {
+					this.carousel.reInit({ startIndex: i })
+					this.canScrollPrev = this.carousel.canScrollPrev()
+					this.canScrollNext = this.carousel.canScrollNext()
+				}
+			})
+		}
 	}
 
 	_handleResize(event: any, renderRoot: HTMLElement) {
