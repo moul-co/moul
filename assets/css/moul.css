@@ -6,6 +6,41 @@
   .moul-body {
     @apply dark:bg-neutral-900 dark:text-neutral-50 bg-white text-neutral-900 overflow-x-hidden antialiased;
   }
+  .moul-cover {
+    @apply w-full h-[350px] md:h-[450px] lg:h-[600px] xl:h-[650px] relative mb-16;
+  }
+  .moul-cover picture{
+    @apply absolute top-0 left-0 w-full h-full;
+  }
+  .moul-cover picture img {
+    @apply w-full h-full object-cover;
+  }
+  .moul-profile {
+    @apply text-center pb-2 px-6;
+  }
+  .moul-profile h2,
+  .moul-profile h1 {
+    @apply text-2xl md:text-3xl font-bold leading-normal text-neutral-900 dark:text-neutral-100;
+  }
+  .moul-profile p {
+    @apply leading-normal text-neutral-700 dark:text-neutral-400 mb-2;
+  }
+
+  .moul__content--title {
+    @apply mx-auto font-bold max-w-3xl mb-6 text-neutral-900 dark:text-neutral-50 px-6;
+  }
+  .moul__content--paragraph {
+    @apply px-6 text-lg md:text-xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-700 dark:text-neutral-200;
+  }
+
+  .moul__content--grid {
+    @apply mx-auto;
+  }
+
+  .moul__content--blockquote {
+    @apply px-6 text-lg md:text-xl max-w-3xl mx-auto my-8 md:my-10 text-neutral-800 border-neutral-800 dark:text-neutral-400 dark:border-neutral-400 border-l-4 pl-4;
+  }
+
 }
 
 .moul-slide {
@@ -18,6 +53,8 @@
 .moul-slide-viewport {
   overflow: hidden;
   background-color: #121212;
+  height: 100vh;
+  display: flex;
 }
 .moul-slide-container {
   display: flex;

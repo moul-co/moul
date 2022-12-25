@@ -68,6 +68,14 @@ export class MoulSlide extends LitElement {
 
 	_handleResize(event: any, renderRoot: HTMLElement) {
 		this._init(renderRoot, true)
+		const url = new URL(`${location}`) as URL
+		this.slidePictures.forEach((picture, i) => {
+			if (url.hash.includes(picture.getAttribute('data-pid') || '')) {
+				this.carousel.reInit({ startIndex: i })
+				this.canScrollPrev = this.carousel.canScrollPrev()
+				this.canScrollNext = this.carousel.canScrollNext()
+			}
+		})
 	}
 
 	_handlePopstate(event: any, renderRoot: HTMLElement) {

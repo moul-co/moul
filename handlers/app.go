@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"bytes"
 	"embed"
+	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -28,6 +31,7 @@ func App() *fiber.App {
 		result := esbuild.Build(esbuild.BuildOptions{
 			EntryPoints: []string{
 				"assets/ts/moul.ts",
+				"assets/ts/wasm_exec.js",
 			},
 			Write:             true,
 			Bundle:            true,
@@ -67,9 +71,23 @@ func App() *fiber.App {
 		app.Static("/", "./public")
 
 		app.Get("/", func(c *fiber.Ctx) error {
+			var b bytes.Buffer
+			t, err := template.New("").Parse("<h1>{{ .Heading }}</h1>")
+			if err != nil {
+				fmt.Println(err)
+			}
+			if err = t.Execute(&b, fiber.Map{"Heading": "h1"}); err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println(b.String())
+
 			return c.Render("templates/index", fiber.Map{
 				"Title": "Phearak S. Tha",
 			}, "templates/layout/main")
+		})
+
+		app.Get("/wasm", func(c *fiber.Ctx) error {
+			return c.Render("templates/wasm", fiber.Map{}, "templates/layout/write")
 		})
 
 		app.Get("/sunset-at-its-finest", func(c *fiber.Ctx) error {
