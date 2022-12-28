@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"html/template"
 	"log"
@@ -16,15 +15,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html"
+	"github.com/moul-co/moul/internal"
 	"github.com/otiai10/copy"
 )
 
 var (
 	app *fiber.App
 )
-
-//go:embed templates/*
-var templatesFS embed.FS
 
 func App() *fiber.App {
 	if app == nil {
@@ -54,7 +51,7 @@ func App() *fiber.App {
 		if err != nil {
 			log.Println(err)
 		}
-		engine := html.NewFileSystem(http.FS(templatesFS), ".gohtml")
+		engine := html.NewFileSystem(http.FS(internal.TemplatesFS), ".gohtml")
 		engine.Reload(true)
 		engine.Debug(true)
 		engine.AddFunc("static", func(path string) string {
@@ -83,23 +80,23 @@ func App() *fiber.App {
 
 			return c.Render("templates/index", fiber.Map{
 				"Title": "Phearak S. Tha",
-			}, "templates/layout/main")
+			}, "templates/layouts/main")
 		})
 
 		app.Get("/wasm", func(c *fiber.Ctx) error {
-			return c.Render("templates/wasm", fiber.Map{}, "templates/layout/write")
+			return c.Render("templates/wasm", fiber.Map{}, "templates/layouts/write")
 		})
 
 		app.Get("/sunset-at-its-finest", func(c *fiber.Ctx) error {
 			return c.Render("templates/sunset-at-its-finest", fiber.Map{
 				"Title": "Sunset at its finest",
-			}, "templates/layout/main")
+			}, "templates/layouts/main")
 		})
 
 		app.Get("/virachey-the-raw-beauty-of-nature", func(c *fiber.Ctx) error {
 			return c.Render("templates/virachey-the-raw-beauty-of-nature", fiber.Map{
 				"Title": "Virachey — The raw beauty of nature",
-			}, "templates/layout/main")
+			}, "templates/layouts/main")
 		})
 	}
 	return app

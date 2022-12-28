@@ -5,19 +5,16 @@ package main
 
 import (
 	"bytes"
-	"embed"
 	"encoding/base64"
-	"errors"
 	"image/jpeg"
 	"math"
 	"syscall/js"
 
 	"github.com/bbrks/go-blurhash"
 	"github.com/disintegration/imaging"
-)
 
-//go:embed templates
-var templates embed.FS
+	"github.com/moul-co/moul/internal"
+)
 
 func main() {
 	// renderer for markdoc renderable tree
@@ -32,15 +29,15 @@ func moulifyContent() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
-			reject := args[1]
+			// reject := args[1]
 
 			go func() {
-				layout, _ := templates.ReadFile("templates/layout.gohtml")
+				layout, _ := internal.TemplatesFS.ReadFile("templates/layouts/main.gohtml")
 
-				errr := js.Global().Get("Error").New(errors.New("something went wrong").Error())
+				// errr := js.Global().Get("Error").New(errors.New("something went wrong").Error())
 
 				resolve.Invoke(string(layout))
-				reject.Invoke(errr)
+				// reject.Invoke(errr)
 			}()
 
 			return nil
@@ -70,9 +67,7 @@ func moulifyPhoto() js.Func {
 				ratio := math.Min(32/float64(imgDecode.Bounds().Dx()), 32/float64(imgDecode.Bounds().Dy()))
 				thumbnail := imaging.Resize(imgDecode, int(float64(imgDecode.Bounds().Dx())*ratio), 0, imaging.Lanczos)
 
-				ratioComponent := math.Min(5/float64(thumbnail.Bounds().Dx()), 5/float64(thumbnail.Bounds().Dy()))
-				xCom := float64(thumbnail.Bounds().Dx()) * ratioComponent
-				yCom := float64(thumbnail.Bounds().Dy()) * ratioComponent
+				xCom, yCom := internal.PhotoGetComSizes(thumbnail.Bounds().Dx(), thumbnail.Bounds().Dy())
 				hash, err := blurhash.Encode(int(xCom), int(yCom), thumbnail)
 				if err != nil {
 					reject.Invoke(err.Error())
@@ -96,9 +91,7 @@ func moulifyPhoto() js.Func {
 						"height":   imgDecode.Bounds().Dy(),
 						"blurhash": base64.StdEncoding.EncodeToString(b64Buf.Bytes()),
 						"xl":       nil,
-						"lg":       nil,
 						"md":       nil,
-						"sm":       nil,
 					},
 				)
 			}()
