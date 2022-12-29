@@ -8,6 +8,8 @@ import (
 	"encoding/base64"
 	"image/jpeg"
 	"math"
+	"strconv"
+	"strings"
 	"syscall/js"
 
 	"github.com/bbrks/go-blurhash"
@@ -55,6 +57,8 @@ func moulifyPhoto() js.Func {
 		js.CopyBytesToGo(photo, args[0])
 		pr := bytes.NewReader(photo)
 
+		sizes := strings.Split(args[1].String(), ":")
+
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
 			reject := args[1]
@@ -64,34 +68,62 @@ func moulifyPhoto() js.Func {
 					reject.Invoke(err.Error())
 				}
 
-				ratio := math.Min(32/float64(imgDecode.Bounds().Dx()), 32/float64(imgDecode.Bounds().Dy()))
-				thumbnail := imaging.Resize(imgDecode, int(float64(imgDecode.Bounds().Dx())*ratio), 0, imaging.Lanczos)
+				availbleSizes := internal.PhotoGetSizes(imgDecode.Bounds().Dx(), imgDecode.Bounds().Dy())
+				xlb := new(bytes.Buffer)
+				mdb := new(bytes.Buffer)
+				xsb := new(bytes.Buffer)
 
-				xCom, yCom := internal.PhotoGetComSizes(thumbnail.Bounds().Dx(), thumbnail.Bounds().Dy())
-				hash, err := blurhash.Encode(int(xCom), int(yCom), thumbnail)
-				if err != nil {
-					reject.Invoke(err.Error())
-				}
-				w := float64(thumbnail.Bounds().Dx()) * ratio
-				h := float64(thumbnail.Bounds().Dy()) * ratio
-				decodedB64, err := blurhash.Decode(hash, int(w), int(h), 1)
-				if err != nil {
-					reject.Invoke(err.Error())
-				}
+				for _, size := range sizes {
+					if size == "xl" {
+						s := strings.Split(availbleSizes["xl"], ":")
+						xlw, _ := strconv.Atoi(s[0])
+						xlh, _ := strconv.Atoi(s[1])
+						xl := imaging.Resize(imgDecode, xlw, xlh, imaging.Lanczos)
+						err = jpeg.Encode(xlb, xl, &jpeg.Options{Quality: 95})
+						if err != nil {
+							reject.Invoke(err.Error())
+						}
+					}
+					if size == "md" {
+						s := strings.Split(availbleSizes["md"], ":")
+						mdw, _ := strconv.Atoi(s[0])
+						mdh, _ := strconv.Atoi(s[1])
+						md := imaging.Resize(imgDecode, mdw, mdh, imaging.Lanczos)
+						err = jpeg.Encode(mdb, md, &jpeg.Options{Quality: 95})
+						if err != nil {
+							reject.Invoke(err.Error())
+						}
+					}
+					if size == "xs" {
+						ratio := math.Min(32/float64(imgDecode.Bounds().Dx()), 32/float64(imgDecode.Bounds().Dy()))
+						thumbnail := imaging.Resize(imgDecode, int(float64(imgDecode.Bounds().Dx())*ratio), 0, imaging.Lanczos)
 
-				b64Buf := new(bytes.Buffer)
-				err = jpeg.Encode(b64Buf, decodedB64, &jpeg.Options{Quality: 95})
-				if err != nil {
-					reject.Invoke(err.Error())
+						xCom, yCom := internal.PhotoGetComSizes(thumbnail.Bounds().Dx(), thumbnail.Bounds().Dy())
+						hash, err := blurhash.Encode(int(xCom), int(yCom), thumbnail)
+						if err != nil {
+							reject.Invoke(err.Error())
+						}
+						w := float64(thumbnail.Bounds().Dx()) * ratio
+						h := float64(thumbnail.Bounds().Dy()) * ratio
+						decodedB64, err := blurhash.Decode(hash, int(w), int(h), 1)
+						if err != nil {
+							reject.Invoke(err.Error())
+						}
+
+						err = jpeg.Encode(xsb, decodedB64, &jpeg.Options{Quality: 95})
+						if err != nil {
+							reject.Invoke(err.Error())
+						}
+					}
 				}
 
 				resolve.Invoke(
 					map[string]interface{}{
-						"width":    imgDecode.Bounds().Dx(),
-						"height":   imgDecode.Bounds().Dy(),
-						"blurhash": base64.StdEncoding.EncodeToString(b64Buf.Bytes()),
-						"xl":       nil,
-						"md":       nil,
+						"width":  imgDecode.Bounds().Dx(),
+						"height": imgDecode.Bounds().Dy(),
+						"xl":     base64.StdEncoding.EncodeToString(xlb.Bytes()),
+						"md":     base64.StdEncoding.EncodeToString(mdb.Bytes()),
+						"xs":     base64.StdEncoding.EncodeToString(xsb.Bytes()),
 					},
 				)
 			}()
