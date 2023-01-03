@@ -31,15 +31,16 @@ func moulifyContent() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
-			// reject := args[1]
+			reject := args[1]
+			errorObj := js.Global().Get("Error")
 
 			go func() {
-				layout, _ := internal.TemplatesFS.ReadFile("templates/layouts/main.gohtml")
-
-				// errr := js.Global().Get("Error").New(errors.New("something went wrong").Error())
+				layout, err := internal.TemplatesFS.ReadFile("templates/layouts/main.gohtml")
+				if err != nil {
+					reject.Invoke(errorObj.New(err.Error()))
+				}
 
 				resolve.Invoke(string(layout))
-				// reject.Invoke(errr)
 			}()
 
 			return nil
@@ -62,10 +63,11 @@ func moulifyPhoto() js.Func {
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
 			reject := args[1]
+			errorObj := js.Global().Get("Error")
 			go func() {
 				imgDecode, err := imaging.Decode(pr, imaging.AutoOrientation(true))
 				if err != nil {
-					reject.Invoke(err.Error())
+					reject.Invoke(errorObj.New(err.Error()))
 				}
 
 				availbleSizes := internal.PhotoGetSizes(imgDecode.Bounds().Dx(), imgDecode.Bounds().Dy())
@@ -81,7 +83,7 @@ func moulifyPhoto() js.Func {
 						xl := imaging.Resize(imgDecode, xlw, xlh, imaging.Lanczos)
 						err = jpeg.Encode(xlb, xl, &jpeg.Options{Quality: 95})
 						if err != nil {
-							reject.Invoke(err.Error())
+							reject.Invoke(errorObj.New(err.Error()))
 						}
 					}
 					if size == "md" {
@@ -91,7 +93,7 @@ func moulifyPhoto() js.Func {
 						md := imaging.Resize(imgDecode, mdw, mdh, imaging.Lanczos)
 						err = jpeg.Encode(mdb, md, &jpeg.Options{Quality: 95})
 						if err != nil {
-							reject.Invoke(err.Error())
+							reject.Invoke(errorObj.New(err.Error()))
 						}
 					}
 					if size == "xs" {
@@ -101,18 +103,18 @@ func moulifyPhoto() js.Func {
 						xCom, yCom := internal.PhotoGetComSizes(thumbnail.Bounds().Dx(), thumbnail.Bounds().Dy())
 						hash, err := blurhash.Encode(int(xCom), int(yCom), thumbnail)
 						if err != nil {
-							reject.Invoke(err.Error())
+							reject.Invoke(errorObj.New(err.Error()))
 						}
 						w := float64(thumbnail.Bounds().Dx()) * ratio
 						h := float64(thumbnail.Bounds().Dy()) * ratio
 						decodedB64, err := blurhash.Decode(hash, int(w), int(h), 1)
 						if err != nil {
-							reject.Invoke(err.Error())
+							reject.Invoke(errorObj.New(err.Error()))
 						}
 
 						err = jpeg.Encode(xsb, decodedB64, &jpeg.Options{Quality: 95})
 						if err != nil {
-							reject.Invoke(err.Error())
+							reject.Invoke(errorObj.New(err.Error()))
 						}
 					}
 				}
