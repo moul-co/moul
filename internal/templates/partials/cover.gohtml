@@ -1,13 +1,5 @@
 <section class="moul-cover">
-	<a href="#photo-{{ .Pid }}">
-		<picture>
-			<img
-				src=""
-				alt=""
-				class="lazy"
-				data-srcset="/photos/{{ .Pid }}/xl.jpg"
-				data-sizes="auto"
-			/>
-		</picture>
-	</a>
+	<moul-picture pid="{{ .Pid }}">
+		<img src="" />
+	</moul-picture>
 </section>
