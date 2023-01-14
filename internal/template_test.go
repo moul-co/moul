@@ -15,10 +15,10 @@ func TestContentRender(t *testing.T) {
 	}
 
 	if !strings.Contains(rendered, "Angkor archaeological park is known for lost ruins") {
-		t.Error("Couldn't render story cover")
+		t.Error("Couldn't render paragraph")
 	}
 
 	if !strings.Contains(rendered, "There are no post-processing done in all above photos") {
-		t.Error("Couldn't render story cover")
+		t.Error("Couldn't render blockquote")
 	}
 }

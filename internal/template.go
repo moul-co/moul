@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html"
 	"html/template"
-	"strings"
 
 	"github.com/tidwall/gjson"
 )
@@ -36,12 +35,12 @@ func RenderContent(content string) (string, error) {
 			case "p":
 				pNode := ""
 				for _, p := range node.Get("children").Array() {
-					pNode += html.EscapeString(p.String()) + "<br>"
+					pNode += html.EscapeString(p.String()) + " "
 				}
 				renderParagraph, err := render(
 					"paragraph",
 					map[string]interface{}{
-						"Paragraph": strings.TrimSuffix(pNode, "<br>")},
+						"Paragraph": pNode},
 				)
 				if err != nil {
 					return "", err
@@ -51,12 +50,12 @@ func RenderContent(content string) (string, error) {
 			case "blockquote":
 				blockquoteNode := ""
 				for _, b := range node.Get("children.0.children").Array() {
-					blockquoteNode += html.EscapeString(b.String()) + "<br>"
+					blockquoteNode += html.EscapeString(b.String()) + " "
 				}
 				blockqouteRender, err := render(
 					"blockquote",
 					map[string]interface{}{
-						"Blockquote": strings.TrimSuffix(blockquoteNode, "<br>")},
+						"Blockquote": blockquoteNode},
 				)
 				if err != nil {
 					return "", err
