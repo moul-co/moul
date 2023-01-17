@@ -20,6 +20,25 @@ func main() {
 				Aliases: []string{"d"},
 				Action:  actions.Dev,
 			},
+			{
+				Name:    "photo",
+				Aliases: []string{"p"},
+				Action:  actions.Photo,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "size",
+						Value: "md:xl",
+					},
+					&cli.StringFlag{
+						Name:  "in",
+						Value: "",
+					},
+					&cli.StringFlag{
+						Name:  "out",
+						Value: "",
+					},
+				},
+			},
 		},
 	}
 

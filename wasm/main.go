@@ -29,18 +29,20 @@ func main() {
 
 func moulifyContent() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		rawContent := args[0].String()
+
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
 			reject := args[1]
 			errorObj := js.Global().Get("Error")
 
 			go func() {
-				layout, err := internal.TemplatesFS.ReadFile("templates/layouts/main.gohtml")
+				rendered, err := internal.RenderContent(rawContent)
 				if err != nil {
 					reject.Invoke(errorObj.New(err.Error()))
 				}
 
-				resolve.Invoke(string(layout))
+				resolve.Invoke(rendered)
 			}()
 
 			return nil
