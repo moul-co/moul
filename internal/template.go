@@ -27,6 +27,22 @@ func RenderContent(content string) (string, error) {
 		rendered += coverRender
 	}
 
+	title := gjson.Get(content, `children.#(name=="title")`)
+	if title.Exists() {
+
+		titleNode := ""
+		for _, p := range title.Get("children.0.children").Array() {
+			titleNode += html.EscapeString(p.String()) + " "
+		}
+
+		titleRender, err := render("title", map[string]interface{}{
+			"Title": titleNode})
+		if err != nil {
+			return "", err
+		}
+		rendered += titleRender
+	}
+
 	children := gjson.Get(content, "children")
 	if children.Exists() {
 		for _, node := range children.Array() {
