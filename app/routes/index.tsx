@@ -37,7 +37,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 				story.cover = photos.find(
 					(p: Photo) => p.pid === coverExist?.children[0].attributes.pid
 				)
-				stories.push(story)
+				stories.unshift(story)
 			}
 		}
 	}
