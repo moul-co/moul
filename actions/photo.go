@@ -41,6 +41,14 @@ func Photo(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%v:%v\n%v", img.Bounds().Dx(), img.Bounds().Dy(), hash)
+
+	dbh, err := blurhash.Decode(hash, xs.Bounds().Dx(), xs.Bounds().Dy(), 2)
+	if err != nil {
+		return err
+	}
+
+	imaging.Save(dbh, outPath+"xs.jpeg", imaging.JPEGQuality(95))
+
+	fmt.Printf("%v:%v\n%v\n", img.Bounds().Dx(), img.Bounds().Dy(), hash)
 	return nil
 }
