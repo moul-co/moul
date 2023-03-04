@@ -15,11 +15,11 @@ func main() {
 		Usage:  "The minimalist publishing tool for photographers",
 		Action: actions.Moul,
 		Commands: []*cli.Command{
-			{
-				Name:    "dev",
-				Aliases: []string{"d"},
-				Action:  actions.Dev,
-			},
+			// {
+			// 	Name:    "dev",
+			// 	Aliases: []string{"d"},
+			// 	Action:  actions.Dev,
+			// },
 			{
 				Name:    "photo",
 				Aliases: []string{"p"},

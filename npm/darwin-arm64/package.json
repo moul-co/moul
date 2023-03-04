@@ -1,0 +1,18 @@
+{
+  "name": "@moul-co/darwin-arm64",
+  "version": "5.0.0-rc.1",
+  "description": "The minimalist publishing platform for photographers",
+  "repository": "https://github.com/moul-co/moul",
+  "license": "MIT",
+  "preferUnplugged": true,
+  "directories": {
+    "bin": "bin"
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "author": "Phearak S. Tha <rak@moul.co> (https://moul.co)"
+}
