@@ -32,10 +32,10 @@ func Photo(ctx *cli.Context) error {
 		xlw, _ := strconv.Atoi(s[0])
 		xlh, _ := strconv.Atoi(s[1])
 		file := imaging.Resize(img, xlw, xlh, imaging.Lanczos)
-		imaging.Save(file, outPath+fmt.Sprintf("%v.jpeg", i), imaging.JPEGQuality(95))
+		imaging.Save(file, filepath.Join(outPath, fmt.Sprintf("%v.jpeg", i)), imaging.JPEGQuality(95))
 	}
 
-	xs, err := imaging.Open(outPath+"xs.jpeg", imaging.AutoOrientation(true))
+	xs, err := imaging.Open(filepath.Join(outPath, "xs.jpeg"), imaging.AutoOrientation(true))
 	xCom, yCom := internal.PhotoGetComSizes(xs.Bounds().Dx(), xs.Bounds().Dy())
 	hash, err := blurhash.Encode(int(xCom), int(yCom), xs)
 	if err != nil {
@@ -47,7 +47,7 @@ func Photo(ctx *cli.Context) error {
 		return err
 	}
 
-	imaging.Save(dbh, outPath+"xs.jpeg", imaging.JPEGQuality(95))
+	imaging.Save(dbh, filepath.Join(outPath, "xs.jpeg"), imaging.JPEGQuality(95))
 
 	fmt.Printf("%v:%v\n%v\n", img.Bounds().Dx(), img.Bounds().Dy(), hash)
 	return nil
