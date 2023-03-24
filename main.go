@@ -37,6 +37,10 @@ func main() {
 						Name:  "out",
 						Value: "",
 					},
+					&cli.StringFlag{
+						Name:  "hash",
+						Value: "thumbhash",
+					},
 				},
 			},
 		},
