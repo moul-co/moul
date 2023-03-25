@@ -8,3 +8,4 @@ tmp/*
 node_modules
 package-lock.json
 testdata/*
+dist/

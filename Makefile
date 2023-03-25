@@ -9,6 +9,10 @@ moul:
 css:
 	npm run dev:css
 
+tag:
+	git tag ${VERSION} && git push origin ${VERSION}
+	
+
 build_all:
 	make build_darwin_arm64 build_darwin_x64 build_wasm build_linux_x64 build_linux_arm64
 
