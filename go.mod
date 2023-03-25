@@ -7,6 +7,7 @@ require (
 	github.com/catcombo/go-staticfiles v0.4.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/evanw/esbuild v0.16.8
+	github.com/galdor/go-thumbhash v1.0.0
 	github.com/gofiber/fiber/v2 v2.40.1
 	github.com/gofiber/template v1.7.3
 	github.com/otiai10/copy v1.9.0
@@ -17,7 +18,6 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/galdor/go-thumbhash v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.13 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect

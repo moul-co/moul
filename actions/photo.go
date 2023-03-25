@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"image"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -20,6 +21,7 @@ func Photo(ctx *cli.Context) error {
 	inFile := ctx.String("in")
 	outPath := ctx.String("out")
 	hash := ctx.String("hash")
+	avatar := ctx.String("avatar")
 
 	if filepath.Ext(outPath) != "" {
 		return errors.New("`--out` required directory")
@@ -37,12 +39,25 @@ func Photo(ctx *cli.Context) error {
 		return err
 	}
 
-	sizes := internal.PhotoGetSizes(img.Bounds().Dx(), img.Bounds().Dy())
+	var sizes map[string]string
+	if avatar == "true" {
+		sizes = internal.PhotoGetAvatarSizes(img.Bounds().Dx(), img.Bounds().Dy())
+	} else {
+		sizes = internal.PhotoGetSizes(img.Bounds().Dx(), img.Bounds().Dy())
+	}
+
 	for i, size := range sizes {
 		s := strings.Split(size, ":")
-		xlw, _ := strconv.Atoi(s[0])
-		xlh, _ := strconv.Atoi(s[1])
-		file := imaging.Resize(img, xlw, xlh, imaging.Lanczos)
+		w, _ := strconv.Atoi(s[0])
+		h, _ := strconv.Atoi(s[1])
+		var file *image.NRGBA
+
+		if avatar == "true" {
+			file = imaging.Fill(img, w, h, imaging.Center, imaging.Lanczos)
+		} else {
+			file = imaging.Resize(img, w, h, imaging.Lanczos)
+		}
+
 		imaging.Save(file, filepath.Join(outPath, fmt.Sprintf("%v.jpeg", i)), imaging.JPEGQuality(95))
 	}
 

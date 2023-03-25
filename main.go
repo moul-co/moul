@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,6 +9,8 @@ import (
 
 	"github.com/moul-co/moul/actions"
 )
+
+var version string
 
 func main() {
 	app := &cli.App{
@@ -41,6 +44,18 @@ func main() {
 						Name:  "hash",
 						Value: "thumbhash",
 					},
+					&cli.StringFlag{
+						Name:  "avatar",
+						Value: "false",
+					},
+				},
+			},
+			{
+				Name:    "version",
+				Aliases: []string{"v"},
+				Action: func(ctx *cli.Context) error {
+					fmt.Println(version)
+					return nil
 				},
 			},
 		},
