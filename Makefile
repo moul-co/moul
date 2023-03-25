@@ -9,7 +9,7 @@ moul:
 css:
 	npm run dev:css
 
-tag:
+tag_and_push:
 	git tag ${VERSION} && git push origin ${VERSION}
 	
 
