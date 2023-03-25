@@ -51,6 +51,27 @@ func main() {
 				},
 			},
 			{
+				Name:    "decode",
+				Aliases: []string{"d"},
+				Action:  actions.Decode,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "blurhash",
+						Value: "",
+					},
+					&cli.StringFlag{
+						Name:  "thumbhash",
+						Value: "",
+					},
+					&cli.Float64Flag{
+						Name: "width",
+					},
+					&cli.Float64Flag{
+						Name: "height",
+					},
+				},
+			},
+			{
 				Name:    "version",
 				Aliases: []string{"v"},
 				Action: func(ctx *cli.Context) error {
