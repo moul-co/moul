@@ -13,7 +13,7 @@ tag_and_push:
 	git tag ${VERSION} && git push origin ${VERSION}
 	
 release:
-	goreleaser release
+	goreleaser release --clean
 
 build_all:
 	make build_darwin_arm64 build_darwin_x64 build_wasm build_linux_x64 build_linux_arm64
