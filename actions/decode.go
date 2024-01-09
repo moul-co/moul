@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
-	"image/jpeg"
+	"image/png"
 	"math"
 
 	"github.com/bbrks/go-blurhash"
@@ -39,17 +39,17 @@ func Decode(ctx *cli.Context) error {
 			return err
 		}
 
-		var cfg thumbhash.DecodingCfg
-
-		cfg.SaturationBoost = boost
-		img, err = thumbhash.DecodeImageWithCfg(hash, cfg)
+		img, err = thumbhash.DecodeImageWithCfg(hash, thumbhash.DecodingCfg{
+			SaturationBoost: boost,
+			BaseSize:        100,
+		})
 		if err != nil {
 			return err
 		}
 	}
 
-	jpeg.Encode(bf, img, &jpeg.Options{Quality: 95})
-	fmt.Printf("data:image/jpeg;charset=utf-8;base64,%v", base64.StdEncoding.EncodeToString(bf.Bytes()))
+	png.Encode(bf, img)
+	fmt.Printf("data:image/png;base64,%v", base64.StdEncoding.EncodeToString(bf.Bytes()))
 
 	return nil
 }
