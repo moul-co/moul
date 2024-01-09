@@ -32,6 +32,7 @@ func Decode(ctx *cli.Context) error {
 	}
 
 	th := ctx.String("thumbhash")
+	boost := ctx.Float64("boost")
 	if th != "" {
 		hash, err := base64.StdEncoding.DecodeString(th)
 		if err != nil {
@@ -39,7 +40,8 @@ func Decode(ctx *cli.Context) error {
 		}
 
 		var cfg thumbhash.DecodingCfg
-		cfg.SaturationBoost = 1.5
+
+		cfg.SaturationBoost = boost
 		img, err = thumbhash.DecodeImageWithCfg(hash, cfg)
 		if err != nil {
 			return err

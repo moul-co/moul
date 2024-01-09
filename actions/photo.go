@@ -80,9 +80,10 @@ func Photo(ctx *cli.Context) error {
 		fmt.Printf("%v:%v\n%v\n", img.Bounds().Dx(), img.Bounds().Dy(), bh)
 	} else {
 		th := thumbhash.EncodeImage(xs)
+		boost := ctx.Float64("boost")
 
 		var cfg thumbhash.DecodingCfg
-		cfg.SaturationBoost = 1.5
+		cfg.SaturationBoost = boost
 
 		dth, err := thumbhash.DecodeImageWithCfg(th, cfg)
 		if err != nil {

@@ -69,6 +69,24 @@ func main() {
 					&cli.Float64Flag{
 						Name: "height",
 					},
+					&cli.Float64Flag{
+						Name: "boost",
+					},
+				},
+			},
+			{
+				Name:    "encode",
+				Aliases: []string{"e"},
+				Action:  actions.Encode,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "in",
+						Value: "",
+					},
+					&cli.StringFlag{
+						Name:  "thumbhash",
+						Value: "",
+					},
 				},
 			},
 			{
